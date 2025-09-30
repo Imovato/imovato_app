@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import '../features/auth/presentation/pages/login_page.dart';
+import '../features/explore/presentation/pages/explore_page.dart';
 import '../features/onboarding/presentation/pages/welcome_page.dart';
 
 class Routes {
   static const welcome = '/';
-  static const loginMorador = '/login-morador';
+  static const loginMorador = '/login';
   static const alugar = '/alugar';
 }
 
 final Map<String, WidgetBuilder> appRoutes = {
   Routes.welcome: (_) => const WelcomePage(),
-  // Provisório até você criar as telas reais:
-  Routes.loginMorador: (_) => const _StubPage(title: 'Login Morador'),
-  Routes.alugar: (_) => const _StubPage(title: 'Explorar Imóveis'),
+  Routes.loginMorador: (_) => const LoginPage(),
+  Routes.alugar: (_) => const ExplorePage(),
 };
 
 class _StubPage extends StatelessWidget {

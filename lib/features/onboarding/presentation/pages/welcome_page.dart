@@ -5,7 +5,8 @@ class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   final String TEXTO_BOAS_VINDAS = 'Olá, Boas Vindas!';
-  final String TEXTO_INICIAL = 'Faça login para o painel administrativo ou alugue a sua nova casa com a Imovato!';
+  final String TEXTO_INICIAL =
+      'Faça login para o painel administrativo ou alugue a sua nova casa com a Imovato!';
   final String LABEL_LOGIN = 'Fazer Login';
   final String LABEL_ALUGAR = 'Quero Alugar';
 
@@ -39,7 +40,7 @@ class WelcomePage extends StatelessWidget {
               child: Text(
                 TEXTO_BOAS_VINDAS,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Colors.black54,
+                      color: scheme.onSurface,
                     ),
               ),
             ),
