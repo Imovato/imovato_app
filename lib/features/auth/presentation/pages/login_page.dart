@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     if (!mounted) return;
 
     if (loginOk) {
-      // navega pra próxima tela (ajuste a rota)
+      //TODO: navegar para a tela inicial do app com a lista de vários imóveis.
       Navigator.pushReplacementNamed(context, Routes.alugar);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,13 +55,14 @@ class _LoginPageState extends State<LoginPage> {
             key: _formKey,
             child: ListView(
               children: [
+
                 // título
                 Text(
                   'Bem-vindo de volta 👋',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: scheme.onSurface,
-                    fontWeight: FontWeight.w700,
-                  ),
+                        color: scheme.onSurface,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -81,8 +82,10 @@ class _LoginPageState extends State<LoginPage> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Informe seu e-mail';
-                    final ok = RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim());
+                    if (v == null || v.trim().isEmpty)
+                      return 'Informe seu e-mail';
+                    final ok =
+                        RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim());
                     if (!ok) return 'E-mail inválido';
                     return null;
                   },
@@ -100,7 +103,8 @@ class _LoginPageState extends State<LoginPage> {
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       onPressed: () => setState(() => _obscure = !_obscure),
-                      icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                          _obscure ? Icons.visibility : Icons.visibility_off),
                     ),
                   ),
                   validator: (v) {
@@ -119,7 +123,9 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: _controller.loading ? null : _submit,
                       child: _controller.loading
                           ? const SizedBox(
-                          height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2))
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2))
                           : const Text('Entrar'),
                     );
                   },
@@ -127,12 +133,12 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 12),
 
-                // link secundário (opcional)
+                //botão cadastre-se
                 TextButton(
                   onPressed: () {
-                    // TODO: ir para "esqueci minha senha"
+                    Navigator.pushNamed(context, Routes.cadastro); // defina a rota '/cadastro'
                   },
-                  child: const Text('Esqueci minha senha'),
+                  child: const Text('Cadastre-se'),
                 ),
               ],
             ),

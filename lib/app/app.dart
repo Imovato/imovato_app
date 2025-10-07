@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../features/explore/application/explore_controller.dart';
 import 'router.dart';
 import 'theme/theme.dart';
 
@@ -7,14 +9,21 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Imovato',
-      debugShowCheckedModeBanner: false,
-      theme: buildLightTheme(),
-      // darkTheme: buildDarkTheme(),
-      themeMode: ThemeMode.system,
-      initialRoute: Routes.welcome,
-      routes: appRoutes,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ExploreController>(
+          create: (_) => ExploreController(initialValor: 1000),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Imovato',
+        debugShowCheckedModeBanner: false,
+        theme: buildLightTheme(),
+// darkTheme: buildDarkTheme(),
+        themeMode: ThemeMode.system,
+        initialRoute: Routes.welcome,
+        routes: appRoutes,
+      ),
     );
   }
 }

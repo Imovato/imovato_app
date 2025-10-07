@@ -7,10 +7,9 @@ class LoginController extends ChangeNotifier {
     loading = true;
     notifyListeners();
     try {
-      // TODO: aqui você chama seu AuthService (em core/services) ou repository
+      // TODO: implementar chamada no endpoint de auth
       await Future.delayed(const Duration(milliseconds: 900));
 
-      // demo: qualquer senha "123456" entra, o resto falha
       final ok = password == '123456';
       return ok;
     } catch (_) {

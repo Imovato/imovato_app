@@ -1,7 +1,73 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/utils/br_currency.dart';
+import '../../application/explore_controller.dart';
+import '../widgets/filtro_busca_sheet.dart';
+import '../widgets/localizacao_sheet.dart';
+import '../widgets/tipo_moradia_sheet.dart';
+import '../widgets/valor_total_sheet.dart';
+import 'package:provider/provider.dart';
+
 class ExplorePage extends StatelessWidget {
   const ExplorePage({super.key});
+
+  Future<void> _openValorTotalModal(BuildContext context) async {
+    final controller = context.read<ExploreController>();
+    final selected = await showModalBottomSheet<double>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) =>
+          ValorTotalSheet(initialValue: controller.valorSelecionado),
+    );
+    if (selected != null && context.mounted) {
+      controller.setValor(selected);
+    }
+  }
+
+  Future<void> _openTipoMoradiaModal(BuildContext context) async {
+    final controller = context.read<ExploreController>();
+
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => TipoMoradiaSheet(initialValue: controller.tipoMoradia),
+    );
+
+    if (selected != null && context.mounted) {
+      controller.setTipoMoradia(selected);
+    }
+  }
+
+  Future<void> _openFiltroModal(BuildContext context) async {
+    final result = await showModalBottomSheet<FiltroBuscaResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const FiltroBuscaSheet(),
+    );
+
+    if (result != null && context.mounted) {
+      debugPrint(
+        'FILTROS -> quartos=${result.numQuartos} | tipo=${result.tipoImovel} | pet=${result.petFriendly} | '
+            'fumantes=${result.fumantes} | compartilhando=${result.pessoasCompartilhando}',
+      );
+    }
+  }
+
+  Future<void> _openLocalizacaoModal(BuildContext context) async {
+    final c = context.read<ExploreController>();
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => LocalizacaoSheet(initialValue: c.cidade),
+    );
+    if (selected != null && context.mounted) {
+      c.setCidade(selected);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -9,6 +75,8 @@ class ExplorePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: true,
+        leading: const BackButton(),
         actions: const [SizedBox(width: 40)],
         title: Container(
           height: 42,
@@ -20,18 +88,53 @@ class ExplorePage extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.apartment, color: Colors.black54, size: 20),
+              const Icon(
+                Icons.apartment,
+                color: Colors.black54,
+                size: 20,
+              ),
               const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'Buscar apartamentos\nSão Paulo, SP',
-                  style: TextStyle(fontSize: 13, color: Colors.black87),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Buscar apartamentos',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Consumer<ExploreController>(
+                      builder: (context, c, _) => GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => _openLocalizacaoModal(context),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            c.cidade,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.black87,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               IconButton(
-                // color: Color(0xFFD10B58),
-                onPressed: () {},
-                icon: const Icon(Icons.tune, color: Colors.black54),
+                onPressed: () => _openFiltroModal(context),
+                icon: const Icon(
+                  Icons.tune,
+                  color: Colors.black54,
+                ),
               ),
             ],
           ),
@@ -40,7 +143,7 @@ class ExplorePage extends StatelessWidget {
         elevation: 0,
       ),
       body: Container(
-        color: scheme.primary, // nosso rosa
+        color: scheme.primary,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
           children: [
@@ -54,51 +157,76 @@ class ExplorePage extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Encontre o apartamento perfeito, escolha quanto tempo quer morar e faça a locação online',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white70,
-                  ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.white70),
             ),
             const SizedBox(height: 24),
-
-            // Card de filtros
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               elevation: 2,
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 12,
+                ),
                 child: Column(
                   children: [
-                    // Tipo de moradia
-                    ListTile(
-                      leading: Icon(Icons.home_outlined, color: scheme.primary),
-                      title: const Text(
-                        'TIPO DE MORADIA',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 13),
+                    Consumer<ExploreController>(
+                      builder: (context, c, _) => ListTile(
+                        leading: Icon(
+                          Icons.home_outlined,
+                          color: scheme.primary,
+                        ),
+                        title: const Text(
+                          'TIPO DE MORADIA',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        subtitle: Text(
+                          c.tipoMoradiaLabel,
+                          style: TextStyle(
+                              color: scheme.primary,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _openTipoMoradiaModal(context),
                       ),
-                      subtitle: const Text('Escolha uma opção'),
-                      onTap: () {},
                     ),
                     const Divider(height: 1),
-                    // Valor total
-                    ListTile(
-                      leading: Icon(Icons.attach_money, color: scheme.primary),
-                      title: const Text(
-                        'VALOR TOTAL',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 13),
+                    Consumer<ExploreController>(
+                      builder: (context, c, _) => ListTile(
+                        leading: Icon(
+                          Icons.attach_money,
+                          color: scheme.primary,
+                        ),
+                        title: const Text(
+                          'VALOR TOTAL',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        subtitle: Text(
+                          formatBRL0(c.valorSelecionado),
+                          style: TextStyle(
+                              color: scheme.primary,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _openValorTotalModal(context),
                       ),
-                      subtitle: const Text('Escolha um limite'),
-                      onTap: () {},
                     ),
                     const SizedBox(height: 16),
-
-                    // Botão buscar
                     FilledButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        /* TODO: chamar repositório / buscar */
+                      },
                       icon: const Icon(Icons.search),
                       label: const Text('Buscar'),
                       style: FilledButton.styleFrom(
