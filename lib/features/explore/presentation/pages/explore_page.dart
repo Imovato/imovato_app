@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/router.dart';
 import '../../../../app/utils/br_currency.dart';
+import '../../../../shared/widgets/appBar.dart';
+import '../../../../shared/widgets/chat_fab.dart';
 import '../../application/explore_controller.dart';
 import '../widgets/filtro_busca_sheet.dart';
 import '../widgets/localizacao_sheet.dart';
@@ -74,74 +77,9 @@ class ExplorePage extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        leading: const BackButton(),
-        actions: const [SizedBox(width: 40)],
-        title: Container(
-          height: 42,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.apartment,
-                color: Colors.black54,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Buscar apartamentos',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.black87,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Consumer<ExploreController>(
-                      builder: (context, c, _) => GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => _openLocalizacaoModal(context),
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(
-                            c.cidade,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.black87,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: () => _openFiltroModal(context),
-                icon: const Icon(
-                  Icons.tune,
-                  color: Colors.black54,
-                ),
-              ),
-            ],
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
+      appBar: ExploreSearchAppBar(
+          onTapLocation: () => _openLocalizacaoModal(context),
+          onTapFilter: () => _openFiltroModal(context)),
       body: Container(
         color: scheme.primary,
         child: ListView(
@@ -224,9 +162,8 @@ class ExplorePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     FilledButton.icon(
-                      onPressed: () {
-                        /* TODO: chamar repositório / buscar */
-                      },
+                      onPressed: () =>
+                        Navigator.pushNamed(context, Routes.buscar),
                       icon: const Icon(Icons.search),
                       label: const Text('Buscar'),
                       style: FilledButton.styleFrom(
@@ -242,13 +179,10 @@ class ExplorePage extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: scheme.inversePrimary,
-        onPressed: () {},
-        child: const Icon(
-          Icons.chat_bubble_outline,
-          color: Color(0xFFD10B58),
-        ),
+      floatingActionButton: ChatFab(
+        onPressed: () {
+        // TODO: abrir chat/atendimento
+        },
       ),
     );
   }

@@ -6,6 +6,6 @@ void main() {
   runApp(const App());
 }
 
-//TODO: criar tela inicial com os imóveis.
-//TODO: pensar e criar a tela de checkout e pagamentos.
 //TODO: trocar os textos iniciais e das labels para ficar diferente.
+//TODO: Remover excesso de iformação na tela de detalhes dos imóveis.
+//TODO: Validar se o usuário está logado ao tentar pagar.

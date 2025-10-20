@@ -23,6 +23,7 @@ class App extends StatelessWidget {
         themeMode: ThemeMode.system,
         initialRoute: Routes.welcome,
         routes: appRoutes,
+        onGenerateRoute: onGenerateRoute,
       ),
     );
   }
