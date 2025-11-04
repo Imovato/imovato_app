@@ -6,7 +6,7 @@ class WelcomePage extends StatelessWidget {
 
   final String TEXTO_BOAS_VINDAS = 'Olá, Boas Vindas!';
   final String TEXTO_INICIAL =
-      'Faça login para o painel administrativo ou alugue a sua nova casa com a Imovato!';
+      'Acesse o painel ou alugue sua nova casa de forma simples e rápida com a Imovato!';
   final String LABEL_LOGIN = 'Fazer Login';
   final String LABEL_ALUGAR = 'Quero Alugar';
 

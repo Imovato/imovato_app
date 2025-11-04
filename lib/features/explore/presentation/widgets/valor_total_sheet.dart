@@ -58,7 +58,7 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
                 decoration: BoxDecoration(color: scheme.primary.withOpacity(.08), borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.all(12),
                 child: const Text(
-                  'O valor total já inclui: aluguel, condomínio, IPTU, internet, seguro residencial, atendimento e manutenções.',
+                  'O valor total já inclui aluguel, condomínio, IPTU, internet, seguro residencial, suporte e manutenções.',
                 ),
               ),
               const SizedBox(height: 16),

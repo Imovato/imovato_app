@@ -12,6 +12,7 @@ import '../../domain/property.dart';
 
 class PropertyDetailsPage extends StatefulWidget {
   final Property property;
+
   const PropertyDetailsPage({super.key, required this.property});
 
   @override
@@ -73,7 +74,9 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
         onTapFilter: () => _openFiltroModal(context),
         showBack: true,
       ),
-      floatingActionButton: ChatFab(onPressed: () {/* abrir chat */}),
+      floatingActionButton: ChatFab(onPressed: () {
+        /* abrir chat */
+      }),
       bottomNavigationBar: _BottomBar(property: p),
       body: ListView(
         children: [
@@ -93,7 +96,9 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                   ),
                 ),
                 Positioned(
-                  bottom: 10, left: 0, right: 0,
+                  bottom: 10,
+                  left: 0,
+                  right: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(p.fotos.length, (i) {
@@ -118,11 +123,13 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
           // Título + detalhes
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
-            child: Text(p.titulo, style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+            child: Text(p.titulo,
+                style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(p.detalhes, style: text.bodyMedium?.copyWith(color: Colors.black54)),
+            child: Text(p.detalhes,
+                style: text.bodyMedium?.copyWith(color: Colors.black54)),
           ),
           const SizedBox(height: 8),
 
@@ -145,14 +152,32 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Column(
               children: [
-                _SpecTile(icon: Icons.apartment, title: 'Apartamento', subtitle: 'Inteiro'),
+                _SpecTile(
+                    icon: Icons.apartment,
+                    title: 'Apartamento',
+                    subtitle: 'Inteiro'),
                 _SpecTile(icon: Icons.square_foot, title: '60m²'),
                 _SpecTile(icon: Icons.bed_outlined, title: '1 quarto'),
                 _SpecTile(icon: Icons.chair_outlined, title: 'Mobiliado'),
-                _SpecTile(icon: Icons.smoking_rooms, title: 'Fumar', subtitle: 'Não permitido', subtitleColor: Colors.pink.shade400),
-                _SpecTile(icon: Icons.local_parking_outlined, title: 'Garagem', subtitle: '1 vaga disponível'),
-                _SpecTile(icon: Icons.pets_outlined, title: 'Pets', subtitle: 'Não são permitidos', subtitleColor: Colors.pink.shade400),
-                _SpecTile(icon: Icons.grid_on, title: 'Tela de proteção', subtitle: 'Não instalada', subtitleColor: Colors.pink.shade400),
+                _SpecTile(
+                    icon: Icons.smoking_rooms,
+                    title: 'Fumar',
+                    subtitle: 'Não permitido',
+                    subtitleColor: Colors.pink.shade400),
+                _SpecTile(
+                    icon: Icons.local_parking_outlined,
+                    title: 'Garagem',
+                    subtitle: '1 vaga disponível'),
+                _SpecTile(
+                    icon: Icons.pets_outlined,
+                    title: 'Pets',
+                    subtitle: 'Não são permitidos',
+                    subtitleColor: Colors.pink.shade400),
+                _SpecTile(
+                    icon: Icons.grid_on,
+                    title: 'Tela de proteção',
+                    subtitle: 'Não instalada',
+                    subtitleColor: Colors.pink.shade400),
               ],
             ),
           ),
@@ -164,25 +189,34 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Text('Itens do apartamento',
-                style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: scheme.onSurface)),
+                style: text.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800, color: scheme.onSurface)),
           ),
-          _RoomItems(title: 'Quarto A', items: const ['Armário', 'Cama', 'Sofá']),
-          _RoomItems(title: 'Cozinha', items: const ['Geladeira', 'Microondas', 'Armário']),
-          _RoomItems(title: 'Banheiro 1', items: const ['Chuveiro', 'Armário', 'Espelho']),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: OutlinedButton.icon(
-              onPressed: () {/* ver todos */},
-              icon: const Icon(Icons.open_in_new),
-              label: const Text('Todos os itens'),
-            ),
-          ),
+          _RoomItems(
+              title: 'Quarto A', items: const ['Armário', 'Cama', 'Sofá']),
+          _RoomItems(
+              title: 'Cozinha',
+              items: const ['Geladeira', 'Microondas', 'Armário']),
+          _RoomItems(
+              title: 'Banheiro 1',
+              items: const ['Chuveiro', 'Armário', 'Espelho']),
+
+          // TODOS OS ITENS
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          //   child: OutlinedButton.icon(
+          //     onPressed: () {/* ver todos */},
+          //     icon: const Icon(Icons.open_in_new),
+          //     label: const Text('Todos os itens'),
+          //   ),
+          // ),
 
           // Comodidades no condomínio
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             child: Text('Comodidades no condomínio',
-                style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: scheme.onSurface)),
+                style: text.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800, color: scheme.onSurface)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -197,75 +231,81 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               ],
             ),
           ),
+
           const SizedBox(height: 12), // espaço pro bottom bar
-          // --- Descrição (texto livre com limite) ---
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              'Descrição',
-              style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: scheme.onSurface),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextField(
-              controller: _descCtrl,
-              maxLength: _descLimit,
-              minLines: 3,
-              maxLines: 6,
-              decoration: const InputDecoration(
-                hintText: 'Escreva aqui uma descrição do imóvel (máx. 300 caracteres)',
-                border: OutlineInputBorder(),
-                counterText: '', // remove contador padrão (deixa só o limite)
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Align(
-              alignment: Alignment.centerRight,
+
+          // --- Descrição (somente texto) ---
+          if ((p.descricao?.trim().isNotEmpty ?? false)) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
               child: Text(
-                '${_descCtrl.text.length}/$_descLimit',
-                style: text.bodySmall?.copyWith(color: Colors.black54),
+                'Descrição',
+                style: text.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: scheme.onSurface,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Text(
+                p.descricao!.trim(),
+                style: text.bodyMedium
+                    ?.copyWith(color: Colors.black87, height: 1.4),
+              ),
+            ),
+          ] else ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              child: Text(
+                'O proprietário não adicionou uma descrição.',
+                style: text.bodyMedium?.copyWith(
+                  color: Colors.black54,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ],
+
+          // Periodo minimo de permanencia no imovel
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16 + 56),
+            // espaço extra pro FAB
+            child: Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Período de Locação',
+                        style: text.titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_month),
+                        const SizedBox(width: 8),
+                        Expanded(
+                            child: Text(
+                                '$_minPeriodo ${_minPeriodo == 1 ? 'mês' : 'meses'}')),
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline),
+                          onPressed: _minPeriodo > 1
+                              ? () => setState(() => _minPeriodo--)
+                              : null,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add_circle_outline),
+                          onPressed: () => setState(() => _minPeriodo++),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-
-// --- Período mínimo de locação ---
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-            child: Text(
-              'Período De Locação',
-              style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: scheme.onSurface),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_month, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: DropdownButtonFormField<int>(
-                    value: _minPeriodo,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    ),
-                    items: const [1, 2, 3, 6, 12]
-                        .map((m) => DropdownMenuItem(
-                      value: m,
-                      child: Text(m == 1 ? '1 mês' : '$m meses'),
-                    ))
-                        .toList(),
-                    onChanged: (v) => setState(() => _minPeriodo = v ?? 1),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
         ],
       ),
     );
@@ -277,6 +317,7 @@ class _SpecTile extends StatelessWidget {
   final String title;
   final String? subtitle;
   final Color? subtitleColor;
+
   const _SpecTile({
     required this.icon,
     required this.title,
@@ -292,7 +333,8 @@ class _SpecTile extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(
-        width: 40, height: 40,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(8),
@@ -300,10 +342,13 @@ class _SpecTile extends StatelessWidget {
         child: Icon(icon, color: Colors.black87),
       ),
       title: Text(title, style: text.titleMedium),
-      subtitle: subtitle == null ? null : Text(
-        subtitle!,
-        style: text.bodySmall?.copyWith(color: subtitleColor ?? Colors.black54),
-      ),
+      subtitle: subtitle == null
+          ? null
+          : Text(
+              subtitle!,
+              style: text.bodySmall
+                  ?.copyWith(color: subtitleColor ?? Colors.black54),
+            ),
     );
   }
 }
@@ -311,6 +356,7 @@ class _SpecTile extends StatelessWidget {
 class _RoomItems extends StatelessWidget {
   final String title;
   final List<String> items;
+
   const _RoomItems({required this.title, required this.items});
 
   @override
@@ -331,7 +377,9 @@ class _RoomItems extends StatelessWidget {
               text: TextSpan(
                 style: text.bodyMedium?.copyWith(color: Colors.black87),
                 children: [
-                  TextSpan(text: '$title\n', style: const TextStyle(fontWeight: FontWeight.w700)),
+                  TextSpan(
+                      text: '$title\n',
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
                   TextSpan(text: items.join(', ')),
                 ],
               ),
@@ -345,7 +393,9 @@ class _RoomItems extends StatelessWidget {
 
 class _AmenityRow extends StatelessWidget {
   final String label;
+
   const _AmenityRow({required this.label});
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -364,6 +414,7 @@ class _AmenityRow extends StatelessWidget {
 
 class _BottomBar extends StatelessWidget {
   final Property property;
+
   const _BottomBar({required this.property});
 
   @override
@@ -405,8 +456,8 @@ class _BottomBar extends StatelessWidget {
                     onPressed: () {
                       Navigator.pushNamed(
                         context,
-                        Routes.checkout,           // rota do checkout
-                        arguments: property,       // passa o imóvel
+                        Routes.checkout, // rota do checkout
+                        arguments: property, // passa o imóvel
                       );
                     },
                     style: FilledButton.styleFrom(
@@ -423,4 +474,3 @@ class _BottomBar extends StatelessWidget {
     );
   }
 }
-

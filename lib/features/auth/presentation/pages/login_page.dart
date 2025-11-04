@@ -66,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Acesse sua conta para continuar',
+                  'Acesse a sua conta para continuar.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 24),

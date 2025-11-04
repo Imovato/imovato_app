@@ -54,7 +54,7 @@ class ExplorePage extends StatelessWidget {
     if (result != null && context.mounted) {
       debugPrint(
         'FILTROS -> quartos=${result.numQuartos} | tipo=${result.tipoImovel} | pet=${result.petFriendly} | '
-            'fumantes=${result.fumantes} | compartilhando=${result.pessoasCompartilhando}',
+        'fumantes=${result.fumantes} | compartilhando=${result.pessoasCompartilhando}',
       );
     }
   }
@@ -86,7 +86,7 @@ class ExplorePage extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
           children: [
             Text(
-              'Aluguel flexível,\ncom tudo pronto para morar',
+              'Seu lar pronto, do seu jeito!',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -94,7 +94,7 @@ class ExplorePage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Encontre o apartamento perfeito, escolha quanto tempo quer morar e faça a locação online',
+              'Descubra o apartamento perfeito, escolha por quanto tempo quer chamar de lar e alugue online com a Imovato.',
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
@@ -163,7 +163,7 @@ class ExplorePage extends StatelessWidget {
                     const SizedBox(height: 16),
                     FilledButton.icon(
                       onPressed: () =>
-                        Navigator.pushNamed(context, Routes.buscar),
+                          Navigator.pushNamed(context, Routes.buscar),
                       icon: const Icon(Icons.search),
                       label: const Text('Buscar'),
                       style: FilledButton.styleFrom(
@@ -181,7 +181,7 @@ class ExplorePage extends StatelessWidget {
       ),
       floatingActionButton: ChatFab(
         onPressed: () {
-        // TODO: abrir chat/atendimento
+          // TODO: abrir chat/atendimento
         },
       ),
     );
