@@ -24,7 +24,7 @@ ThemeData buildLightTheme() {
       ),
     ),
     scaffoldBackgroundColor: const Color(0xFFF2F2F2),
-  );
+  ); //teste commit
 }
 
 ThemeData buildDarkTheme() {
