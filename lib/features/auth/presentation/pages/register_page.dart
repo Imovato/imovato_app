@@ -58,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
       cpf: _cpfCtrl.text.replaceAll(RegExp(r'\D'), ''),
       email: _emailCtrl.text.trim(),
       name: _nameCtrl.text.trim(),
-      type: _type,
+      type: 'ROLE_GUEST',
     );
 
     if (!mounted) return;
@@ -177,38 +177,38 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Tipo de usuário (strings, sem enum/DTO)
-                Text('Tipo de usuário',
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700)),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    ChoiceChip(
-                      label: const Text('Hóspede'),
-                      selected: _type == 'ROLE_GUEST',
-                      onSelected: (sel) =>
-                      sel ? setState(() => _type = 'ROLE_GUEST') : null,
-                      selectedColor: scheme.primary,
-                      labelStyle: TextStyle(
-                        color: _type == 'ROLE_GUEST' ? scheme.onPrimary : null,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    ChoiceChip(
-                      label: const Text('Anfitrião'),
-                      selected: _type == 'ROLE_HOST',
-                      onSelected: (sel) =>
-                      sel ? setState(() => _type = 'ROLE_HOST') : null,
-                      selectedColor: scheme.primary,
-                      labelStyle: TextStyle(
-                        color: _type == 'ROLE_HOST' ? scheme.onPrimary : null,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+                // // Tipo de usuário (strings, sem enum/DTO)
+                // Text('Tipo de usuário',
+                //     style: theme.textTheme.titleMedium
+                //         ?.copyWith(fontWeight: FontWeight.w700)),
+                // const SizedBox(height: 8),
+                // Wrap(
+                //   spacing: 8,
+                //   children: [
+                //     ChoiceChip(
+                //       label: const Text('Hóspede'),
+                //       selected: _type == 'ROLE_GUEST',
+                //       onSelected: (sel) =>
+                //       sel ? setState(() => _type = 'ROLE_GUEST') : null,
+                //       selectedColor: scheme.primary,
+                //       labelStyle: TextStyle(
+                //         color: _type == 'ROLE_GUEST' ? scheme.onPrimary : null,
+                //         fontWeight: FontWeight.w600,
+                //       ),
+                //     ),
+                //     ChoiceChip(
+                //       label: const Text('Anfitrião'),
+                //       selected: _type == 'ROLE_HOST',
+                //       onSelected: (sel) =>
+                //       sel ? setState(() => _type = 'ROLE_HOST') : null,
+                //       selectedColor: scheme.primary,
+                //       labelStyle: TextStyle(
+                //         color: _type == 'ROLE_HOST' ? scheme.onPrimary : null,
+                //         fontWeight: FontWeight.w600,
+                //       ),
+                //     ),
+                //   ],
+                // ),
 
                 const SizedBox(height: 100),
 
