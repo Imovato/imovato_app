@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../../explore/presentation/widgets/localizacao_sheet.dart';
 import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../search/domain/property.dart';
+import '../../../auth/presentation/controllers/login_controller.dart';
 
 class CheckoutPage extends StatefulWidget {
   final Property property;
@@ -19,11 +20,6 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState extends State<CheckoutPage> {
   final _formKey = GlobalKey<FormState>();
-
-  // pagador
-  final _nameCtrl = TextEditingController();
-  final _emailCtrl = TextEditingController();
-  final _cpfCtrl = TextEditingController();
 
   // cartão
   final _cardCtrl = TextEditingController();
@@ -38,9 +34,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
-    _emailCtrl.dispose();
-    _cpfCtrl.dispose();
     _cardCtrl.dispose();
     _holderCtrl.dispose();
     _expiryCtrl.dispose();
@@ -69,6 +62,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Future<void> _confirmarPagamento() async {
+    final loginCtrl = context.read<LoginController>();
+
+    if (!loginCtrl.isLoggedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Você precisa estar logado para pagar')),
+      );
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
 
@@ -99,117 +101,143 @@ class _CheckoutPageState extends State<CheckoutPage> {
         showBack: true,
       ),
       floatingActionButton: ChatFab(onPressed: () {/* chat */}),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
-            children: [
-              // Resumo
-              Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
+      body: Consumer<LoginController>(
+        builder: (context, loginCtrl, _) {
+          return SafeArea(
+            child: Form(
+              key: _formKey,
+              child: Stack(
+                children: [
+                  ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: (p.imagesUrls.isNotEmpty)
-                            ? Image.network(p.imagesUrls.first, width: 72, height: 72, fit: BoxFit.cover)
-                            : Container(width: 72, height: 72, color: scheme.surfaceContainerHighest),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(p.title, style: text.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
-                            const SizedBox(height: 4),
-                            Text('${p.neighborhood}, ${p.city}', style: text.bodySmall?.copyWith(color: Colors.black54)),
-                            const SizedBox(height: 8),
-                            Text('${formatBRL0(p.price)} / mês', style: const TextStyle(fontWeight: FontWeight.w800)),
-                          ],
+                      // Resumo
+                      Card(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: (p.imagesUrls.isNotEmpty)
+                                    ? Image.network(p.imagesUrls.first, width: 72, height: 72, fit: BoxFit.cover)
+                                    : Container(width: 72, height: 72, color: scheme.surfaceContainerHighest),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(p.title, style: text.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+                                    const SizedBox(height: 4),
+                                    Text('${p.neighborhood}, ${p.city}', style: text.bodySmall?.copyWith(color: Colors.black54)),
+                                    const SizedBox(height: 8),
+                                    Text('${formatBRL0(p.price)} / mês', style: const TextStyle(fontWeight: FontWeight.w800)),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                      )
+                      ),
+
+                      const SizedBox(height: 16),
                     ],
                   ),
-                ),
-              ),
 
-              const SizedBox(height: 16),
-
-              // Dados do pagador
-              Text('Dados do pagador', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _nameCtrl,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(labelText: 'Nome completo', border: OutlineInputBorder()),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Informe seu nome' : null,
+                  // Modal de login sobreposto
+                  if (!loginCtrl.isLoggedIn)
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withOpacity(0.3),
+                        child: Center(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(24),
+                                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                                  decoration: BoxDecoration(
+                                    color: scheme.surface,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Para pagar você precisa estar logado',
+                                        style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 24),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: FilledButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pushNamed('/login');
+                                          },
+                                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
+                                          child: const Text('Fazer login'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _emailCtrl,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(labelText: 'E-mail', border: OutlineInputBorder()),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Informe seu e-mail';
-                  final ok = RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim());
-                  return ok ? null : 'E-mail inválido';
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _cpfCtrl,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(labelText: 'CPF (somente números)', border: OutlineInputBorder()),
-                validator: (v) {
-                  final t = (v ?? '').replaceAll(RegExp(r'\D'), '');
-                  if (t.length != 11) return 'CPF deve ter 11 dígitos';
-                  return null;
-                },
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
 
       // Barra fixa com total e botão
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-        decoration: BoxDecoration(
-          color: scheme.surface,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(.06), blurRadius: 12, offset: const Offset(0, -3))],
-        ),
-        child: SafeArea(
-          top: false,
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Total'),
-                    Text('${formatBRL0(p.price)} / mês', style: const TextStyle(fontWeight: FontWeight.w800)),
-                  ],
-                ),
+      bottomNavigationBar: Consumer<LoginController>(
+        builder: (context, loginCtrl, _) {
+          final isEnabled = loginCtrl.isLoggedIn;
+
+          return Container(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(.06), blurRadius: 12, offset: const Offset(0, -3))],
+            ),
+            child: SafeArea(
+              top: false,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Total'),
+                        Text('${formatBRL0(p.price)} / mês', style: const TextStyle(fontWeight: FontWeight.w800)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: (isEnabled && !_loading) ? _confirmarPagamento : null,
+                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
+                      child: _loading
+                          ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Text('Pagar'),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: FilledButton(
-                  onPressed: _loading ? null : _confirmarPagamento,
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
-                  child: _loading
-                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('Pagar'),
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

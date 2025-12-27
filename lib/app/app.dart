@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../features/explore/application/explore_controller.dart';
+import '../features/auth/presentation/controllers/login_controller.dart';
 import 'router.dart';
 import 'theme/theme.dart';
 
@@ -13,6 +14,9 @@ class App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<ExploreController>(
           create: (_) => ExploreController(initialValor: 1000),
+        ),
+        ChangeNotifierProvider<LoginController>(
+          create: (_) => LoginController(),
         ),
       ],
       child: MaterialApp(
