@@ -1,23 +1,38 @@
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginController extends ChangeNotifier {
   bool loading = false;
   bool isLoggedIn = false;
+  String? errorMessage;
 
   Future<bool> signIn(String email, String password) async {
     loading = true;
+    errorMessage = null;
     notifyListeners();
     try {
-      // TODO: implementar chamada no endpoint de auth
-      await Future.delayed(const Duration(milliseconds: 900));
+      final response = await http.post(
+        Uri.parse('https://cadastral-imovato-35ca7e6548df.herokuapp.com/auth'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
 
-      final ok = password == '123456';
-      if (ok) {
+      if (response.statusCode == 200) {
         isLoggedIn = true;
         notifyListeners();
+        return true;
+      } else {
+        errorMessage = 'Erro na autenticação';
+        return false;
       }
-      return ok;
-    } catch (_) {
+    } catch (e) {
+      errorMessage = 'Erro ao conectar: $e';
       return false;
     } finally {
       loading = false;
