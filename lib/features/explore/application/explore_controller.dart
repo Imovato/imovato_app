@@ -67,7 +67,7 @@ class ExploreController extends ChangeNotifier {
 
       final List<dynamic> data = json.decode(res.body) as List<dynamic>;
       _results = data.map<Property>((e) {
-        final id = e['id']?.toString() ?? '';
+        final id = e['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
         final title = e['title']?.toString() ?? '';
         final address = e['address']?.toString() ?? '';
         final streetNumber = e['streetNumber']?.toString() ?? '0';
@@ -77,6 +77,11 @@ class ExploreController extends ChangeNotifier {
         final description = e['description']?.toString() ?? '';
         final price = (e['price'] is num) ? (e['price'] as num).toDouble() : 0.0;
         final maxOccupancy = (e['maxOccupancy'] is num) ? (e['maxOccupancy'] as num).toInt() : 1;
+        final bedrooms = (e['roomCount'] is num) ? (e['roomCount'] as num).toInt() : 0;
+        final bathrooms = (e['bathroomCount'] is num) ? (e['bathroomCount'] as num).toInt() : 0;
+        final petFriendly = (e['allowsPets'] is bool) ? (e['allowsPets'] as bool) : false;
+        final isSharedHosting = (e['isSharedHosting'] is bool) ? (e['isSharedHosting'] as bool) : false;
+        final accommodationType = isSharedHosting ? 'coliving' : 'moradia individual';
         final images = <String>[];
         if (e['imagesUrls'] is List) {
           images.addAll(List<String>.from(e['imagesUrls']));
@@ -94,6 +99,10 @@ class ExploreController extends ChangeNotifier {
           price: price,
           imagesUrls: images,
           maxOccupancy: maxOccupancy,
+          bedrooms: bedrooms,
+          bathrooms: bathrooms,
+          accommodationType: accommodationType,
+          petFriendly: petFriendly,
         );
       }).toList(growable: false);
     } catch (ex) {

@@ -162,6 +162,26 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                   title: 'Ocupância Máxima',
                   subtitle: '${p.maxOccupancy} ${p.maxOccupancy == 1 ? 'pessoa' : 'pessoas'}',
                 ),
+                _SpecTile(
+                  icon: Icons.bed_outlined,
+                  title: 'Quartos',
+                  subtitle: '${p.bedrooms}',
+                ),
+                _SpecTile(
+                  icon: Icons.bathroom_outlined,
+                  title: 'Banheiros',
+                  subtitle: '${p.bathrooms}',
+                ),
+                _SpecTile(
+                  icon: Icons.home_work_outlined,
+                  title: 'Tipo de Moradia',
+                  subtitle: p.accommodationType == 'coliving' ? 'Coliving' : 'Moradia Individual',
+                ),
+                _SpecTile(
+                  icon: Icons.pets,
+                  title: 'Pet Friendly',
+                  subtitle: p.petFriendly ? 'Sim' : 'Não',
+                ),
               ],
             ),
           ),

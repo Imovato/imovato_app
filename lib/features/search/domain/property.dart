@@ -10,6 +10,10 @@ class Property {
   final double price;           // preço mensal
   final List<String> imagesUrls; // URLs das imagens
   final int maxOccupancy;       // ocupância máxima
+  final int bedrooms;           // número de quartos
+  final int bathrooms;          // número de banheiros
+  final String accommodationType; // tipo: "coliving" ou "moradia individual"
+  final bool petFriendly;       // pet friendly
   final bool favorito;
 
   const Property({
@@ -24,6 +28,10 @@ class Property {
     required this.price,
     required this.imagesUrls,
     required this.maxOccupancy,
+    this.bedrooms = 0,
+    this.bathrooms = 0,
+    this.accommodationType = 'moradia individual',
+    this.petFriendly = false,
     this.favorito = false,
   });
 
@@ -40,6 +48,10 @@ class Property {
         price: price,
         imagesUrls: imagesUrls,
         maxOccupancy: maxOccupancy,
+        bedrooms: bedrooms,
+        bathrooms: bathrooms,
+        accommodationType: accommodationType,
+        petFriendly: petFriendly,
         favorito: favorito ?? this.favorito,
       );
 }
