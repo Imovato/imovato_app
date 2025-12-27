@@ -162,8 +162,20 @@ class ExplorePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     FilledButton.icon(
-                      onPressed: () =>
-                          Navigator.pushNamed(context, Routes.buscar),
+                      onPressed: () async {
+                        final controller = context.read<ExploreController>();
+                        // show a simple loading dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) => const Center(child: CircularProgressIndicator()),
+                        );
+                        await controller.searchAccommodations();
+                        if (context.mounted) {
+                          Navigator.of(context).pop(); // close loading
+                          Navigator.pushNamed(context, Routes.buscar);
+                        }
+                      },
                       icon: const Icon(Icons.search),
                       label: const Text('Buscar'),
                       style: FilledButton.styleFrom(

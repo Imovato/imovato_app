@@ -6,7 +6,6 @@ import '../../../../shared/widgets/chat_fab.dart';
 import '../../../explore/application/explore_controller.dart';
 import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../explore/presentation/widgets/localizacao_sheet.dart';
-import '../../domain/property.dart';
 import '../widgets/property_card.dart';
 
 class ListingsPage extends StatefulWidget {
@@ -17,38 +16,6 @@ class ListingsPage extends StatefulWidget {
 
 class _ListingsPageState extends State<ListingsPage> {
   int _filtrosAtivos = 0;
-
-  // mock de imóveis (troque por dados reais quando ligar a API)
-  List<Property> _items = const [
-    Property(
-      id: '1',
-      titulo: 'Vila Gumercindo · Rua Assungui',
-      detalhes: 'Mobiliado · 24m² · Studio',
-      aluguel: 2700, total: 3500,
-      fotos: [
-        'https://images.unsplash.com/photo-1505691723518-36a5ac3b2d5b?w=1200',
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200',
-      ],
-    ),
-    Property(
-      id: '2',
-      titulo: 'Brooklin · Rua Sansão Alves dos Santos',
-      detalhes: 'Mobiliado · 35m² · 1 quarto',
-      aluguel: 3200, total: 4100,
-      fotos: [
-        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1200',
-        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1201',
-      ],
-      favorito: true,
-    ),
-  ];
-
-  void _toggleFav(int index, bool fav) {
-    setState(() {
-      _items = List<Property>.from(_items)
-        ..[index] = _items[index].copyWith(favorito: fav);
-    });
-  }
 
   int _countFiltrosAtivos(FiltroBuscaResult f) {
     var c = 0;
@@ -93,35 +60,45 @@ class _ListingsPageState extends State<ListingsPage> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: ExploreSearchAppBar(
           onTapLocation: () => _openLocalizacaoModal(context),
           onTapFilter: () => _openFiltroModal(context)),
 
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-        children: [
-          // Ações (Filtrar / Mapa)
-          Row(
-            children: [
-              const SizedBox(width: 12),
-            ],
-          ),
+      body: Consumer<ExploreController>(
+        builder: (context, c, _) {
+          if (c.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (c.error != null) {
+            return Center(child: Text('Erro: ${c.error}'));
+          }
 
-          const SizedBox(height: 12),
+          final items = c.results;
 
-          // Lista de cards
-          for (var i = 0; i < _items.length; i++)
-            InkWell(
-              onTap: () => Navigator.pushNamed(context, Routes.propertyDetails, arguments: _items[i]),
-              child: PropertyCard(
-                data: _items[i],
-                onToggleFavorite: (fav) => _toggleFav(i, fav),
-              ),
-            ),
-        ],
+          if (items.isEmpty) {
+            return const Center(child: Text('Nenhum imóvel encontrado'));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            itemCount: items.length,
+            itemBuilder: (context, i) {
+              final item = items[i];
+              return InkWell(
+                onTap: () => Navigator.pushNamed(context, Routes.propertyDetails, arguments: item),
+                child: PropertyCard(
+                  data: item,
+                  onToggleFavorite: (fav) {
+                    // delegate to controller
+                    context.read<ExploreController>().toggleFavoriteById(item.id, fav);
+                  },
+                ),
+              );
+            },
+          );
+        },
       ),
 
       floatingActionButton: ChatFab(

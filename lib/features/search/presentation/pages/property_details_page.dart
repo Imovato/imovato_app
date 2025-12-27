@@ -31,8 +31,8 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
     super.initState();
     _pageCtrl = PageController();
 
-    _descCtrl = TextEditingController(text: widget.property.descricao ?? '');
-    _minPeriodo = widget.property.minPeriodoMeses;
+    _descCtrl = TextEditingController(text: widget.property.description ?? '');
+    _minPeriodo = 1;
   }
 
   @override
@@ -88,9 +88,9 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                 PageView.builder(
                   controller: _pageCtrl,
                   onPageChanged: (i) => setState(() => _page = i),
-                  itemCount: p.fotos.length,
+                  itemCount: p.imagesUrls.length,
                   itemBuilder: (_, i) => Image.network(
-                    p.fotos[i],
+                    p.imagesUrls[i],
                     fit: BoxFit.cover,
                     width: double.infinity,
                   ),
@@ -101,7 +101,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                   right: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(p.fotos.length, (i) {
+                    children: List.generate(p.imagesUrls.length, (i) {
                       final active = i == _page;
                       return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -123,12 +123,12 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
           // Título + detalhes
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
-            child: Text(p.titulo,
+            child: Text(p.title,
                 style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(p.detalhes,
+            child: Text('${p.neighborhood}, ${p.city} - ${p.state}',
                 style: text.bodyMedium?.copyWith(color: Colors.black54)),
           ),
           const SizedBox(height: 8),
@@ -136,106 +136,38 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
           // Preços
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Aluguel ${formatBRL0(p.aluguel)}',
+            child: Text('Aluguel ${formatBRL0(p.price)}',
                 style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 2, 16, 12),
-            child: Text('Total ${formatBRL0(p.total)} / mês',
+            child: Text('Máximo ${p.maxOccupancy} ${p.maxOccupancy == 1 ? 'pessoa' : 'pessoas'}',
                 style: text.bodyMedium?.copyWith(color: Colors.black54)),
           ),
 
           const Divider(height: 1),
 
-          // Especificações principais (ícones + texto)
+          // Endereço completo
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Column(
               children: [
                 _SpecTile(
-                    icon: Icons.apartment,
-                    title: 'Apartamento',
-                    subtitle: 'Inteiro'),
-                _SpecTile(icon: Icons.square_foot, title: '60m²'),
-                _SpecTile(icon: Icons.bed_outlined, title: '1 quarto'),
-                _SpecTile(icon: Icons.chair_outlined, title: 'Mobiliado'),
+                  icon: Icons.location_on,
+                  title: 'Endereço',
+                  subtitle: '${p.address}, ${p.streetNumber}',
+                ),
                 _SpecTile(
-                    icon: Icons.smoking_rooms,
-                    title: 'Fumar',
-                    subtitle: 'Não permitido',
-                    subtitleColor: Colors.pink.shade400),
-                _SpecTile(
-                    icon: Icons.local_parking_outlined,
-                    title: 'Garagem',
-                    subtitle: '1 vaga disponível'),
-                _SpecTile(
-                    icon: Icons.pets_outlined,
-                    title: 'Pets',
-                    subtitle: 'Não são permitidos',
-                    subtitleColor: Colors.pink.shade400),
-                _SpecTile(
-                    icon: Icons.grid_on,
-                    title: 'Tela de proteção',
-                    subtitle: 'Não instalada',
-                    subtitleColor: Colors.pink.shade400),
+                  icon: Icons.people_outline,
+                  title: 'Ocupância Máxima',
+                  subtitle: '${p.maxOccupancy} ${p.maxOccupancy == 1 ? 'pessoa' : 'pessoas'}',
+                ),
               ],
             ),
           ),
 
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-
-          // Itens do apartamento
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text('Itens do apartamento',
-                style: text.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800, color: scheme.onSurface)),
-          ),
-          _RoomItems(
-              title: 'Quarto A', items: const ['Armário', 'Cama', 'Sofá']),
-          _RoomItems(
-              title: 'Cozinha',
-              items: const ['Geladeira', 'Microondas', 'Armário']),
-          _RoomItems(
-              title: 'Banheiro 1',
-              items: const ['Chuveiro', 'Armário', 'Espelho']),
-
-          // TODOS OS ITENS
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          //   child: OutlinedButton.icon(
-          //     onPressed: () {/* ver todos */},
-          //     icon: const Icon(Icons.open_in_new),
-          //     label: const Text('Todos os itens'),
-          //   ),
-          // ),
-
-          // Comodidades no condomínio
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Text('Comodidades no condomínio',
-                style: text.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800, color: scheme.onSurface)),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: const [
-                _AmenityRow(label: 'Elevador Social'),
-                _AmenityRow(label: 'Lavanderia no Prédio'),
-                _AmenityRow(label: 'Lavanderia pay per use'),
-                _AmenityRow(label: 'Locker'),
-                _AmenityRow(label: 'Loja de Conveniência 24h'),
-                _AmenityRow(label: 'Portaria 24h'),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 12), // espaço pro bottom bar
-
-          // --- Descrição (somente texto) ---
-          if ((p.descricao?.trim().isNotEmpty ?? false)) ...[
+          // Descrição
+          if ((p.description?.trim().isNotEmpty ?? false)) ...[
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
               child: Text(
@@ -247,16 +179,16 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 56),
               child: Text(
-                p.descricao!.trim(),
+                p.description!.trim(),
                 style: text.bodyMedium
                     ?.copyWith(color: Colors.black87, height: 1.4),
               ),
             ),
           ] else ...[
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 56),
               child: Text(
                 'O proprietário não adicionou uma descrição.',
                 style: text.bodyMedium?.copyWith(
@@ -266,46 +198,6 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               ),
             ),
           ],
-
-          // Periodo minimo de permanencia no imovel
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16 + 56),
-            // espaço extra pro FAB
-            child: Card(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Período de Locação',
-                        style: text.titleLarge
-                            ?.copyWith(fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_month),
-                        const SizedBox(width: 8),
-                        Expanded(
-                            child: Text(
-                                '$_minPeriodo ${_minPeriodo == 1 ? 'mês' : 'meses'}')),
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline),
-                          onPressed: _minPeriodo > 1
-                              ? () => setState(() => _minPeriodo--)
-                              : null,
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline),
-                          onPressed: () => setState(() => _minPeriodo++),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -353,64 +245,7 @@ class _SpecTile extends StatelessWidget {
   }
 }
 
-class _RoomItems extends StatelessWidget {
-  final String title;
-  final List<String> items;
 
-  const _RoomItems({required this.title, required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 2),
-            child: Icon(Icons.checkroom_outlined, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: text.bodyMedium?.copyWith(color: Colors.black87),
-                children: [
-                  TextSpan(
-                      text: '$title\n',
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
-                  TextSpan(text: items.join(', ')),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AmenityRow extends StatelessWidget {
-  final String label;
-
-  const _AmenityRow({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Icon(Icons.check_box, color: scheme.primary, size: 20),
-          const SizedBox(width: 8),
-          Expanded(child: Text(label)),
-        ],
-      ),
-    );
-  }
-}
 
 class _BottomBar extends StatelessWidget {
   final Property property;
@@ -442,7 +277,7 @@ class _BottomBar extends StatelessWidget {
                 const Text('Total'),
                 const Spacer(),
                 Text(
-                  '${formatBRL0(property.total)} / mês',
+                  '${formatBRL0(property.price)} / mês',
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
               ],

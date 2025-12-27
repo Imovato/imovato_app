@@ -114,8 +114,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: (p.fotos.isNotEmpty)
-                            ? Image.network(p.fotos.first, width: 72, height: 72, fit: BoxFit.cover)
+                        child: (p.imagesUrls.isNotEmpty)
+                            ? Image.network(p.imagesUrls.first, width: 72, height: 72, fit: BoxFit.cover)
                             : Container(width: 72, height: 72, color: scheme.surfaceContainerHighest),
                       ),
                       const SizedBox(width: 12),
@@ -123,11 +123,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(p.titulo, style: text.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+                            Text(p.title, style: text.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
                             const SizedBox(height: 4),
-                            Text(p.detalhes, style: text.bodySmall?.copyWith(color: Colors.black54)),
+                            Text('${p.neighborhood}, ${p.city}', style: text.bodySmall?.copyWith(color: Colors.black54)),
                             const SizedBox(height: 8),
-                            Text('Total ${formatBRL0(p.total)} / mês', style: const TextStyle(fontWeight: FontWeight.w800)),
+                            Text('${formatBRL0(p.price)} / mês', style: const TextStyle(fontWeight: FontWeight.w800)),
                           ],
                         ),
                       )
@@ -193,7 +193,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Total'),
-                    Text('${formatBRL0(p.total)} / mês', style: const TextStyle(fontWeight: FontWeight.w800)),
+                    Text('${formatBRL0(p.price)} / mês', style: const TextStyle(fontWeight: FontWeight.w800)),
                   ],
                 ),
               ),

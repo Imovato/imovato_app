@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^6.1.2
+  http: ^0.13.6
 
   cupertino_icons: ^1.0.8
 
@@ -27,5 +28,4 @@ flutter:
 
   assets:
     - images/
-
 

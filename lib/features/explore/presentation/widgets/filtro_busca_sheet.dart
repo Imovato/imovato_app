@@ -216,31 +216,6 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
 
                       const SizedBox(height: 12),
 
-                      // Para fumantes (mantido)
-                      _SectionCard(
-                        title: 'Para fumantes',
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            for (final opt in const ['Sim', 'Não', 'Tanto faz'])
-                              ChoiceChip(
-                                label: Text(opt),
-                                selected: _fumantes == opt,
-                                onSelected: (_) => setState(() => _fumantes = opt),
-                                selectedColor: scheme.primary,
-                                labelStyle: TextStyle(
-                                  color: _fumantes == opt ? scheme.onPrimary : textTheme.bodyMedium?.color,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                backgroundColor: scheme.surfaceContainerHighest,
-                                side: const BorderSide(color: Colors.black12),
-                              ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
 
                       // Pessoas compartilhando (mantido - seleção única)
                       _SectionCard(

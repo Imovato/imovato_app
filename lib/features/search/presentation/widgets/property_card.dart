@@ -49,9 +49,9 @@ class _PropertyCardState extends State<PropertyCard> {
                 PageView.builder(
                   controller: _pageCtrl,
                   onPageChanged: (i) => setState(() => _page = i),
-                  itemCount: data.fotos.length,
+                  itemCount: data.imagesUrls.length,
                   itemBuilder: (_, i) => Image.network(
-                    data.fotos[i],
+                    data.imagesUrls[i],
                     fit: BoxFit.cover,
                     width: double.infinity,
                     loadingBuilder: (c, w, p) => p == null
@@ -70,7 +70,7 @@ class _PropertyCardState extends State<PropertyCard> {
                   bottom: 8, left: 0, right: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(data.fotos.length, (i) {
+                    children: List.generate(data.imagesUrls.length, (i) {
                       final isActive = i == _page;
                       return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -92,12 +92,12 @@ class _PropertyCardState extends State<PropertyCard> {
           // Texto
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-            child: Text(data.titulo, style: textTheme.titleMedium),
+            child: Text(data.title, style: textTheme.titleMedium),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
-              data.detalhes,
+              '${data.neighborhood}, ${data.city}',
               style: textTheme.bodyMedium?.copyWith(color: Colors.black54),
             ),
           ),
@@ -109,7 +109,7 @@ class _PropertyCardState extends State<PropertyCard> {
                 style: textTheme.bodyLarge?.copyWith(color: scheme.onSurface),
                 children: [
                   TextSpan(
-                    text: 'Aluguel ${formatBRL0(data.aluguel)}',
+                    text: 'Aluguel ${formatBRL0(data.price)}',
                     style: const TextStyle(fontWeight: FontWeight.w800),
                   ),
                 ],
@@ -119,7 +119,7 @@ class _PropertyCardState extends State<PropertyCard> {
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
             child: Text(
-              'Total ${formatBRL0(data.total)}',
+              'Máximo ${data.maxOccupancy} ${data.maxOccupancy == 1 ? 'pessoa' : 'pessoas'}',
               style: textTheme.bodyMedium?.copyWith(color: Colors.black54),
             ),
           ),

@@ -1,36 +1,45 @@
 class Property {
   final String id;
-  final String titulo;       // ex: "Vila Gumercindo · Rua Assungui"
-  final String detalhes;     // ex: "Mobiliado · 24m² · Studio"
-  final double aluguel;      // ex: 2700
-  final double total;        // ex: 3500
-  final List<String> fotos;
+  final String title;           // titulo do imóvel
+  final String address;         // endereço
+  final String streetNumber;    // número da rua
+  final String neighborhood;    // bairro
+  final String city;            // cidade
+  final String state;           // estado (ex: RS)
+  final String? description;    // descrição
+  final double price;           // preço mensal
+  final List<String> imagesUrls; // URLs das imagens
+  final int maxOccupancy;       // ocupância máxima
   final bool favorito;
-  final String? descricao;       // texto livre (opcional)
-  final int minPeriodoMeses;     // período mínimo (default: 1)
 
   const Property({
     required this.id,
-    required this.titulo,
-    required this.detalhes,
-    required this.aluguel,
-    required this.total,
-    required this.fotos,
+    required this.title,
+    required this.address,
+    required this.streetNumber,
+    required this.neighborhood,
+    required this.city,
+    required this.state,
+    this.description,
+    required this.price,
+    required this.imagesUrls,
+    required this.maxOccupancy,
     this.favorito = false,
-    this.descricao,
-    this.minPeriodoMeses = 1,
   });
 
   Property copyWith({bool? favorito}) =>
       Property(
         id: id,
-        titulo: titulo,
-        detalhes: detalhes,
-        aluguel: aluguel,
-        total: total,
-        fotos: fotos,
+        title: title,
+        address: address,
+        streetNumber: streetNumber,
+        neighborhood: neighborhood,
+        city: city,
+        state: state,
+        description: description,
+        price: price,
+        imagesUrls: imagesUrls,
+        maxOccupancy: maxOccupancy,
         favorito: favorito ?? this.favorito,
-        descricao: descricao ?? this.descricao,
-        minPeriodoMeses: minPeriodoMeses ?? this.minPeriodoMeses,
       );
 }
