@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class RegisterController extends ChangeNotifier {
   bool loading = false;
@@ -17,7 +19,6 @@ class RegisterController extends ChangeNotifier {
     try {
       // Monte o body aqui (sem DTO)
       final body = <String, dynamic>{
-        'id': id,
         'userName': userName,
         'password': password,
         'cpf': cpf,
@@ -26,15 +27,30 @@ class RegisterController extends ChangeNotifier {
         'type': type,
       };
 
-      // TODO: chamar seu endpoint real, ex.:
-      // final res = await http.post(url, body: jsonEncode(body), headers: {...});
+      // Remover id se for nulo
+      if (id != null) {
+        body['id'] = id;
+      }
 
-      await Future.delayed(const Duration(milliseconds: 900));
+      final url = Uri.parse('https://cadastral-imovato-35ca7e6548df.herokuapp.com/users');
 
-      // Exemplo simples de “sucesso”
-      final ok = password.length >= 6;
-      return ok;
-    } catch (_) {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: jsonEncode(body),
+      );
+
+      // Verificar status code
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      } else {
+        debugPrint('Erro ao registrar: ${response.statusCode} - ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Exceção ao registrar: $e');
       return false;
     } finally {
       loading = false;
