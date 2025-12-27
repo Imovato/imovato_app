@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:convert' show utf8;
 
 import '../../search/domain/property.dart';
 
@@ -65,7 +66,8 @@ class ExploreController extends ChangeNotifier {
         return;
       }
 
-      final List<dynamic> data = json.decode(res.body) as List<dynamic>;
+      final String decodedBody = utf8.decode(res.bodyBytes);
+      final List<dynamic> data = json.decode(decodedBody) as List<dynamic>;
       _results = data.map<Property>((e) {
         final id = e['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
         final title = e['title']?.toString() ?? '';
