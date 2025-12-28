@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../features/explore/application/explore_controller.dart';
 import '../features/auth/presentation/controllers/login_controller.dart';
+import '../features/auth/presentation/controllers/register_controller.dart';
 import 'router.dart';
 import 'theme/theme.dart';
 
@@ -17,6 +18,9 @@ class App extends StatelessWidget {
         ),
         ChangeNotifierProvider<LoginController>(
           create: (_) => LoginController(),
+        ),
+        ChangeNotifierProvider<RegisterController>(
+          create: (_) => RegisterController(),
         ),
       ],
       child: MaterialApp(

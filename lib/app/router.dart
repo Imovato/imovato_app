@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:imovato_app/features/auth/presentation/pages/register_page.dart';
 import 'package:imovato_app/features/checkout/presentation/pages/checkout_page.dart';
 import '../features/auth/presentation/pages/login_page.dart';
+import '../features/auth/presentation/controllers/login_controller.dart';
 import '../features/explore/presentation/pages/explore_page.dart';
 import '../features/onboarding/presentation/pages/welcome_page.dart';
 import '../features/search/domain/property.dart';
@@ -20,14 +22,25 @@ class Routes {
 
 final Map<String, WidgetBuilder> appRoutes = {
   Routes.welcome: (_) => const WelcomePage(),
-  Routes.loginMorador: (_) => const LoginPage(),
   Routes.alugar: (_) => const ExplorePage(),
-  Routes.cadastro: (_) => const RegisterPage(),
   Routes.buscar: (_) => const ListingsPage(),
 
 };
 
 Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+  // Proteção de rotas de autenticação
+  if (settings.name == Routes.loginMorador || settings.name == Routes.cadastro) {
+    return MaterialPageRoute(
+      builder: (context) {
+        final isLoggedIn = context.read<LoginController>().isLoggedIn;
+        if (isLoggedIn) {
+          return const ExplorePage();
+        }
+        return settings.name == Routes.loginMorador ? const LoginPage() : const RegisterPage();
+      },
+    );
+  }
+
   if (settings.name == Routes.propertyDetails) {
     final prop = settings.arguments as Property;
     return MaterialPageRoute(builder: (_) => PropertyDetailsPage(property: prop));

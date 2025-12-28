@@ -6,6 +6,8 @@ class LoginController extends ChangeNotifier {
   bool loading = false;
   bool isLoggedIn = false;
   String? errorMessage;
+  String? userEmail;
+  String? userName;
 
   Future<bool> signIn(String email, String password) async {
     loading = true;
@@ -24,6 +26,16 @@ class LoginController extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
+        // Tentar decodificar resposta se houver body
+        try {
+          final data = jsonDecode(response.body);
+          userEmail = email;
+          userName = data['userName'] ?? data['name'] ?? email.split('@').first;
+        } catch (_) {
+          // Se não conseguir decodificar, usa email
+          userEmail = email;
+          userName = email.split('@').first;
+        }
         isLoggedIn = true;
         notifyListeners();
         return true;
@@ -42,6 +54,8 @@ class LoginController extends ChangeNotifier {
 
   void logout() {
     isLoggedIn = false;
+    userEmail = null;
+    userName = null;
     notifyListeners();
   }
 }

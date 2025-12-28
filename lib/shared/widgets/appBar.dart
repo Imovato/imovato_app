@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:imovato_app/features/explore/application/explore_controller.dart';
+import 'profile_menu.dart';
 
 class ExploreSearchAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ExploreSearchAppBar({
@@ -28,8 +29,10 @@ class ExploreSearchAppBar extends StatelessWidget implements PreferredSizeWidget
 
     return AppBar(
       automaticallyImplyLeading: false,
-      leading: showLeading ? BackButton(onPressed: onBackPressed) : null,
-      actions: actions ?? const [SizedBox(width: 40)],
+      leading: showLeading
+        ? BackButton(onPressed: onBackPressed)
+        : const SizedBox(width: 48), // Espaço em branco do tamanho do botão
+      actions: actions ?? [const ProfileMenu(), const SizedBox(width: 8)],
       backgroundColor: Colors.white,
       elevation: 0,
       title: Container(

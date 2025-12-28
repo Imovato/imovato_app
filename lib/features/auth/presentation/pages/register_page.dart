@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../controllers/register_controller.dart';
+import '../../../../../app/router.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -19,9 +21,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _nameCtrl = TextEditingController();
 
   bool _obscure = true;
-  String _type = 'ROLE_GUEST'; // 'ROLE_HOST' | 'ROLE_GUEST'
-
-  final _controller = RegisterController();
+  final String _type = 'ROLE_GUEST'; // 'ROLE_HOST' | 'ROLE_GUEST'
 
   @override
   void dispose() {
@@ -31,7 +31,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _cpfCtrl.dispose();
     _emailCtrl.dispose();
     _nameCtrl.dispose();
-    _controller.dispose();
     super.dispose();
   }
 
@@ -51,14 +50,15 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final ok = await _controller.signUp(
+    final controller = context.read<RegisterController>();
+    final ok = await controller.signUp(
       id: _idCtrl.text.trim().isEmpty ? null : _idCtrl.text.trim(),
       userName: _userNameCtrl.text.trim(),
       password: _passwordCtrl.text,
       cpf: _cpfCtrl.text.replaceAll(RegExp(r'\D'), ''),
       email: _emailCtrl.text.trim(),
       name: _nameCtrl.text.trim(),
-      type: 'ROLE_GUEST',
+      type: _type,
     );
 
     if (!mounted) return;
@@ -212,15 +212,14 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 100),
 
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (_, __) {
+                Consumer<RegisterController>(
+                  builder: (_, controller, __) {
                     return FilledButton(
-                      onPressed: _controller.loading ? null : _submit,
+                      onPressed: controller.loading ? null : _submit,
                       style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
                       ),
-                      child: _controller.loading
+                      child: controller.loading
                           ? const SizedBox(
                         height: 22,
                         width: 22,

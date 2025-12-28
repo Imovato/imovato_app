@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../../app/router.dart';
 import '../controllers/login_controller.dart';
 
@@ -13,7 +14,6 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
-  final _controller = LoginController();
 
   bool _obscure = true;
 
@@ -21,7 +21,6 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
-    _controller.dispose();
     super.dispose();
   }
 
@@ -29,7 +28,10 @@ class _LoginPageState extends State<LoginPage> {
     if (!_formKey.currentState!.validate()) return;
     final email = _emailCtrl.text.trim();
     final password = _passwordCtrl.text;
-    final loginOk = await _controller.signIn(email, password);
+
+    // Usar o LoginController do Provider
+    final controller = context.read<LoginController>();
+    final loginOk = await controller.signIn(email, password);
     if (!mounted) return;
 
     if (loginOk) {
@@ -37,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushReplacementNamed(context, Routes.alugar);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Credenciais inválidas')),
+        SnackBar(content: Text(controller.errorMessage ?? 'Credenciais inválidas')),
       );
     }
   }
@@ -116,12 +118,11 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 24),
 
                 // botão entrar
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (_, __) {
+                Consumer<LoginController>(
+                  builder: (_, controller, __) {
                     return FilledButton(
-                      onPressed: _controller.loading ? null : _submit,
-                      child: _controller.loading
+                      onPressed: controller.loading ? null : _submit,
+                      child: controller.loading
                           ? const SizedBox(
                               height: 22,
                               width: 22,

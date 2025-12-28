@@ -78,6 +78,7 @@ class ExplorePage extends StatelessWidget {
 
     return Scaffold(
       appBar: ExploreSearchAppBar(
+          showBack: false,
           onTapLocation: () => _openLocalizacaoModal(context),
           onTapFilter: () => _openFiltroModal(context)),
       body: Container(
