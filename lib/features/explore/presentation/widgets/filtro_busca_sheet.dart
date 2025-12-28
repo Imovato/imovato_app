@@ -6,6 +6,8 @@ class FiltroBuscaResult {
   final int? numQuartos;                    // 1, 2, 3, 4 (representa 4+)
   final String? tipoImovel;                 // 'Apartamento' | 'Casa'
   final bool? petFriendly;                  // true (Sim) | false (Não)
+  final int? duracaoEstadia;                // duração em meses
+  final DateTime? dataInicio;               // data de início
 
   const FiltroBuscaResult({
     required this.fumantes,
@@ -13,6 +15,8 @@ class FiltroBuscaResult {
     this.numQuartos,
     this.tipoImovel,
     this.petFriendly,
+    this.duracaoEstadia,
+    this.dataInicio,
   });
 }
 
@@ -30,11 +34,13 @@ class FiltroBuscaSheet extends StatefulWidget {
 
 class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
   // ---- Estados ----
-  late String _fumantes;                      // 'Sim' | 'Não' | 'Tanto faz'
-  late Set<int> _pessoasCompartilhando;       // exclusivo (só 1 marcado)
-  int? _numQuartos;                            // 1,2,3,4(=4+)
-  String? _tipoImovel;                         // 'Apartamento' | 'Casa'
-  bool? _petFriendly;                          // true/false
+  late String _fumantes;
+  late Set<int> _pessoasCompartilhando;
+  int? _numQuartos;
+  String? _tipoImovel;
+  bool? _petFriendly;
+  int _duracaoEstadia = 1;
+  late DateTime _dataInicio;
 
   @override
   void initState() {
@@ -44,6 +50,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
     _numQuartos = widget.initial?.numQuartos;
     _tipoImovel = widget.initial?.tipoImovel;
     _petFriendly = widget.initial?.petFriendly;
+    _duracaoEstadia = widget.initial?.duracaoEstadia ?? 1;
+    _dataInicio = widget.initial?.dataInicio ?? DateTime.now();
   }
 
   // Seleção exclusiva para "Pessoas compartilhando"
@@ -235,6 +243,84 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                           ],
                         ),
                       ),
+
+                      const SizedBox(height: 12),
+
+                      // Duração da estadia
+                      _SectionCard(
+                        title: 'Duração da estadia',
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black12),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                child: Text(
+                                  '$_duracaoEstadia meses',
+                                  style: textTheme.bodyLarge,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            IconButton(
+                              icon: const Icon(Icons.remove),
+                              onPressed: _duracaoEstadia > 1
+                                  ? () => setState(() => _duracaoEstadia--)
+                                  : null,
+                              tooltip: 'Diminuir',
+                              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () => setState(() => _duracaoEstadia++),
+                              tooltip: 'Aumentar',
+                              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Data de início
+                      _SectionCard(
+                        title: 'Data de início',
+                        child: GestureDetector(
+                          onTap: () async {
+                            final pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _dataInicio,
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                            );
+                            if (pickedDate != null) {
+                              setState(() => _dataInicio = pickedDate);
+                            }
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${_dataInicio.day.toString().padLeft(2, '0')} / ${_dataInicio.month.toString().padLeft(2, '0')} / ${_dataInicio.year}',
+                                  style: textTheme.bodyLarge,
+                                ),
+                                Icon(Icons.calendar_today, color: scheme.primary, size: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -258,6 +344,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                               _numQuartos = null;
                               _tipoImovel = null;
                               _petFriendly = null;
+                              _duracaoEstadia = 1;
+                              _dataInicio = DateTime.now();
                             });
                           },
                           style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
@@ -279,6 +367,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                                 numQuartos: _numQuartos,
                                 tipoImovel: _tipoImovel,
                                 petFriendly: _petFriendly,
+                                duracaoEstadia: _duracaoEstadia,
+                                dataInicio: _dataInicio,
                               ),
                             );
                           },
