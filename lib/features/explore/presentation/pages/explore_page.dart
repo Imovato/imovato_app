@@ -10,6 +10,7 @@ import '../widgets/localizacao_sheet.dart';
 import '../widgets/tipo_moradia_sheet.dart';
 import '../widgets/valor_total_sheet.dart';
 import 'package:provider/provider.dart';
+import '../../../auth/presentation/controllers/login_controller.dart';
 
 class ExplorePage extends StatelessWidget {
   const ExplorePage({super.key});
@@ -75,10 +76,12 @@ class ExplorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    // Se o usuário está logado, não mostra botão voltar. Caso contrário, comportamento automático
+    final isLoggedIn = context.read<LoginController>().isLoggedIn;
 
     return Scaffold(
       appBar: ExploreSearchAppBar(
-          showBack: false,
+          showBack: isLoggedIn ? false : null,
           onTapLocation: () => _openLocalizacaoModal(context),
           onTapFilter: () => _openFiltroModal(context)),
       body: Container(
