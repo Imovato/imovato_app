@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 
 class FiltroBuscaResult {
-  final String fumantes;                    // 'Sim' | 'Não' | 'Tanto faz'
-  final Set<int> pessoasCompartilhando;     // mantém Set, mas você seleciona só 1
-  final int? numQuartos;                    // 1, 2, 3, 4 (representa 4+)
-  final String? tipoImovel;                 // 'Apartamento' | 'Casa'
-  final bool? petFriendly;                  // true (Sim) | false (Não)
-  final int? duracaoEstadia;                // duração em meses
-  final DateTime? dataInicio;               // data de início
+  final double? priceMin;
+  final double? priceMax;
+  final String? accommodationType;
+  final int? maxOccupancy;
+  final bool? allowsPets;
+  final bool? allowsChildren;
+  final bool? isSharedHosting;
 
   const FiltroBuscaResult({
-    required this.fumantes,
-    required this.pessoasCompartilhando,
-    this.numQuartos,
-    this.tipoImovel,
-    this.petFriendly,
-    this.duracaoEstadia,
-    this.dataInicio,
+    this.priceMin,
+    this.priceMax,
+    this.accommodationType,
+    this.maxOccupancy,
+    this.allowsPets,
+    this.allowsChildren,
+    this.isSharedHosting,
   });
 }
 
@@ -33,38 +33,41 @@ class FiltroBuscaSheet extends StatefulWidget {
 }
 
 class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
-  // ---- Estados ----
-  late String _fumantes;
-  late Set<int> _pessoasCompartilhando;
-  int? _numQuartos;
-  String? _tipoImovel;
-  bool? _petFriendly;
-  int _duracaoEstadia = 1;
-  late DateTime _dataInicio;
+  late double _priceMin;
+  late double _priceMax;
+  String? _accommodationType;
+  int? _maxOccupancy;
+  bool? _allowsPets;
+  bool? _allowsChildren;
+  bool? _isSharedHosting;
+
+  final _priceMinController = TextEditingController();
+  final _priceMaxController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _fumantes = widget.initial?.fumantes ?? 'Tanto faz';
-    _pessoasCompartilhando = widget.initial?.pessoasCompartilhando.toSet() ?? <int>{};
-    _numQuartos = widget.initial?.numQuartos;
-    _tipoImovel = widget.initial?.tipoImovel;
-    _petFriendly = widget.initial?.petFriendly;
-    _duracaoEstadia = widget.initial?.duracaoEstadia ?? 1;
-    _dataInicio = widget.initial?.dataInicio ?? DateTime.now();
+    _priceMin = widget.initial?.priceMin ?? 0;
+    _priceMax = widget.initial?.priceMax ?? 10000;
+    _accommodationType = widget.initial?.accommodationType;
+    _maxOccupancy = widget.initial?.maxOccupancy;
+    _allowsPets = widget.initial?.allowsPets;
+    _allowsChildren = widget.initial?.allowsChildren;
+    _isSharedHosting = widget.initial?.isSharedHosting;
+
+    if (widget.initial?.priceMin != null) {
+      _priceMinController.text = _priceMin.toStringAsFixed(0);
+    }
+    if (widget.initial?.priceMax != null) {
+      _priceMaxController.text = _priceMax.toStringAsFixed(0);
+    }
   }
 
-  // Seleção exclusiva para "Pessoas compartilhando"
-  void _selectSinglePessoa(int n, bool checked) {
-    setState(() {
-      if (checked) {
-        _pessoasCompartilhando
-          ..clear()
-          ..add(n);
-      } else {
-        _pessoasCompartilhando.clear();
-      }
-    });
+  @override
+  void dispose() {
+    _priceMinController.dispose();
+    _priceMaxController.dispose();
+    super.dispose();
   }
 
   @override
@@ -94,14 +97,14 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
             top: false,
             child: Column(
               children: [
-                // Header
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                   child: Column(
                     children: [
                       Center(
                         child: Container(
-                          width: 44, height: 4,
+                          width: 44,
+                          height: 4,
                           decoration: BoxDecoration(
                             color: Colors.black12,
                             borderRadius: BorderRadius.circular(4),
@@ -127,28 +130,122 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                     ],
                   ),
                 ),
-
-                // Conteúdo
                 Expanded(
                   child: ListView(
                     controller: scrollCtrl,
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     children: [
-                      // Número de quartos
                       _SectionCard(
-                        title: 'Número de quartos',
+                        title: 'Faixa de preço (R\$)',
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _priceMinController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  labelText: 'Preço mínimo',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  prefixText: 'R\$ ',
+                                ),
+                                onChanged: (value) {
+                                  if (value.isNotEmpty) {
+                                    setState(() => _priceMin = double.tryParse(value) ?? 0);
+                                  }
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _priceMaxController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  labelText: 'Preço máximo',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  prefixText: 'R\$ ',
+                                ),
+                                onChanged: (value) {
+                                  if (value.isNotEmpty) {
+                                    setState(() => _priceMax = double.tryParse(value) ?? 10000);
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _SectionCard(
+                        title: 'Tipo de moradia',
+                        child: Column(
+                          children: [
+                            RadioListTile<String>(
+                              value: 'APARTMENT',
+                              groupValue: _accommodationType,
+                              onChanged: (v) => setState(() => _accommodationType = v),
+                              activeColor: scheme.primary,
+                              title: const Text('Apartamento'),
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            RadioListTile<String>(
+                              value: 'HOUSE',
+                              groupValue: _accommodationType,
+                              onChanged: (v) => setState(() => _accommodationType = v),
+                              activeColor: scheme.primary,
+                              title: const Text('Casa'),
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _SectionCard(
+                        title: 'Tipo de hospedagem',
+                        child: Column(
+                          children: [
+                            CheckboxListTile(
+                              value: _isSharedHosting == true,
+                              onChanged: (checked) => setState(
+                                () => _isSharedHosting = checked == true ? true : null,
+                              ),
+                              title: const Text('Coliving (Compartilhado)'),
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: scheme.primary,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            CheckboxListTile(
+                              value: _isSharedHosting == false,
+                              onChanged: (checked) => setState(
+                                () => _isSharedHosting = checked == true ? false : null,
+                              ),
+                              title: const Text('Moradia Individual'),
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: scheme.primary,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _SectionCard(
+                        title: 'Quantas pessoas?',
                         child: Wrap(
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            for (final q in const [1, 2, 3, 4])
+                            for (final occ in const [1, 2, 3, 4, 5])
                               ChoiceChip(
-                                label: Text(q == 4 ? '4+ Quartos' : '$q Quarto${q > 1 ? 's' : ''}'),
-                                selected: _numQuartos == q,
-                                onSelected: (sel) => setState(() => _numQuartos = sel ? q : null),
+                                label: Text('$occ'),
+                                selected: _maxOccupancy == occ,
+                                onSelected: (sel) => setState(() => _maxOccupancy = sel ? occ : null),
                                 selectedColor: scheme.primary,
                                 labelStyle: TextStyle(
-                                  color: _numQuartos == q ? scheme.onPrimary : textTheme.bodyMedium?.color,
+                                  color: _maxOccupancy == occ ? scheme.onPrimary : textTheme.bodyMedium?.color,
                                   fontWeight: FontWeight.w600,
                                 ),
                                 backgroundColor: scheme.surfaceContainerHighest,
@@ -157,37 +254,7 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 12),
-
-                      // Tipo de imóvel
-                      _SectionCard(
-                        title: 'Tipo de imóvel',
-                        child: Column(
-                          children: [
-                            RadioListTile<String>(
-                              value: 'Apartamento',
-                              groupValue: _tipoImovel,
-                              onChanged: (v) => setState(() => _tipoImovel = v),
-                              activeColor: scheme.primary,
-                              title: const Text('Apartamento'),
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            RadioListTile<String>(
-                              value: 'Casa',
-                              groupValue: _tipoImovel,
-                              onChanged: (v) => setState(() => _tipoImovel = v),
-                              activeColor: scheme.primary,
-                              title: const Text('Casa'),
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Pet friendly
                       _SectionCard(
                         title: 'Pet friendly',
                         child: Wrap(
@@ -196,11 +263,11 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                           children: [
                             ChoiceChip(
                               label: const Text('Sim'),
-                              selected: _petFriendly == true,
-                              onSelected: (sel) => setState(() => _petFriendly = sel ? true : null),
+                              selected: _allowsPets == true,
+                              onSelected: (sel) => setState(() => _allowsPets = sel ? true : null),
                               selectedColor: scheme.primary,
                               labelStyle: TextStyle(
-                                color: _petFriendly == true ? scheme.onPrimary : textTheme.bodyMedium?.color,
+                                color: _allowsPets == true ? scheme.onPrimary : textTheme.bodyMedium?.color,
                                 fontWeight: FontWeight.w600,
                               ),
                               backgroundColor: scheme.surfaceContainerHighest,
@@ -208,11 +275,11 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             ),
                             ChoiceChip(
                               label: const Text('Não'),
-                              selected: _petFriendly == false,
-                              onSelected: (sel) => setState(() => _petFriendly = sel ? false : null),
+                              selected: _allowsPets == false,
+                              onSelected: (sel) => setState(() => _allowsPets = sel ? false : null),
                               selectedColor: scheme.primary,
                               labelStyle: TextStyle(
-                                color: _petFriendly == false ? scheme.onPrimary : textTheme.bodyMedium?.color,
+                                color: _allowsPets == false ? scheme.onPrimary : textTheme.bodyMedium?.color,
                                 fontWeight: FontWeight.w600,
                               ),
                               backgroundColor: scheme.surfaceContainerHighest,
@@ -221,116 +288,54 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 12),
-
-
-                      // Pessoas compartilhando (mantido - seleção única)
                       _SectionCard(
-                        title: 'Pessoas compartilhando o apartamento',
-                        subtitle: 'Aplicados somente para apartamentos compartilhados (coliving)',
-                        child: Column(
+                        title: 'Permite crianças',
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
                           children: [
-                            for (final n in const [2, 3, 4, 5])
-                              CheckboxListTile(
-                                value: _pessoasCompartilhando.contains(n),
-                                onChanged: (checked) => _selectSinglePessoa(n, checked ?? false),
-                                title: Text('$n Pessoas'),
-                                controlAffinity: ListTileControlAffinity.leading,
-                                activeColor: scheme.primary,
-                                contentPadding: EdgeInsets.zero,
+                            ChoiceChip(
+                              label: const Text('Sim'),
+                              selected: _allowsChildren == true,
+                              onSelected: (sel) => setState(() => _allowsChildren = sel ? true : null),
+                              selectedColor: scheme.primary,
+                              labelStyle: TextStyle(
+                                color: _allowsChildren == true ? scheme.onPrimary : textTheme.bodyMedium?.color,
+                                fontWeight: FontWeight.w600,
                               ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Duração da estadia
-                      _SectionCard(
-                        title: 'Duração da estadia',
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.black12),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                child: Text(
-                                  '$_duracaoEstadia meses',
-                                  style: textTheme.bodyLarge,
-                                  textAlign: TextAlign.center,
-                                ),
+                              backgroundColor: scheme.surfaceContainerHighest,
+                              side: const BorderSide(color: Colors.black12),
+                            ),
+                            ChoiceChip(
+                              label: const Text('Não'),
+                              selected: _allowsChildren == false,
+                              onSelected: (sel) => setState(() => _allowsChildren = sel ? false : null),
+                              selectedColor: scheme.primary,
+                              labelStyle: TextStyle(
+                                color: _allowsChildren == false ? scheme.onPrimary : textTheme.bodyMedium?.color,
+                                fontWeight: FontWeight.w600,
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            IconButton(
-                              icon: const Icon(Icons.remove),
-                              onPressed: _duracaoEstadia > 1
-                                  ? () => setState(() => _duracaoEstadia--)
-                                  : null,
-                              tooltip: 'Diminuir',
-                              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-                            ),
-                            const SizedBox(width: 8),
-                            IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: () => setState(() => _duracaoEstadia++),
-                              tooltip: 'Aumentar',
-                              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                              backgroundColor: scheme.surfaceContainerHighest,
+                              side: const BorderSide(color: Colors.black12),
                             ),
                           ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Data de início
-                      _SectionCard(
-                        title: 'Data de início',
-                        child: GestureDetector(
-                          onTap: () async {
-                            final pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: _dataInicio,
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-                            );
-                            if (pickedDate != null) {
-                              setState(() => _dataInicio = pickedDate);
-                            }
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black12),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${_dataInicio.day.toString().padLeft(2, '0')} / ${_dataInicio.month.toString().padLeft(2, '0')} / ${_dataInicio.year}',
-                                  style: textTheme.bodyLarge,
-                                ),
-                                Icon(Icons.calendar_today, color: scheme.primary, size: 20),
-                              ],
-                            ),
-                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-
-                // Barra inferior
                 Container(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                   decoration: BoxDecoration(
                     color: scheme.surface,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(.08), blurRadius: 10, offset: const Offset(0, -2))],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      )
+                    ],
                     borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
                   ),
                   child: Row(
@@ -338,15 +343,18 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () {
-                            setState(() {
-                              _fumantes = 'Tanto faz';
-                              _pessoasCompartilhando.clear();
-                              _numQuartos = null;
-                              _tipoImovel = null;
-                              _petFriendly = null;
-                              _duracaoEstadia = 1;
-                              _dataInicio = DateTime.now();
-                            });
+                            Navigator.pop(
+                              context,
+                              const FiltroBuscaResult(
+                                priceMin: null,
+                                priceMax: null,
+                                accommodationType: null,
+                                maxOccupancy: null,
+                                allowsPets: null,
+                                allowsChildren: null,
+                                isSharedHosting: null,
+                              ),
+                            );
                           },
                           style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                           child: Text(
@@ -359,21 +367,40 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                       Expanded(
                         child: FilledButton(
                           onPressed: () {
-                            Navigator.pop(
-                              context,
-                              FiltroBuscaResult(
-                                fumantes: _fumantes,
-                                pessoasCompartilhando: _pessoasCompartilhando,
-                                numQuartos: _numQuartos,
-                                tipoImovel: _tipoImovel,
-                                petFriendly: _petFriendly,
-                                duracaoEstadia: _duracaoEstadia,
-                                dataInicio: _dataInicio,
-                              ),
+                            double? finalPriceMin;
+                            double? finalPriceMax;
+
+                            if (_priceMinController.text.isNotEmpty) {
+                              finalPriceMin = double.tryParse(_priceMinController.text);
+                            }
+                            if (_priceMaxController.text.isNotEmpty) {
+                              finalPriceMax = double.tryParse(_priceMaxController.text);
+                            }
+
+                            final result = FiltroBuscaResult(
+                              priceMin: finalPriceMin,
+                              priceMax: finalPriceMax,
+                              accommodationType: _accommodationType,
+                              maxOccupancy: _maxOccupancy,
+                              allowsPets: _allowsPets,
+                              allowsChildren: _allowsChildren,
+                              isSharedHosting: _isSharedHosting,
                             );
+
+                            debugPrint('===== FILTROS APLICADOS =====');
+                            debugPrint('priceMin: ${result.priceMin}');
+                            debugPrint('priceMax: ${result.priceMax}');
+                            debugPrint('accommodationType: ${result.accommodationType}');
+                            debugPrint('maxOccupancy: ${result.maxOccupancy}');
+                            debugPrint('allowsPets: ${result.allowsPets}');
+                            debugPrint('allowsChildren: ${result.allowsChildren}');
+                            debugPrint('isSharedHosting: ${result.isSharedHosting}');
+                            debugPrint('=============================');
+
+                            Navigator.pop(context, result);
                           },
                           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                          child: const Text('Ver imóveis'),
+                          child: const Text('Aplicar filtros'),
                         ),
                       ),
                     ],
@@ -390,13 +417,11 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
 
 class _SectionCard extends StatelessWidget {
   final String title;
-  final String? subtitle;
   final Widget child;
 
   const _SectionCard({
     required this.title,
     required this.child,
-    this.subtitle,
   });
 
   @override
@@ -414,10 +439,6 @@ class _SectionCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-            if (subtitle != null) ...[
-              const SizedBox(height: 2),
-              Text(subtitle!, style: textTheme.bodySmall?.copyWith(color: textTheme.bodySmall?.color?.withOpacity(.8))),
-            ],
             const SizedBox(height: 12),
             child,
           ],
@@ -426,3 +447,4 @@ class _SectionCard extends StatelessWidget {
     );
   }
 }
+

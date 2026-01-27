@@ -45,19 +45,41 @@ class ExplorePage extends StatelessWidget {
   }
 
   Future<void> _openFiltroModal(BuildContext context) async {
+    final controller = context.read<ExploreController>();
     final result = await showModalBottomSheet<FiltroBuscaResult>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const FiltroBuscaSheet(),
+      builder: (_) => FiltroBuscaSheet(
+        initial: _filtroBuscaResultFromSearchFilters(controller.filters),
+      ),
     );
 
     if (result != null && context.mounted) {
-      debugPrint(
-        'FILTROS -> quartos=${result.numQuartos} | tipo=${result.tipoImovel} | pet=${result.petFriendly} | '
-        'fumantes=${result.fumantes} | compartilhando=${result.pessoasCompartilhando}',
+      // Aplicar os filtros ao controller
+      controller.updateFilter(
+        priceMin: result.priceMin,
+        priceMax: result.priceMax,
+        accommodationType: result.accommodationType,
+        maxOccupancy: result.maxOccupancy,
+        allowsPets: result.allowsPets,
+        allowsChildren: result.allowsChildren,
+        isSharedHosting: result.isSharedHosting,
       );
     }
+  }
+
+  /// Converte SearchFilters em FiltroBuscaResult para manter o estado anterior
+  FiltroBuscaResult _filtroBuscaResultFromSearchFilters(SearchFilters filters) {
+    return FiltroBuscaResult(
+      priceMin: filters.priceMin,
+      priceMax: filters.priceMax,
+      accommodationType: filters.accommodationType,
+      maxOccupancy: filters.maxOccupancy,
+      allowsPets: filters.allowsPets,
+      allowsChildren: filters.allowsChildren,
+      isSharedHosting: filters.isSharedHosting,
+    );
   }
 
   Future<void> _openLocalizacaoModal(BuildContext context) async {
@@ -168,7 +190,19 @@ class ExplorePage extends StatelessWidget {
                     FilledButton.icon(
                       onPressed: () async {
                         final controller = context.read<ExploreController>();
-                        // show a simple loading dialog
+
+                        // Extrair cidade e estado da string no formato "Cidade, UF"
+                        final cidadePartes = controller.cidade.split(',');
+                        final cidade = cidadePartes.isNotEmpty ? cidadePartes[0].trim() : '';
+                        final state = cidadePartes.length > 1 ? cidadePartes[1].trim() : '';
+
+                        // Atualizar filtros com localização
+                        controller.updateFilter(
+                          city: cidade.isNotEmpty ? cidade : null,
+                          state: state.isNotEmpty ? state : null,
+                        );
+
+                        // Mostrar loading e fazer busca
                         showDialog(
                           context: context,
                           barrierDismissible: false,

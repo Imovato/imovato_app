@@ -16,14 +16,17 @@ class ListingsPage extends StatefulWidget {
 
 class _ListingsPageState extends State<ListingsPage> {
   int _filtrosAtivos = 0;
+  FiltroBuscaResult? _currentFilters;
 
   int _countFiltrosAtivos(FiltroBuscaResult f) {
     var c = 0;
-    if (f.numQuartos != null) c++;
-    if (f.tipoImovel != null) c++;
-    if (f.petFriendly != null) c++;
-    if (f.fumantes != 'Tanto faz') c++;
-    if (f.pessoasCompartilhando.isNotEmpty) c++;
+    if (f.priceMin != null) c++;
+    if (f.priceMax != null) c++;
+    if (f.accommodationType != null) c++;
+    if (f.maxOccupancy != null) c++;
+    if (f.allowsPets != null) c++;
+    if (f.allowsChildren != null) c++;
+    if (f.isSharedHosting != null) c++;
     return c;
   }
 
@@ -32,13 +35,55 @@ class _ListingsPageState extends State<ListingsPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const FiltroBuscaSheet(),
+      builder: (_) => FiltroBuscaSheet(initial: _currentFilters),
     );
 
     if (result != null && context.mounted) {
+      // Verifica se todos os filtros estão vazios (usuário clicou em Limpar)
+      final isCleared = result.priceMin == null &&
+          result.priceMax == null &&
+          result.accommodationType == null &&
+          result.maxOccupancy == null &&
+          result.allowsPets == null &&
+          result.allowsChildren == null &&
+          result.isSharedHosting == null;
+
+      setState(() {
+        _currentFilters = isCleared ? null : result;
+        _filtrosAtivos = isCleared ? 0 : _countFiltrosAtivos(result);
+      });
+
+      // Atualizar os filtros no controller
+      final controller = context.read<ExploreController>();
+
+      if (isCleared) {
+        // Se limpo, reseta os filtros no controller
+        controller.resetFilters();
+      } else {
+        // Caso contrário, substitui os filtros com os valores selecionados
+        final currentCity = controller.filters.city;
+        final currentState = controller.filters.state;
+        final currentNeighborhood = controller.filters.neighborhood;
+
+        controller.setFilters(SearchFilters(
+          priceMin: result.priceMin,
+          priceMax: result.priceMax,
+          city: currentCity,
+          state: currentState,
+          neighborhood: currentNeighborhood,
+          accommodationType: result.accommodationType,
+          maxOccupancy: result.maxOccupancy,
+          allowsPets: result.allowsPets,
+          allowsChildren: result.allowsChildren,
+          isSharedHosting: result.isSharedHosting,
+        ));
+      }
+
+      // Realizar a busca com os novos filtros
+      await controller.searchAccommodations();
+
       debugPrint(
-        'FILTROS -> quartos=${result.numQuartos} | tipo=${result.tipoImovel} | pet=${result.petFriendly} | '
-            'fumantes=${result.fumantes} | compartilhando=${result.pessoasCompartilhando}',
+        'FILTROS -> ${isCleared ? "LIMPO" : "priceMin=${result.priceMin} | priceMax=${result.priceMax} | accommodationType=${result.accommodationType} | maxOccupancy=${result.maxOccupancy} | allowsPets=${result.allowsPets} | allowsChildren=${result.allowsChildren} | isSharedHosting=${result.isSharedHosting}"}',
       );
     }
   }

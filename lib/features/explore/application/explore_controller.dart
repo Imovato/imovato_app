@@ -5,10 +5,83 @@ import 'dart:convert' show utf8;
 
 import '../../search/domain/property.dart';
 
+/// Classe para armazenar os filtros de busca
+class SearchFilters {
+  final double? priceMin;
+  final double? priceMax;
+  final String? city;
+  final String? state;
+  final String? neighborhood;
+  final String? accommodationType; // "APARTMENT", "HOUSE", etc
+  final int? maxOccupancy;
+  final bool? allowsPets;
+  final bool? allowsChildren;
+  final bool? isSharedHosting;
+
+  const SearchFilters({
+    this.priceMin,
+    this.priceMax,
+    this.city,
+    this.state,
+    this.neighborhood,
+    this.accommodationType,
+    this.maxOccupancy,
+    this.allowsPets,
+    this.allowsChildren,
+    this.isSharedHosting,
+  });
+
+  /// Converte os filtros para query parameters da URL
+  Map<String, String> toQueryParameters() {
+    final params = <String, String>{};
+
+    if (priceMin != null) params['priceMin'] = priceMin!.toStringAsFixed(2);
+    if (priceMax != null) params['priceMax'] = priceMax!.toStringAsFixed(2);
+    if (city != null && city!.isNotEmpty) params['city'] = city!;
+    if (state != null && state!.isNotEmpty) params['state'] = state!;
+    if (neighborhood != null && neighborhood!.isNotEmpty) params['neighborhood'] = neighborhood!;
+    if (accommodationType != null && accommodationType!.isNotEmpty) params['accommodationType'] = accommodationType!;
+    if (maxOccupancy != null) params['maxOccupancy'] = maxOccupancy!.toString();
+    if (allowsPets != null) params['allowsPets'] = allowsPets!.toString();
+    if (allowsChildren != null) params['allowsChildren'] = allowsChildren!.toString();
+    if (isSharedHosting != null) params['isSharedHosting'] = isSharedHosting!.toString();
+
+    return params;
+  }
+
+  /// Cria uma cópia com valores atualizados
+  SearchFilters copyWith({
+    double? priceMin,
+    double? priceMax,
+    String? city,
+    String? state,
+    String? neighborhood,
+    String? accommodationType,
+    int? maxOccupancy,
+    bool? allowsPets,
+    bool? allowsChildren,
+    bool? isSharedHosting,
+  }) {
+    return SearchFilters(
+      priceMin: priceMin ?? this.priceMin,
+      priceMax: priceMax ?? this.priceMax,
+      city: city ?? this.city,
+      state: state ?? this.state,
+      neighborhood: neighborhood ?? this.neighborhood,
+      accommodationType: accommodationType ?? this.accommodationType,
+      maxOccupancy: maxOccupancy ?? this.maxOccupancy,
+      allowsPets: allowsPets ?? this.allowsPets,
+      allowsChildren: allowsChildren ?? this.allowsChildren,
+      isSharedHosting: isSharedHosting ?? this.isSharedHosting,
+    );
+  }
+}
+
 class ExploreController extends ChangeNotifier {
   ExploreController({double initialValor = 1000, String initialCidade = 'Alegrete, RS' })
       : _valorSelecionado = initialValor,
-        _cidade = initialCidade;
+        _cidade = initialCidade,
+        _filters = SearchFilters();
 
   // existing state
   double _valorSelecionado;
@@ -32,6 +105,10 @@ class ExploreController extends ChangeNotifier {
   List<Property> _results = [];
   List<Property> get results => List.unmodifiable(_results);
 
+  // Filtros de busca
+  late SearchFilters _filters;
+  SearchFilters get filters => _filters;
+
   static const _baseUrl = 'https://cadastral-imovato-35ca7e6548df.herokuapp.com';
 
   void setValor(double v) {
@@ -42,7 +119,14 @@ class ExploreController extends ChangeNotifier {
   void setCidade(String value) {
     if (value == _cidade) return;
     _cidade = value;
+
+    // Atualiza também o filtro de city
+    _filters = _filters.copyWith(city: value);
+
     notifyListeners();
+
+    // Dispara a busca automaticamente
+    searchAccommodations();
   }
 
   void setTipoMoradia(String? value) {
@@ -50,15 +134,70 @@ class ExploreController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Fetch accommodations from remote API and map to [Property]
+  /// Atualiza os filtros de busca
+  void setFilters(SearchFilters filters) {
+    _filters = filters;
+    notifyListeners();
+  }
+
+  /// Atualiza um filtro específico
+  void updateFilter({
+    double? priceMin,
+    double? priceMax,
+    String? city,
+    String? state,
+    String? neighborhood,
+    String? accommodationType,
+    int? maxOccupancy,
+    bool? allowsPets,
+    bool? allowsChildren,
+    bool? isSharedHosting,
+  }) {
+    _filters = _filters.copyWith(
+      priceMin: priceMin,
+      priceMax: priceMax,
+      city: city,
+      state: state,
+      neighborhood: neighborhood,
+      accommodationType: accommodationType,
+      maxOccupancy: maxOccupancy,
+      allowsPets: allowsPets,
+      allowsChildren: allowsChildren,
+      isSharedHosting: isSharedHosting,
+    );
+    notifyListeners();
+  }
+
+  /// Reseta todos os filtros mas mantém a localização
+  void resetFilters() {
+    _filters = SearchFilters(
+      city: _filters.city,
+      state: _filters.state,
+      neighborhood: _filters.neighborhood,
+    );
+    notifyListeners();
+  }
+
+  /// Fetch accommodations from remote API com filtros aplicados
   Future<void> searchAccommodations() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
-    final url = Uri.parse('$_baseUrl/accommodations');
-
     try {
+      // Construir URL com query parameters baseado nos filtros
+      final queryParams = _filters.toQueryParameters();
+      final url = Uri.parse('$_baseUrl/accommodations/search')
+          .replace(queryParameters: queryParams);
+
+      debugPrint('========== BUSCA DE IMÓVEIS ==========');
+      debugPrint('URL: $url');
+      debugPrint('Filtros aplicados:');
+      queryParams.forEach((key, value) {
+        debugPrint('  $key: $value');
+      });
+      debugPrint('======================================');
+
       final res = await http.get(url);
       if (res.statusCode != 200) {
         _error = 'Erro ao buscar imóveis (${res.statusCode})';
