@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:imovato_app/features/auth/presentation/pages/register_page.dart';
 import 'package:imovato_app/features/checkout/presentation/pages/checkout_page.dart';
+import 'package:imovato_app/features/checkout/presentation/pages/reservation_status_page.dart';
+import 'package:imovato_app/features/checkout/presentation/pages/my_reservations_page.dart';
+import 'package:imovato_app/features/checkout/domain/reservation.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/controllers/login_controller.dart';
 import '../features/explore/presentation/pages/explore_page.dart';
@@ -18,13 +21,15 @@ class Routes {
   static const buscar = '/buscar';
   static const propertyDetails = '/imovel-detalhes';
   static const checkout = '/checkout';
+  static const reservationStatus = '/reserva-status';
+  static const myReservations = '/minhas-reservas';
 }
 
 final Map<String, WidgetBuilder> appRoutes = {
   Routes.welcome: (_) => const WelcomePage(),
   Routes.alugar: (_) => const ExplorePage(),
   Routes.buscar: (_) => const ListingsPage(),
-
+  Routes.myReservations: (_) => const MyReservationsPage(),
 };
 
 Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -44,12 +49,18 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
   if (settings.name == Routes.propertyDetails) {
     final prop = settings.arguments as Property;
     return MaterialPageRoute(builder: (_) => PropertyDetailsPage(property: prop));
-
   }
+
   if (settings.name == Routes.checkout) {
     final prop = settings.arguments as Property;
     return MaterialPageRoute(builder: (_) => CheckoutPage(property: prop));
   }
+
+  if (settings.name == Routes.reservationStatus) {
+    final reservation = settings.arguments as Reservation;
+    return MaterialPageRoute(builder: (_) => ReservationStatusPage(reservation: reservation));
+  }
+
   return null;
 }
 
@@ -65,3 +76,4 @@ class _StubPage extends StatelessWidget {
     );
   }
 }
+

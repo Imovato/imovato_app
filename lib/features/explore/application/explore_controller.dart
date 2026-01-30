@@ -50,31 +50,37 @@ class SearchFilters {
   }
 
   /// Cria uma cópia com valores atualizados
+  /// Usa um padrão que permite passar null explicitamente
   SearchFilters copyWith({
-    double? priceMin,
-    double? priceMax,
-    String? city,
-    String? state,
-    String? neighborhood,
-    String? accommodationType,
-    int? maxOccupancy,
-    bool? allowsPets,
-    bool? allowsChildren,
-    bool? isSharedHosting,
+    Object? priceMin = const _Undefined(),
+    Object? priceMax = const _Undefined(),
+    Object? city = const _Undefined(),
+    Object? state = const _Undefined(),
+    Object? neighborhood = const _Undefined(),
+    Object? accommodationType = const _Undefined(),
+    Object? maxOccupancy = const _Undefined(),
+    Object? allowsPets = const _Undefined(),
+    Object? allowsChildren = const _Undefined(),
+    Object? isSharedHosting = const _Undefined(),
   }) {
     return SearchFilters(
-      priceMin: priceMin ?? this.priceMin,
-      priceMax: priceMax ?? this.priceMax,
-      city: city ?? this.city,
-      state: state ?? this.state,
-      neighborhood: neighborhood ?? this.neighborhood,
-      accommodationType: accommodationType ?? this.accommodationType,
-      maxOccupancy: maxOccupancy ?? this.maxOccupancy,
-      allowsPets: allowsPets ?? this.allowsPets,
-      allowsChildren: allowsChildren ?? this.allowsChildren,
-      isSharedHosting: isSharedHosting ?? this.isSharedHosting,
+      priceMin: priceMin is _Undefined ? this.priceMin : priceMin as double?,
+      priceMax: priceMax is _Undefined ? this.priceMax : priceMax as double?,
+      city: city is _Undefined ? this.city : city as String?,
+      state: state is _Undefined ? this.state : state as String?,
+      neighborhood: neighborhood is _Undefined ? this.neighborhood : neighborhood as String?,
+      accommodationType: accommodationType is _Undefined ? this.accommodationType : accommodationType as String?,
+      maxOccupancy: maxOccupancy is _Undefined ? this.maxOccupancy : maxOccupancy as int?,
+      allowsPets: allowsPets is _Undefined ? this.allowsPets : allowsPets as bool?,
+      allowsChildren: allowsChildren is _Undefined ? this.allowsChildren : allowsChildren as bool?,
+      isSharedHosting: isSharedHosting is _Undefined ? this.isSharedHosting : isSharedHosting as bool?,
     );
   }
+}
+
+// Classe auxiliar para detectar quando um parâmetro não foi fornecido
+class _Undefined {
+  const _Undefined();
 }
 
 class ExploreController extends ChangeNotifier {

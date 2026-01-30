@@ -30,10 +30,8 @@ class ProfileMenu extends StatelessWidget {
                 const SnackBar(content: Text('Perfil (em construção)')),
               );
             } else if (value == 'reservas') {
-              // TODO: Navegar para página de minhas reservas
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Minhas Reservas (em construção)')),
-              );
+              // Navegar para página de minhas reservas
+              Navigator.of(context).pushNamed(Routes.myReservations);
             }
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

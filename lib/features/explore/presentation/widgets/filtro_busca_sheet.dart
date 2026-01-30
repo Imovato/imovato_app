@@ -343,6 +343,20 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () {
+                            // Limpar estado interno primeiro
+                            setState(() {
+                              _priceMin = 0;
+                              _priceMax = 10000;
+                              _accommodationType = null;
+                              _maxOccupancy = null;
+                              _allowsPets = null;
+                              _allowsChildren = null;
+                              _isSharedHosting = null;
+                              _priceMinController.clear();
+                              _priceMaxController.clear();
+                            });
+
+                            // Retornar resultado vazio para limpar os filtros no controller
                             Navigator.pop(
                               context,
                               const FiltroBuscaResult(

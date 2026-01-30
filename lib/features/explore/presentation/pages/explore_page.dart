@@ -56,16 +56,40 @@ class ExplorePage extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      // Aplicar os filtros ao controller
+      // Converter tipo de moradia da tela principal para accommodationType
+      String? tipoMoradiaFromMain;
+      if (controller.tipoMoradia == 'Apartamento Inteiro') {
+        tipoMoradiaFromMain = 'APARTMENT';
+      } else if (controller.tipoMoradia == 'Compartilhado') {
+        tipoMoradiaFromMain = 'HOUSE';
+      }
+
+      // ✅ MERGE: Preserva localização e valor da tela principal, mas dá prioridade aos filtros avançados
       controller.updateFilter(
+        // Mantém localização da tela principal (se já foi definida)
+        city: controller.filters.city,
+        state: controller.filters.state,
+        // Filtros avançados têm prioridade sobre os da tela principal
         priceMin: result.priceMin,
-        priceMax: result.priceMax,
-        accommodationType: result.accommodationType,
+        priceMax: result.priceMax ?? controller.valorSelecionado, // Se não definiu no modal, usa da tela principal
+        accommodationType: result.accommodationType ?? tipoMoradiaFromMain, // Se não definiu no modal, usa da tela principal
         maxOccupancy: result.maxOccupancy,
         allowsPets: result.allowsPets,
         allowsChildren: result.allowsChildren,
         isSharedHosting: result.isSharedHosting,
       );
+
+      debugPrint('===== FILTROS MESCLADOS (após modal) =====');
+      debugPrint('city: ${controller.filters.city}');
+      debugPrint('state: ${controller.filters.state}');
+      debugPrint('priceMin: ${result.priceMin}');
+      debugPrint('priceMax: ${result.priceMax ?? controller.valorSelecionado} (modal ou tela principal)');
+      debugPrint('accommodationType: ${result.accommodationType ?? tipoMoradiaFromMain} (modal ou tela principal)');
+      debugPrint('maxOccupancy: ${result.maxOccupancy}');
+      debugPrint('allowsPets: ${result.allowsPets}');
+      debugPrint('allowsChildren: ${result.allowsChildren}');
+      debugPrint('isSharedHosting: ${result.isSharedHosting}');
+      debugPrint('==========================================');
     }
   }
 
@@ -196,11 +220,38 @@ class ExplorePage extends StatelessWidget {
                         final cidade = cidadePartes.isNotEmpty ? cidadePartes[0].trim() : '';
                         final state = cidadePartes.length > 1 ? cidadePartes[1].trim() : '';
 
-                        // Atualizar filtros com localização
+                        // Converter tipo de moradia para accommodationType
+                        String? accommodationType;
+                        if (controller.tipoMoradia == 'Apartamento Inteiro') {
+                          accommodationType = 'APARTMENT';
+                        } else if (controller.tipoMoradia == 'Compartilhado') {
+                          accommodationType = 'HOUSE'; // ou 'COLIVING' dependendo da API
+                        }
+                        // Se for 'Tanto Faz', deixa null para buscar todos
+
+                        // ✅ MERGE: Combina filtros da tela principal + filtros avançados
                         controller.updateFilter(
+                          // Filtros da tela principal
                           city: cidade.isNotEmpty ? cidade : null,
                           state: state.isNotEmpty ? state : null,
+                          priceMax: controller.valorSelecionado, // Valor máximo da tela principal
+                          accommodationType: accommodationType, // Tipo de moradia
+                          // Mantém filtros avançados do modal (se existirem)
+                          priceMin: controller.filters.priceMin,
+                          // priceMax já foi definido acima, mas se existir no filtro avançado, sobrescreve
+                          maxOccupancy: controller.filters.maxOccupancy,
+                          allowsPets: controller.filters.allowsPets,
+                          allowsChildren: controller.filters.allowsChildren,
+                          isSharedHosting: controller.filters.isSharedHosting,
                         );
+
+                        debugPrint('===== BUSCAR COM FILTROS MESCLADOS =====');
+                        debugPrint('city: $cidade');
+                        debugPrint('state: $state');
+                        debugPrint('priceMax (tela principal): ${controller.valorSelecionado}');
+                        debugPrint('accommodationType (tela principal): $accommodationType');
+                        debugPrint('Filtros avançados preservados: ${controller.filters}');
+                        debugPrint('=======================================');
 
                         // Mostrar loading e fazer busca
                         showDialog(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../app/utils/br_currency.dart';
+import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
 import '../../../../shared/widgets/chat_fab.dart';
 import '../../../explore/application/explore_controller.dart';
@@ -9,6 +10,7 @@ import '../../../explore/presentation/widgets/localizacao_sheet.dart';
 import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../search/domain/property.dart';
 import '../../../auth/presentation/controllers/login_controller.dart';
+import '../../domain/reservation.dart';
 
 class CheckoutPage extends StatefulWidget {
   final Property property;
@@ -79,10 +81,33 @@ class _CheckoutPageState extends State<CheckoutPage> {
       await Future.delayed(const Duration(milliseconds: 900));
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Reserva confirmada!')),
+      // Criar reserva mockada
+      final reservation = Reservation(
+        id: 'RES-${DateTime.now().millisecondsSinceEpoch}',
+        propertyId: widget.property.id,
+        propertyTitle: widget.property.title,
+        propertyAddress: '${widget.property.address}, ${widget.property.city} - ${widget.property.state}',
+        totalPrice: widget.property.price,
+        createdAt: DateTime.now(),
+        checkInDate: DateTime.now().add(const Duration(days: 7)),
+        checkOutDate: DateTime.now().add(const Duration(days: 37)),
+        status: ReservationStatus.awaitingPayment,
+        paymentMethod: _metodo,
+        pixCode: _metodo == 'pix'
+            ? '00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890520400005303986540${widget.property.price.toStringAsFixed(2)}5802BR5925IMOVATO PAGAMENTOS LTDA6009SAO PAULO62070503***6304ABCD'
+            : null,
+        paymentDeadline: _metodo == 'pix'
+            ? DateTime.now().add(const Duration(hours: 24))
+            : null,
       );
-      Navigator.pop(context); // volta aos detalhes (ou mude para uma tela de sucesso)
+
+      // Navegar para tela de status
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(
+        context,
+        Routes.reservationStatus,
+        arguments: reservation,
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }

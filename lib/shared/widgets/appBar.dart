@@ -73,7 +73,43 @@ class ExploreSearchAppBar extends StatelessWidget implements PreferredSizeWidget
             ),
             IconButton(
               onPressed: onTapFilter,
-              icon: const Icon(Icons.tune, color: Colors.black54),
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.tune, color: Colors.black54),
+                  Consumer<ExploreController>(
+                    builder: (context, controller, _) {
+                      final activeFilters = _countActiveFilters(controller.filters);
+                      if (activeFilters == 0) return const SizedBox.shrink();
+
+                      return Positioned(
+                        right: -4,
+                        top: -4,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.error,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '$activeFilters',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -97,3 +133,17 @@ class _CidadeLine extends StatelessWidget {
     );
   }
 }
+
+/// Função auxiliar para contar filtros avançados ativos
+int _countActiveFilters(SearchFilters filters) {
+  int count = 0;
+  if (filters.priceMin != null) count++;
+  if (filters.priceMax != null) count++;
+  if (filters.accommodationType != null) count++;
+  if (filters.maxOccupancy != null) count++;
+  if (filters.allowsPets != null) count++;
+  if (filters.allowsChildren != null) count++;
+  if (filters.isSharedHosting != null) count++;
+  return count;
+}
+

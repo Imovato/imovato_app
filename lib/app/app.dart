@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../features/explore/application/explore_controller.dart';
 import '../features/auth/presentation/controllers/login_controller.dart';
 import '../features/auth/presentation/controllers/register_controller.dart';
+import '../features/checkout/application/reservations_controller.dart';
 import 'router.dart';
 import 'theme/theme.dart';
 
@@ -21,6 +22,9 @@ class App extends StatelessWidget {
         ),
         ChangeNotifierProvider<RegisterController>(
           create: (_) => RegisterController(),
+        ),
+        ChangeNotifierProvider<ReservationsController>(
+          create: (_) => ReservationsController(),
         ),
       ],
       child: MaterialApp(

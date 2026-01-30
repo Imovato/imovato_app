@@ -8,6 +8,9 @@ import '../../../../shared/widgets/chat_fab.dart';
 import '../../../explore/application/explore_controller.dart';
 import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../explore/presentation/widgets/localizacao_sheet.dart';
+import '../../../checkout/domain/reservation.dart';
+import '../../../checkout/application/reservations_controller.dart';
+import '../../../auth/presentation/controllers/login_controller.dart';
 import '../../domain/property.dart';
 
 class PropertyDetailsPage extends StatefulWidget {
@@ -309,10 +312,67 @@ class _BottomBar extends StatelessWidget {
                 Expanded(
                   child: FilledButton(
                     onPressed: () {
-                      Navigator.pushNamed(
+                      // Verificar se o usuário está logado
+                      final loginController = context.read<LoginController>();
+
+                      if (!loginController.isLoggedIn) {
+                        // Se não estiver logado, mostrar diálogo e redirecionar para login
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Login Necessário'),
+                            content: const Text(
+                              'Você precisa fazer login para reservar um imóvel.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text('Cancelar'),
+                              ),
+                              FilledButton(
+                                onPressed: () {
+                                  Navigator.pop(ctx);
+                                  Navigator.pushNamed(context, Routes.loginMorador);
+                                },
+                                child: const Text('Fazer Login'),
+                              ),
+                            ],
+                          ),
+                        );
+                        return;
+                      }
+
+                      // Criar reserva mockada
+                      final reservation = Reservation(
+                        id: 'RES-${DateTime.now().millisecondsSinceEpoch}',
+                        propertyId: property.id,
+                        propertyTitle: property.title,
+                        propertyAddress: '${property.address}, ${property.city} - ${property.state}',
+                        totalPrice: property.price,
+                        createdAt: DateTime.now(),
+                        checkInDate: DateTime.now().add(const Duration(days: 7)),
+                        checkOutDate: DateTime.now().add(const Duration(days: 37)),
+                        status: ReservationStatus.awaitingPayment,
+                        paymentMethod: 'pix',
+                        pixCode: '00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890520400005303986540${property.price.toStringAsFixed(2)}5802BR5925IMOVATO PAGAMENTOS LTDA6009SAO PAULO62070503***6304ABCD',
+                        paymentDeadline: DateTime.now().add(const Duration(hours: 24)),
+                      );
+
+                      // Adicionar ao controller
+                      context.read<ReservationsController>().addReservation(reservation);
+
+                      // Redirecionar para Minhas Reservas
+                      Navigator.pushReplacementNamed(
                         context,
-                        Routes.checkout, // rota do checkout
-                        arguments: property, // passa o imóvel
+                        Routes.myReservations,
+                      );
+
+                      // Mostrar snackbar de sucesso
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Reserva criada com sucesso!'),
+                          backgroundColor: Colors.green,
+                        ),
                       );
                     },
                     style: FilledButton.styleFrom(
