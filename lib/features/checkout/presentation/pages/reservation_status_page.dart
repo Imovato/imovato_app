@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../domain/reservation.dart';
+import '../../application/reservations_controller.dart';
 
 class ReservationStatusPage extends StatefulWidget {
   final Reservation reservation;
@@ -17,18 +18,106 @@ class ReservationStatusPage extends StatefulWidget {
 }
 
 class _ReservationStatusPageState extends State<ReservationStatusPage> {
-  bool _showPixDetails = false;
+  void _cancelReservation() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cancelar Reserva'),
+        content: const Text(
+          'Tem certeza que deseja cancelar esta reserva?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Não'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Remove a reserva do controller
+              final controller = context.read<ReservationsController>();
+              controller.removeReservation(widget.reservation.id);
 
-  void _copyPixCode() {
-    if (widget.reservation.pixCode != null) {
-      Clipboard.setData(ClipboardData(text: widget.reservation.pixCode!));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Código PIX copiado!'),
-          duration: Duration(seconds: 2),
+              Navigator.pop(ctx); // Close dialog
+              Navigator.pop(context); // Go back from reservation status page
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Reserva cancelada com sucesso'),
+                ),
+              );
+            },
+            child: Text(
+              'Sim, cancelar',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _processPayment() {
+    // TODO: Implementar integração com gateway de pagamento
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _PaymentOptionsSheet(
+        reservation: widget.reservation,
+        onPaymentSelected: (method) {
+          Navigator.pop(context);
+          _handlePaymentMethod(method);
+        },
+      ),
+    );
+  }
+
+  void _handlePaymentMethod(String method) {
+    // TODO: Implementar lógica específica para cada método de pagamento
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Processando Pagamento'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text('Processando pagamento via $method...'),
+          ],
+        ),
+      ),
+    );
+
+    // Simula processamento
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!context.mounted) return;
+      Navigator.pop(context); // Close loading dialog
+
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Pagamento em Análise'),
+          content: const Text(
+            'Seu pagamento está sendo processado. Você receberá uma notificação assim que for confirmado.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                // Atualiza o status da reserva
+                final controller = context.read<ReservationsController>();
+                controller.updateReservationStatus(
+                  widget.reservation.id,
+                  ReservationStatus.paymentConfirmed,
+                );
+                setState(() {});
+              },
+              child: const Text('OK'),
+            ),
+          ],
         ),
       );
-    }
+    });
   }
 
   @override
@@ -154,98 +243,6 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
               ),
             ),
 
-            // Informações de Pagamento
-            if (reservation.status == ReservationStatus.awaitingPayment &&
-                reservation.paymentMethod == 'pix') ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: scheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.qr_code_2,
-                            size: 48,
-                            color: scheme.primary,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Pagamento via PIX',
-                            style: textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          if (reservation.paymentDeadline != null)
-                            Text(
-                              'Pague até ${DateFormat('dd/MM/yyyy HH:mm').format(reservation.paymentDeadline!)}',
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: scheme.onPrimaryContainer.withOpacity(0.8),
-                              ),
-                            ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                _showPixDetails = !_showPixDetails;
-                              });
-                            },
-                            icon: Icon(_showPixDetails
-                                ? Icons.visibility_off
-                                : Icons.visibility),
-                            label: Text(
-                                _showPixDetails ? 'Ocultar código' : 'Ver código PIX'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: scheme.primary,
-                              foregroundColor: scheme.onPrimary,
-                              minimumSize: const Size.fromHeight(48),
-                            ),
-                          ),
-                          if (_showPixDetails && reservation.pixCode != null) ...[
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    reservation.pixCode!,
-                                    style: textTheme.bodySmall?.copyWith(
-                                      fontFamily: 'monospace',
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  OutlinedButton.icon(
-                                    onPressed: _copyPixCode,
-                                    icon: const Icon(Icons.copy),
-                                    label: const Text('Copiar código'),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: scheme.primary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ],
 
             // Total
             Padding(
@@ -285,53 +282,18 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
+                    // Botão Pagar
                     FilledButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Verificando pagamento...'),
-                          ),
-                        );
-                      },
+                      onPressed: _processPayment,
                       style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
                       ),
-                      child: const Text('Já fiz o pagamento'),
+                      child: const Text('Pagar'),
                     ),
                     const SizedBox(height: 12),
+                    // Botão Cancelar
                     OutlinedButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text('Cancelar Reserva'),
-                            content: const Text(
-                              'Tem certeza que deseja cancelar esta reserva?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx),
-                                child: const Text('Não'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(ctx);
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Reserva cancelada'),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  'Sim, cancelar',
-                                  style: TextStyle(color: scheme.error),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                      onPressed: _cancelReservation,
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
                       ),
@@ -367,18 +329,6 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
         description: 'Sua vaga está garantida',
         icon: Icons.home,
         status: ReservationStatus.reserved,
-      ),
-      _TimelineStep(
-        title: 'Check-in',
-        description: 'Realize o check-in no imóvel',
-        icon: Icons.key,
-        status: ReservationStatus.checkedIn,
-      ),
-      _TimelineStep(
-        title: 'Concluído',
-        description: 'Estadia finalizada',
-        icon: Icons.done_all,
-        status: ReservationStatus.completed,
       ),
     ];
 
@@ -532,6 +482,165 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
       return '${difference.inHours}h ${difference.inMinutes % 60}m';
     }
     return '${difference.inMinutes}m';
+  }
+}
+
+// Widget de opções de pagamento
+class _PaymentOptionsSheet extends StatelessWidget {
+  final Reservation reservation;
+  final Function(String) onPaymentSelected;
+
+  const _PaymentOptionsSheet({
+    required this.reservation,
+    required this.onPaymentSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Escolha a forma de pagamento',
+                      style: textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Valor total: ${formatBRL0(reservation.totalPrice)}',
+                style: textTheme.titleMedium?.copyWith(
+                  color: scheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Opções de pagamento
+              _PaymentOption(
+                icon: Icons.pix,
+                title: 'PIX',
+                subtitle: 'Aprovação imediata',
+                onTap: () => onPaymentSelected('PIX'),
+              ),
+              const SizedBox(height: 12),
+              _PaymentOption(
+                icon: Icons.credit_card,
+                title: 'Cartão de Crédito',
+                subtitle: 'Parcelamento disponível',
+                onTap: () => onPaymentSelected('Cartão de Crédito'),
+              ),
+              const SizedBox(height: 12),
+              _PaymentOption(
+                icon: Icons.account_balance,
+                title: 'Boleto Bancário',
+                subtitle: 'Vencimento em 3 dias úteis',
+                onTap: () => onPaymentSelected('Boleto'),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Widget de opção de pagamento individual
+class _PaymentOption extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _PaymentOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: scheme.outline.withOpacity(0.3)),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: scheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: scheme.primary,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: scheme.onSurface.withOpacity(0.4),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

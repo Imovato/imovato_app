@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../app/router.dart';
 import '../../domain/reservation.dart';
 import '../../application/reservations_controller.dart';
+import '../../../auth/presentation/controllers/login_controller.dart';
 
 class MyReservationsPage extends StatefulWidget {
   const MyReservationsPage({super.key});
@@ -17,6 +18,62 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final loginController = context.watch<LoginController>();
+
+    // Se não estiver logado, mostra tela pedindo login
+    if (!loginController.isLoggedIn) {
+      return Scaffold(
+        backgroundColor: scheme.surface,
+        appBar: AppBar(
+          title: const Text('Minhas Reservas'),
+          centerTitle: true,
+          backgroundColor: scheme.surface,
+          elevation: 0,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.login,
+                  size: 80,
+                  color: scheme.primary,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Faça login para ver suas reservas',
+                  style: textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Você precisa estar logado para acessar suas reservas.',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: scheme.onSurface.withOpacity(0.6),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(context, Routes.loginMorador);
+                  },
+                  icon: const Icon(Icons.login),
+                  label: const Text('Fazer Login'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(200, 48),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: scheme.surface,
@@ -236,20 +293,16 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         textColor = scheme.onPrimaryContainer;
         icon = Icons.home;
         break;
-      case ReservationStatus.checkedIn:
-        backgroundColor = scheme.tertiaryContainer;
-        textColor = scheme.onTertiaryContainer;
-        icon = Icons.key;
-        break;
-      case ReservationStatus.completed:
-        backgroundColor = scheme.surfaceContainerHighest;
-        textColor = scheme.onSurface;
-        icon = Icons.done_all;
-        break;
       case ReservationStatus.cancelled:
         backgroundColor = scheme.surfaceContainerHighest;
         textColor = scheme.onSurface;
         icon = Icons.cancel;
+        break;
+      default:
+        // Para qualquer outro status (checkedIn, completed), usar o mesmo estilo de reserved
+        backgroundColor = scheme.primaryContainer;
+        textColor = scheme.onPrimaryContainer;
+        icon = Icons.home;
         break;
     }
 
@@ -284,12 +337,10 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         return 'Confirmado';
       case ReservationStatus.reserved:
         return 'Reservado';
-      case ReservationStatus.checkedIn:
-        return 'Check-in';
-      case ReservationStatus.completed:
-        return 'Concluído';
       case ReservationStatus.cancelled:
         return 'Cancelado';
+      default:
+        return 'Reservado';
     }
   }
 }

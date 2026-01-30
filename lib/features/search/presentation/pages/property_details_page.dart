@@ -10,6 +10,7 @@ import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../explore/presentation/widgets/localizacao_sheet.dart';
 import '../../../checkout/domain/reservation.dart';
 import '../../../checkout/application/reservations_controller.dart';
+import '../../../auth/presentation/controllers/login_controller.dart';
 import '../../domain/property.dart';
 
 class PropertyDetailsPage extends StatefulWidget {
@@ -311,6 +312,36 @@ class _BottomBar extends StatelessWidget {
                 Expanded(
                   child: FilledButton(
                     onPressed: () {
+                      // Verificar se o usuário está logado
+                      final loginController = context.read<LoginController>();
+
+                      if (!loginController.isLoggedIn) {
+                        // Se não estiver logado, mostrar diálogo e redirecionar para login
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Login Necessário'),
+                            content: const Text(
+                              'Você precisa fazer login para reservar um imóvel.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text('Cancelar'),
+                              ),
+                              FilledButton(
+                                onPressed: () {
+                                  Navigator.pop(ctx);
+                                  Navigator.pushNamed(context, Routes.loginMorador);
+                                },
+                                child: const Text('Fazer Login'),
+                              ),
+                            ],
+                          ),
+                        );
+                        return;
+                      }
+
                       // Criar reserva mockada
                       final reservation = Reservation(
                         id: 'RES-${DateTime.now().millisecondsSinceEpoch}',
