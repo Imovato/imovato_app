@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'app/app.dart';
+import 'shared/services/auth_storage_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Limpar sessão sempre que o app iniciar
+  final authStorage = AuthStorageService();
+  await authStorage.clearAuthData();
+  print('🔄 App iniciado - sessão limpa');
+
   runApp(const App());
 }
 
@@ -23,4 +30,3 @@ void main() {
 
 
 //TODO: Validar se o usuário está logado ao tentar pagar.
-

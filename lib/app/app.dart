@@ -7,8 +7,39 @@ import '../features/checkout/application/reservations_controller.dart';
 import 'router.dart';
 import 'theme/theme.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> with WidgetsBindingObserver {
+  late final LoginController _loginController;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _loginController = LoginController();
+    // NÃO restaurar sessão - usuário deve fazer login toda vez
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Quando app for pausado/fechado, limpar a sessão
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _loginController.logout();
+      print('🔒 App fechado - sessão limpa');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +48,8 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<ExploreController>(
           create: (_) => ExploreController(initialValor: 1000),
         ),
-        ChangeNotifierProvider<LoginController>(
-          create: (_) => LoginController(),
+        ChangeNotifierProvider<LoginController>.value(
+          value: _loginController,
         ),
         ChangeNotifierProvider<RegisterController>(
           create: (_) => RegisterController(),

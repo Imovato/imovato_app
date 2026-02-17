@@ -11,6 +11,7 @@ import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../search/domain/property.dart';
 import '../../../auth/presentation/controllers/login_controller.dart';
 import '../../domain/reservation.dart';
+import '../../application/booking_service.dart';
 
 class CheckoutPage extends StatefulWidget {
   final Property property;
@@ -22,6 +23,7 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState extends State<CheckoutPage> {
   final _formKey = GlobalKey<FormState>();
+  final _bookingService = BookingService();
 
   // cartão
   final _cardCtrl = TextEditingController();
@@ -31,6 +33,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // método de pagamento
   String _metodo = 'card'; // 'card' | 'pix'
+
+  // meses de aluguel
+  int _rentalMonths = 1;
 
   bool _loading = false;
 
@@ -77,36 +82,92 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() => _loading = true);
 
     try {
-      // TODO: integrar com backend (criar reserva + pagamento)
-      await Future.delayed(const Duration(milliseconds: 900));
-      if (!mounted) return;
+      print('\n🏠 === INICIANDO PROCESSO DE RESERVA ===');
 
-      // Criar reserva mockada
-      final reservation = Reservation(
-        id: 'RES-${DateTime.now().millisecondsSinceEpoch}',
-        propertyId: widget.property.id,
-        propertyTitle: widget.property.title,
-        propertyAddress: '${widget.property.address}, ${widget.property.city} - ${widget.property.state}',
-        totalPrice: widget.property.price,
-        createdAt: DateTime.now(),
-        checkInDate: DateTime.now().add(const Duration(days: 7)),
-        checkOutDate: DateTime.now().add(const Duration(days: 37)),
-        status: ReservationStatus.awaitingPayment,
-        paymentMethod: _metodo,
-        pixCode: _metodo == 'pix'
-            ? '00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890520400005303986540${widget.property.price.toStringAsFixed(2)}5802BR5925IMOVATO PAGAMENTOS LTDA6009SAO PAULO62070503***6304ABCD'
-            : null,
-        paymentDeadline: _metodo == 'pix'
-            ? DateTime.now().add(const Duration(hours: 24))
-            : null,
+      // Obter o ID do usuário do LoginController
+      final userId = loginCtrl.userId;
+      final userEmail = loginCtrl.userEmail ?? '';
+
+      if (userId == null || userId.isEmpty) {
+        throw Exception('ID do usuário não encontrado. Faça login novamente.');
+      }
+
+      print('📧 User Email: $userEmail');
+      print('🆔 User ID: $userId');
+      print('🏡 Property ID: ${widget.property.id}');
+      print('📅 Rental Months: $_rentalMonths');
+      print('\n📡 === CHAMANDO ENDPOINT ===');
+      print('Endpoint: POST /bookings');
+      print('Dados que serão enviados:');
+      print('  accommodationId: ${widget.property.id}');
+      print('  guestIds: [$userId]');
+      print('  rentalMonths: $_rentalMonths');
+      print('==============================\n');
+
+      // Criar reserva no backend
+      final bookingData = await _bookingService.createBooking(
+        accommodationId: widget.property.id,
+        guestIds: [userId], // Usando o ID real do MongoDB
+        rentalMonths: _rentalMonths,
       );
 
-      // Navegar para tela de status
+      print('\n✅ Resposta recebida do backend!');
+      print('📦 Booking Data: $bookingData');
+
       if (!mounted) return;
-      Navigator.pushReplacementNamed(
-        context,
-        Routes.reservationStatus,
-        arguments: reservation,
+
+      if (bookingData != null) {
+        print('✅ Booking criado com sucesso! Criando objeto Reservation...');
+
+        // Criar reserva local com dados do backend
+        final reservation = Reservation(
+          id: bookingData['id']?.toString() ?? 'RES-${DateTime.now().millisecondsSinceEpoch}',
+          propertyId: widget.property.id,
+          propertyTitle: widget.property.title,
+          propertyAddress: '${widget.property.address}, ${widget.property.city} - ${widget.property.state}',
+          totalPrice: widget.property.price * _rentalMonths,
+          createdAt: DateTime.now(),
+          checkInDate: DateTime.now().add(const Duration(days: 7)),
+          checkOutDate: DateTime.now().add(Duration(days: 7 + (_rentalMonths * 30))),
+          status: ReservationStatus.awaitingPayment,
+          paymentMethod: _metodo,
+          pixCode: _metodo == 'pix'
+              ? '00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890520400005303986540${(widget.property.price * _rentalMonths).toStringAsFixed(2)}5802BR5925IMOVATO PAGAMENTOS LTDA6009SAO PAULO62070503***6304ABCD'
+              : null,
+          paymentDeadline: _metodo == 'pix'
+              ? DateTime.now().add(const Duration(hours: 24))
+              : null,
+        );
+
+        print('🎉 Navegando para tela de status...');
+
+        // Navegar para tela de status
+        Navigator.pushReplacementNamed(
+          context,
+          Routes.reservationStatus,
+          arguments: reservation,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Reserva criada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        print('❌ bookingData é null!');
+        throw Exception('Erro ao criar reserva');
+      }
+    } catch (e) {
+      print('\n❌ ERRO ao confirmar pagamento: $e');
+      print('Stack trace: ${StackTrace.current}');
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao criar reserva: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -118,6 +179,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     final p = widget.property;
+    final rentalMonths = _rentalMonths; // Local variable for access in widgets
+    final totalPrice = p.price * rentalMonths;
 
     return Scaffold(
       appBar: ExploreSearchAppBar(
@@ -243,8 +306,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Total'),
-                        Text('${formatBRL0(p.price)} / mês', style: const TextStyle(fontWeight: FontWeight.w800)),
+                        Text('Total ($rentalMonths ${rentalMonths == 1 ? 'mês' : 'meses'})'),
+                        Text(formatBRL0(totalPrice), style: const TextStyle(fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ),
@@ -255,7 +318,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
                       child: _loading
                           ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Text('Pagar'),
+                          : const Text('Reservar'),
                     ),
                   ),
                 ],

@@ -212,9 +212,54 @@ class ExploreController extends ChangeNotifier {
       }
 
       final String decodedBody = utf8.decode(res.bodyBytes);
+
+      print('\n🔍🔍🔍 === DEBUGGING RESPOSTA DA API === 🔍🔍🔍');
+      print('Body completo (primeiros 500 chars): ${decodedBody.substring(0, decodedBody.length > 500 ? 500 : decodedBody.length)}');
+
       final List<dynamic> data = json.decode(decodedBody) as List<dynamic>;
+
+      print('📦 Total de imóveis: ${data.length}');
+
+      if (data.isNotEmpty) {
+        print('\n📋 === PRIMEIRO IMÓVEL COMPLETO ===');
+        final first = data[0];
+        print('Tipo: ${first.runtimeType}');
+        if (first is Map) {
+          print('Keys disponíveis: ${first.keys.toList()}');
+          print('\nValores:');
+          first.forEach((key, value) {
+            if (key.toString().toLowerCase().contains('id')) {
+              print('  ⭐ $key: $value (${value.runtimeType})');
+            } else {
+              print('  $key: ${value.toString().length > 50 ? value.toString().substring(0, 50) + "..." : value}');
+            }
+          });
+        }
+        print('=================================\n');
+      }
+
       _results = data.map<Property>((e) {
-        final id = e['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
+        // Extrair ID - tentar TODAS as possibilidades
+        String? realId;
+
+        // Verificar cada campo possível
+        if (e['_id'] != null) {
+          realId = e['_id'].toString();
+          print('✅ Usando _id: $realId');
+        } else if (e['id'] != null) {
+          realId = e['id'].toString();
+          print('✅ Usando id: $realId');
+        } else if (e['accommodationId'] != null) {
+          realId = e['accommodationId'].toString();
+          print('✅ Usando accommodationId: $realId');
+        } else {
+          // NENHUM ID ENCONTRADO - usar timestamp e avisar
+          realId = DateTime.now().millisecondsSinceEpoch.toString();
+          print('⚠️⚠️⚠️ AVISO: Nenhum ID encontrado! Usando timestamp: $realId');
+          print('⚠️ Keys disponíveis: ${(e as Map).keys.toList()}');
+        }
+
+        final id = realId;
         final title = e['title']?.toString() ?? '';
         final address = e['address']?.toString() ?? '';
         final streetNumber = e['streetNumber']?.toString() ?? '0';
