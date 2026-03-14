@@ -14,6 +14,22 @@ class MyReservationsPage extends StatefulWidget {
 }
 
 class _MyReservationsPageState extends State<MyReservationsPage> {
+  bool _loadedOnce = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (_loadedOnce) return;
+
+    final loginController = context.read<LoginController>();
+    final userId = loginController.userId;
+    if (loginController.isLoggedIn && userId != null && userId.isNotEmpty) {
+      context.read<ReservationsController>().loadReservationsByUserId(userId);
+      _loadedOnce = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -86,6 +102,22 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
       body: Consumer<ReservationsController>(
         builder: (context, controller, _) {
           final reservations = controller.reservations;
+
+          if (controller.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (controller.errorMessage != null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Text(
+                  controller.errorMessage!,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
 
           if (reservations.isEmpty) {
             return _buildEmptyState(scheme, textTheme);
@@ -293,13 +325,17 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         textColor = scheme.onPrimaryContainer;
         icon = Icons.home;
         break;
+      case ReservationStatus.checkedIn:
+        backgroundColor = scheme.secondaryContainer;
+        textColor = scheme.onSecondaryContainer;
+        icon = Icons.login;
+        break;
       case ReservationStatus.cancelled:
         backgroundColor = scheme.surfaceContainerHighest;
         textColor = scheme.onSurface;
         icon = Icons.cancel;
         break;
       default:
-        // Para qualquer outro status (checkedIn, completed), usar o mesmo estilo de reserved
         backgroundColor = scheme.primaryContainer;
         textColor = scheme.onPrimaryContainer;
         icon = Icons.home;
@@ -337,6 +373,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         return 'Confirmado';
       case ReservationStatus.reserved:
         return 'Reservado';
+      case ReservationStatus.checkedIn:
+        return 'Alugado';
       case ReservationStatus.cancelled:
         return 'Cancelado';
       default:

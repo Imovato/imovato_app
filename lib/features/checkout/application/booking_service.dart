@@ -154,6 +154,72 @@ class BookingService {
     }
   }
 
+  /// Realiza o check-in de uma reserva (endpoint POST /bookings/checkin/{id})
+  Future<bool> checkInBooking(String bookingId) async {
+    try {
+      final token = await _getAuthToken();
+
+      if (token == null) {
+        throw Exception('Token de autenticação não encontrado. Faça login novamente.');
+      }
+
+      print('\n🚪 === REALIZANDO CHECK-IN ===');
+      print('🌐 URL: $baseUrl/bookings/checkin/$bookingId');
+      print('🔑 Token (primeiros 30 chars): ${token.substring(0, token.length > 30 ? 30 : token.length)}...');
+      print('🔧 CURL: curl --location --request POST "$baseUrl/bookings/checkin/$bookingId" --header "Authorization: Bearer $token"');
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/bookings/checkin/$bookingId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
+        return true;
+      } else if (response.statusCode == 401) {
+        throw Exception('Sessão expirada. Faça login novamente.');
+      } else {
+        throw Exception('Erro ao realizar check-in (${response.statusCode})');
+      }
+    } catch (e) {
+      print('Erro ao realizar check-in: $e');
+      rethrow;
+    }
+  }
+
+  /// Busca as reservas do usuário pelo ID
+  Future<List<Map<String, dynamic>>> getBookingsByUserId(String userId) async {
+    try {
+      final token = await _getAuthToken();
+
+      if (token == null) {
+        throw Exception('Token de autenticação não encontrado. Faça login novamente.');
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/bookings/user/$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.cast<Map<String, dynamic>>();
+      } else if (response.statusCode == 401) {
+        throw Exception('Sessão expirada. Faça login novamente.');
+      } else {
+        throw Exception('Erro ao buscar reservas (${response.statusCode})');
+      }
+    } catch (e) {
+      print('Erro ao buscar bookings por usuário: $e');
+      rethrow;
+    }
+  }
+
   /// Busca as reservas do usuário
   Future<List<Map<String, dynamic>>> getMyBookings() async {
     try {
@@ -185,6 +251,35 @@ class BookingService {
     }
   }
 
+  /// Cancela uma reserva (endpoint PATCH /bookings/{id}/cancel)
+  Future<bool> cancelBookingById(String bookingId) async {
+    try {
+      final token = await _getAuthToken();
+
+      if (token == null) {
+        throw Exception('Token de autenticação não encontrado. Faça login novamente.');
+      }
+
+      final response = await http.patch(
+        Uri.parse('$baseUrl/bookings/$bookingId/cancel'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true;
+      } else if (response.statusCode == 401) {
+        throw Exception('Sessão expirada. Faça login novamente.');
+      } else {
+        throw Exception('Erro ao cancelar reserva (${response.statusCode})');
+      }
+    } catch (e) {
+      print('Erro ao cancelar booking via PATCH: $e');
+      rethrow;
+    }
+  }
+
   /// Cancela uma reserva
   Future<bool> cancelBooking(String bookingId) async {
     try {
@@ -206,6 +301,63 @@ class BookingService {
     } catch (e) {
       print('Erro ao cancelar booking: $e');
       return false;
+    }
+  }
+
+  /// Confirma o pagamento de uma reserva
+  ///
+  /// [bookingId] - ID da reserva
+  /// [userId] - ID do usuário que está pagando
+  Future<bool> confirmPayment({
+    required String bookingId,
+    required String userId,
+  }) async {
+    try {
+      final token = await _getAuthToken();
+
+      if (token == null) {
+        throw Exception('Token de autenticação não encontrado. Faça login novamente.');
+      }
+
+      print('\n💳 === CONFIRMANDO PAGAMENTO ===');
+      print('🌐 URL: $baseUrl/bookings/$bookingId/pay/$userId');
+      print('🔑 Token (primeiros 30 chars): ${token.substring(0, token.length > 30 ? 30 : token.length)}...');
+      print('🆔 Booking ID: $bookingId');
+      print('👤 User ID: $userId');
+
+      // Gerar comando CURL equivalente para debug
+      print('\n🔧 === COMANDO CURL EQUIVALENTE ===');
+      print("curl --location --request PATCH '$baseUrl/bookings/$bookingId/pay/$userId' \\");
+      print("--header 'Authorization: Bearer $token'");
+      print('===============================================\n');
+
+      final response = await http.patch(
+        Uri.parse('$baseUrl/bookings/$bookingId/pay/$userId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📥 RESPOSTA DA API:');
+      print('Status: ${response.statusCode}');
+      print('Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('✅ PAGAMENTO CONFIRMADO COM SUCESSO!');
+        return true;
+      } else if (response.statusCode == 401) {
+        print('❌ ERRO 401: Token inválido ou expirado');
+        throw Exception('Sessão expirada. Faça login novamente.');
+      } else if (response.statusCode == 404) {
+        print('❌ ERRO 404: Reserva não encontrada');
+        throw Exception('Reserva não encontrada');
+      } else {
+        print('❌ ERRO ${response.statusCode}');
+        throw Exception('Erro ao confirmar pagamento (${response.statusCode})');
+      }
+    } catch (e) {
+      print('❌ EXCEÇÃO ao confirmar pagamento: $e');
+      rethrow;
     }
   }
 }

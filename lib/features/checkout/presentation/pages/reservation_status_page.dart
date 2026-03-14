@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../domain/reservation.dart';
 import '../../application/reservations_controller.dart';
+import '../../application/booking_service.dart';
+import '../../../../shared/services/auth_storage_service.dart';
 
 class ReservationStatusPage extends StatefulWidget {
   final Reservation reservation;
@@ -18,6 +20,14 @@ class ReservationStatusPage extends StatefulWidget {
 }
 
 class _ReservationStatusPageState extends State<ReservationStatusPage> {
+  final BookingService _bookingService = BookingService();
+  final AuthStorageService _authStorage = AuthStorageService();
+  bool _isProcessingPayment = false;
+  bool _isProcessingCheckIn = false;
+  static const bool _forceEnableCheckInForTest = false;
+  static const String _wifiPassword = 'WIFI-1234';
+  static const String _doorPassword = 'PORTA-5678';
+
   void _cancelReservation() {
     showDialog(
       context: context,
@@ -32,18 +42,34 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
             child: const Text('Não'),
           ),
           TextButton(
-            onPressed: () {
-              // Remove a reserva do controller
-              final controller = context.read<ReservationsController>();
-              controller.removeReservation(widget.reservation.id);
+            onPressed: () async {
+              Navigator.pop(ctx);
 
-              Navigator.pop(ctx); // Close dialog
-              Navigator.pop(context); // Go back from reservation status page
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Reserva cancelada com sucesso'),
-                ),
-              );
+              try {
+                final success = await _bookingService.cancelBookingById(
+                  widget.reservation.id,
+                );
+
+                if (!mounted) return;
+
+                if (success) {
+                  final controller = context.read<ReservationsController>();
+                  controller.removeReservation(widget.reservation.id);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Reserva cancelada com sucesso'),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Não foi possível cancelar a reserva.'),
+                  ),
+                );
+              }
             },
             child: Text(
               'Sim, cancelar',
@@ -55,76 +81,203 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     );
   }
 
-  void _processPayment() {
-    // TODO: Implementar integração com gateway de pagamento
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _PaymentOptionsSheet(
-        reservation: widget.reservation,
-        onPaymentSelected: (method) {
-          Navigator.pop(context);
-          _handlePaymentMethod(method);
-        },
-      ),
-    );
+  void _processPayment() async {
+    if (_isProcessingPayment) return;
+
+    try {
+      setState(() => _isProcessingPayment = true);
+
+      // Obter o userId do storage
+      final userId = await _authStorage.getUserId();
+
+      if (userId == null || userId.isEmpty) {
+        throw Exception('Usuário não identificado. Faça login novamente.');
+      }
+
+      print('\n💳 === INICIANDO PROCESSO DE PAGAMENTO ===');
+      print('🆔 Booking ID: ${widget.reservation.id}');
+      print('👤 User ID: $userId');
+
+      // Chamar o endpoint de pagamento
+      final success = await _bookingService.confirmPayment(
+        bookingId: widget.reservation.id,
+        userId: userId,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        // Atualizar o status da reserva no controller
+        final controller = context.read<ReservationsController>();
+        controller.updateReservationStatus(
+          widget.reservation.id,
+          ReservationStatus.paymentConfirmed,
+        );
+
+        // Atualizar a UI
+        setState(() {});
+
+        // Mostrar mensagem de sucesso
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Pagamento confirmado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Após um curto delay, atualizar para "Reserva Confirmada"
+        Future.delayed(const Duration(seconds: 2), () {
+          if (!mounted) return;
+          controller.updateReservationStatus(
+            widget.reservation.id,
+            ReservationStatus.reserved,
+          );
+          setState(() {});
+        });
+      }
+    } catch (e) {
+      print('❌ ERRO ao processar pagamento: $e');
+
+      if (!mounted) return;
+
+      // Não mostrar mensagem de erro na tela do usuário conforme solicitado
+      // Apenas registrar no log
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao processar pagamento. Tente novamente.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessingPayment = false);
+      }
+    }
   }
 
-  void _handlePaymentMethod(String method) {
-    // TODO: Implementar lógica específica para cada método de pagamento
+  void _showAccessInfo() {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Processando Pagamento'),
-        content: Column(
+        title: const Text('Informacoes de acesso'),
+        content: const Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text('Processando pagamento via $method...'),
-          ],
-        ),
-      ),
-    );
-
-    // Simula processamento
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!context.mounted) return;
-      Navigator.pop(context); // Close loading dialog
-
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Pagamento em Análise'),
-          content: const Text(
-            'Seu pagamento está sendo processado. Você receberá uma notificação assim que for confirmado.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                // Atualiza o status da reserva
-                final controller = context.read<ReservationsController>();
-                controller.updateReservationStatus(
-                  widget.reservation.id,
-                  ReservationStatus.paymentConfirmed,
-                );
-                setState(() {});
-              },
-              child: const Text('OK'),
+            Text('Senha do Wi-Fi:'),
+            SizedBox(height: 4),
+            Text(
+              _wifiPassword,
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            SizedBox(height: 12),
+            Text('Senha eletronica da porta:'),
+            SizedBox(height: 4),
+            Text(
+              _doorPassword,
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ],
         ),
-      );
-    });
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Fechar'),
+          ),
+        ],
+      ),
+    );
   }
+
+  void _performCheckIn() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Realizar Check-in'),
+        content: const Text(
+          'Confirmar check-in neste imóvel?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+
+              try {
+                final success = await _bookingService.checkInBooking(
+                  widget.reservation.id,
+                );
+
+                if (!mounted) return;
+
+                if (success) {
+                  final controller = context.read<ReservationsController>();
+                  controller.updateReservationStatus(
+                    widget.reservation.id,
+                    ReservationStatus.checkedIn,
+                  );
+                  setState(() {});
+
+                  _showAccessInfo();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Check-in realizado com sucesso!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Não foi possível realizar o check-in.'),
+                  ),
+                );
+              }
+            },
+            child: Text(
+              'Confirmar Check-in',
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _isCheckInAvailable(Reservation reservation) {
+    if (_forceEnableCheckInForTest) return true;
+
+    final now = DateTime.now();
+    final checkInDate = reservation.checkInDate;
+
+    // Check-in disponível se:
+    // 1. A data atual é igual ou posterior à data de check-in
+    // 2. A reserva está confirmada (pagamento confirmado ou reservada)
+    // 3. Não está cancelada
+    final isDateValid = now.year >= checkInDate.year &&
+        now.month >= checkInDate.month &&
+        now.day >= checkInDate.day;
+
+    final isStatusValid = reservation.status == ReservationStatus.paymentConfirmed ||
+        reservation.status == ReservationStatus.reserved;
+
+    return isDateValid && isStatusValid;
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final reservation = widget.reservation;
+
+    // Buscar a reserva atualizada do controller
+    final controller = context.watch<ReservationsController>();
+    final reservation = controller.getReservationById(widget.reservation.id) ?? widget.reservation;
 
     return Scaffold(
       backgroundColor: scheme.surface,
@@ -238,7 +391,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _buildTimeline(scheme, textTheme),
+                  _buildTimeline(scheme, textTheme, reservation),
                 ],
               ),
             ),
@@ -277,28 +430,121 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
             const SizedBox(height: 20),
 
             // Botões de ação
-            if (reservation.status == ReservationStatus.awaitingPayment)
+            if (reservation.status != ReservationStatus.cancelled)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    // Botão Pagar
-                    FilledButton(
-                      onPressed: _processPayment,
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
+                    // Botão Pagar (apenas se aguardando pagamento)
+                    if (reservation.status == ReservationStatus.awaitingPayment) ...[
+                      FilledButton(
+                        onPressed: _isProcessingPayment ? null : _processPayment,
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                        ),
+                        child: _isProcessingPayment
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Pagar'),
                       ),
-                      child: const Text('Pagar'),
+                      const SizedBox(height: 12),
+                    ],
+
+                    // Botões Check-in e Cancelar (lado a lado)
+                    Row(
+                      children: [
+                        // Botão Check-in
+                        Expanded(
+                          child: FilledButton.tonal(
+                            onPressed: _isCheckInAvailable(reservation)
+                                ? _performCheckIn
+                                : null,
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size.fromHeight(48),
+                            ),
+                            child: _isProcessingCheckIn
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.login,
+                                        size: 18,
+                                        color: _isCheckInAvailable(reservation)
+                                            ? scheme.onSecondaryContainer
+                                            : scheme.onSurface.withOpacity(0.38),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text('Check-in'),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Botão Cancelar
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: _isProcessingPayment ? null : _cancelReservation,
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(48),
+                            ),
+                            child: const Text('Cancelar'),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    // Botão Cancelar
-                    OutlinedButton(
-                      onPressed: _cancelReservation,
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
+                    if (reservation.status == ReservationStatus.checkedIn) ...[
+                      const SizedBox(height: 12),
+                      FilledButton.tonal(
+                        onPressed: _showAccessInfo,
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                        ),
+                        child: const Text('Ver informacoes de acesso'),
                       ),
-                      child: const Text('Cancelar Reserva'),
-                    ),
+                    ],
+
+                    // Mensagem informativa sobre check-in
+                    if (!_isCheckInAvailable(reservation)) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color: scheme.onSurface.withOpacity(0.6),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Check-in disponível a partir de ${DateFormat('dd/MM/yyyy').format(reservation.checkInDate)}',
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: scheme.onSurface.withOpacity(0.6),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -310,7 +556,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     );
   }
 
-  Widget _buildTimeline(ColorScheme scheme, TextTheme textTheme) {
+  Widget _buildTimeline(ColorScheme scheme, TextTheme textTheme, Reservation reservation) {
     final steps = [
       _TimelineStep(
         title: 'Aguardando Pagamento',
@@ -336,12 +582,12 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
       children: List.generate(steps.length, (index) {
         final step = steps[index];
         final isLast = index == steps.length - 1;
-        final currentStep = widget.reservation.currentStep;
+        final currentStep = reservation.currentStep;
         final stepIndex = step.status.index;
 
         final isCompleted = currentStep >= stepIndex;
         final isCurrent = currentStep == stepIndex;
-        final isCancelled = widget.reservation.status == ReservationStatus.cancelled;
+        final isCancelled = reservation.status == ReservationStatus.cancelled;
 
         return _buildTimelineItem(
           scheme: scheme,
@@ -350,6 +596,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
           isCompleted: isCompleted && !isCancelled,
           isCurrent: isCurrent && !isCancelled,
           isLast: isLast,
+          reservation: reservation,
         );
       }),
     );
@@ -362,6 +609,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     required bool isCompleted,
     required bool isCurrent,
     required bool isLast,
+    required Reservation reservation,
   }) {
     final iconColor = isCompleted || isCurrent
         ? scheme.primary
@@ -430,7 +678,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                     color: scheme.onSurface.withOpacity(0.6),
                   ),
                 ),
-                if (isCurrent && widget.reservation.paymentDeadline != null)
+                if (isCurrent && reservation.paymentDeadline != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Container(
@@ -452,7 +700,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Expira em ${_getTimeRemaining(widget.reservation.paymentDeadline!)}',
+                            'Expira em ${_getTimeRemaining(reservation.paymentDeadline!)}',
                             style: textTheme.bodySmall?.copyWith(
                               color: scheme.onErrorContainer,
                               fontWeight: FontWeight.w600,
@@ -482,165 +730,6 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
       return '${difference.inHours}h ${difference.inMinutes % 60}m';
     }
     return '${difference.inMinutes}m';
-  }
-}
-
-// Widget de opções de pagamento
-class _PaymentOptionsSheet extends StatelessWidget {
-  final Reservation reservation;
-  final Function(String) onPaymentSelected;
-
-  const _PaymentOptionsSheet({
-    required this.reservation,
-    required this.onPaymentSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Escolha a forma de pagamento',
-                      style: textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Valor total: ${formatBRL0(reservation.totalPrice)}',
-                style: textTheme.titleMedium?.copyWith(
-                  color: scheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Opções de pagamento
-              _PaymentOption(
-                icon: Icons.pix,
-                title: 'PIX',
-                subtitle: 'Aprovação imediata',
-                onTap: () => onPaymentSelected('PIX'),
-              ),
-              const SizedBox(height: 12),
-              _PaymentOption(
-                icon: Icons.credit_card,
-                title: 'Cartão de Crédito',
-                subtitle: 'Parcelamento disponível',
-                onTap: () => onPaymentSelected('Cartão de Crédito'),
-              ),
-              const SizedBox(height: 12),
-              _PaymentOption(
-                icon: Icons.account_balance,
-                title: 'Boleto Bancário',
-                subtitle: 'Vencimento em 3 dias úteis',
-                onTap: () => onPaymentSelected('Boleto'),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Widget de opção de pagamento individual
-class _PaymentOption extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _PaymentOption({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: scheme.outline.withOpacity(0.3)),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: scheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                color: scheme.primary,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurface.withOpacity(0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: scheme.onSurface.withOpacity(0.4),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 

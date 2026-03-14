@@ -13,9 +13,8 @@ void main() async {
   runApp(const App());
 }
 
-
-//TODO: Estruturar uma camada de comunicacao HTTP.
 //TODO: Criar uma estrutura de pastas para o backend.
+//TODO: Estruturar uma camada de comunicacao HTTP.
 //TODO: Configurar o cliente HTTP.
 //TODO: Criar o service que consome os endpoints.
 //TODO: Adaptar o modelo.
