@@ -4,6 +4,7 @@ import 'package:imovato_app/features/auth/presentation/pages/register_page.dart'
 import 'package:imovato_app/features/checkout/presentation/pages/checkout_page.dart';
 import 'package:imovato_app/features/checkout/presentation/pages/reservation_status_page.dart';
 import 'package:imovato_app/features/checkout/presentation/pages/my_reservations_page.dart';
+import 'package:imovato_app/features/checkout/presentation/pages/pending_invites_page.dart';
 import 'package:imovato_app/features/checkout/domain/reservation.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/controllers/login_controller.dart';
@@ -23,6 +24,7 @@ class Routes {
   static const checkout = '/checkout';
   static const reservationStatus = '/reserva-status';
   static const myReservations = '/minhas-reservas';
+  static const pendingInvites = '/convites-pendentes';
 }
 
 final Map<String, WidgetBuilder> appRoutes = {
@@ -30,6 +32,7 @@ final Map<String, WidgetBuilder> appRoutes = {
   Routes.alugar: (_) => const ExplorePage(),
   Routes.buscar: (_) => const ListingsPage(),
   Routes.myReservations: (_) => const MyReservationsPage(),
+  Routes.pendingInvites: (_) => const PendingInvitesPage(),
 };
 
 Route<dynamic>? onGenerateRoute(RouteSettings settings) {

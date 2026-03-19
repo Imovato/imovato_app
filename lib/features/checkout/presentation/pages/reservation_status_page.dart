@@ -5,6 +5,8 @@ import '../../../../app/utils/br_currency.dart';
 import '../../domain/reservation.dart';
 import '../../application/reservations_controller.dart';
 import '../../application/booking_service.dart';
+import '../../application/shared_booking_controller.dart';
+import '../../application/invite_service.dart';
 import '../../../../shared/services/auth_storage_service.dart';
 
 class ReservationStatusPage extends StatefulWidget {
@@ -24,9 +26,42 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
   final AuthStorageService _authStorage = AuthStorageService();
   bool _isProcessingPayment = false;
   bool _isProcessingCheckIn = false;
+  bool _paymentDone = false;
   static const bool _forceEnableCheckInForTest = false;
   static const String _wifiPassword = 'WIFI-1234';
   static const String _doorPassword = 'PORTA-5678';
+
+  late final SharedBookingController _sharedBookingCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final maxGuests = (widget.reservation.maxOccupancy - 1).clamp(0, 99);
+    _sharedBookingCtrl = SharedBookingController(
+      maxGuests: maxGuests,
+      inviteService: InviteService(),
+    );
+    // Carrega o email do dono para bloquear auto-convite
+    _authStorage.getUserEmail().then((email) {
+      _sharedBookingCtrl.setOwnerEmail(email);
+    });
+
+    // Garante que a reserva está no controller para que as atualizações de
+    // status reflitam na tela via context.watch<ReservationsController>()
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final controller = context.read<ReservationsController>();
+      if (controller.getReservationById(widget.reservation.id) == null) {
+        controller.addReservation(widget.reservation);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _sharedBookingCtrl.dispose();
+    super.dispose();
+  }
 
   void _cancelReservation() {
     showDialog(
@@ -87,9 +122,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     try {
       setState(() => _isProcessingPayment = true);
 
-      // Obter o userId do storage
       final userId = await _authStorage.getUserId();
-
       if (userId == null || userId.isEmpty) {
         throw Exception('Usuário não identificado. Faça login novamente.');
       }
@@ -98,7 +131,6 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
       print('🆔 Booking ID: ${widget.reservation.id}');
       print('👤 User ID: $userId');
 
-      // Chamar o endpoint de pagamento
       final success = await _bookingService.confirmPayment(
         bookingId: widget.reservation.id,
         userId: userId,
@@ -107,41 +139,56 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
       if (!mounted) return;
 
       if (success) {
-        // Atualizar o status da reserva no controller
-        final controller = context.read<ReservationsController>();
-        controller.updateReservationStatus(
-          widget.reservation.id,
-          ReservationStatus.paymentConfirmed,
-        );
+        setState(() => _paymentDone = true);
 
-        // Atualizar a UI
+        final controller = context.read<ReservationsController>();
+        final isColiving = widget.reservation.isColiving;
+
+        // Atualiza status localmente com o valor correto
+        final newStatus = isColiving
+            ? ReservationStatus.awaitingOthersPayment
+            : ReservationStatus.paymentConfirmed;
+
+        controller.updateReservationStatus(widget.reservation.id, newStatus);
         setState(() {});
 
-        // Mostrar mensagem de sucesso
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Pagamento confirmado com sucesso!'),
+          SnackBar(
+            content: Text(
+              isColiving
+                  ? 'Seu pagamento foi confirmado! Aguardando os demais participantes.'
+                  : 'Pagamento confirmado com sucesso!',
+            ),
             backgroundColor: Colors.green,
           ),
         );
 
-        // Após um curto delay, atualizar para "Reserva Confirmada"
-        Future.delayed(const Duration(seconds: 2), () {
-          if (!mounted) return;
-          controller.updateReservationStatus(
-            widget.reservation.id,
-            ReservationStatus.reserved,
-          );
-          setState(() {});
-        });
+        // Reserva individual: avança para reserved após confirmação
+        if (!isColiving) {
+          Future.delayed(const Duration(seconds: 2), () {
+            if (!mounted) return;
+            controller.updateReservationStatus(
+              widget.reservation.id,
+              ReservationStatus.reserved,
+            );
+            setState(() {});
+            // Recarrega do backend após avançar o status localmente
+            Future.delayed(const Duration(seconds: 3), () {
+              if (!mounted) return;
+              controller.loadReservationsByUserId(userId);
+            });
+          });
+        } else {
+          // Coliving: recarrega após um delay para o backend processar
+          Future.delayed(const Duration(seconds: 5), () {
+            if (!mounted) return;
+            controller.loadReservationsByUserId(userId);
+          });
+        }
       }
     } catch (e) {
       print('❌ ERRO ao processar pagamento: $e');
-
       if (!mounted) return;
-
-      // Não mostrar mensagem de erro na tela do usuário conforme solicitado
-      // Apenas registrar no log
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erro ao processar pagamento. Tente novamente.'),
@@ -149,9 +196,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
         ),
       );
     } finally {
-      if (mounted) {
-        setState(() => _isProcessingPayment = false);
-      }
+      if (mounted) setState(() => _isProcessingPayment = false);
     }
   }
 
@@ -429,6 +474,17 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
             const SizedBox(height: 20),
 
+            // ── Seção de convidados coliving ──────────────────────────
+            if (reservation.isColiving &&
+                reservation.status != ReservationStatus.cancelled)
+              ChangeNotifierProvider<SharedBookingController>.value(
+                value: _sharedBookingCtrl,
+                child: _ColivingInviteSection(
+                  reservation: reservation,
+                  sharedCtrl: _sharedBookingCtrl,
+                ),
+              ),
+
             // Botões de ação
             if (reservation.status != ReservationStatus.cancelled)
               Padding(
@@ -438,7 +494,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                     // Botão Pagar (apenas se aguardando pagamento)
                     if (reservation.status == ReservationStatus.awaitingPayment) ...[
                       FilledButton(
-                        onPressed: _isProcessingPayment ? null : _processPayment,
+                        onPressed: (_isProcessingPayment || _paymentDone) ? null : _processPayment,
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
                         ),
@@ -566,10 +622,19 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
       ),
       _TimelineStep(
         title: 'Pagamento Confirmado',
-        description: 'Seu pagamento foi aprovado',
+        description: reservation.isColiving
+            ? 'Seu pagamento foi aprovado'
+            : 'Seu pagamento foi aprovado',
         icon: Icons.check_circle,
         status: ReservationStatus.paymentConfirmed,
       ),
+      if (reservation.isColiving)
+        _TimelineStep(
+          title: 'Aguardando outros pagamentos',
+          description: 'Reserva confirmada quando todos pagarem',
+          icon: Icons.hourglass_top,
+          status: ReservationStatus.awaitingOthersPayment,
+        ),
       _TimelineStep(
         title: 'Reserva Confirmada',
         description: 'Sua vaga está garantida',
@@ -745,5 +810,344 @@ class _TimelineStep {
     required this.icon,
     required this.status,
   });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Painel de convidados coliving
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ColivingInviteSection extends StatefulWidget {
+  final Reservation reservation;
+  final SharedBookingController sharedCtrl;
+
+  const _ColivingInviteSection({
+    required this.reservation,
+    required this.sharedCtrl,
+  });
+
+  @override
+  State<_ColivingInviteSection> createState() => _ColivingInviteSectionState();
+}
+
+class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
+  final _emailCtrl = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+
+    return ChangeNotifierProvider<SharedBookingController>.value(
+      value: widget.sharedCtrl,
+      child: Consumer<SharedBookingController>(
+        builder: (context, ctrl, _) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  children: [
+                    Icon(Icons.people_alt_outlined, color: scheme.primary, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Participantes do Coliving',
+                      style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Convide até ${ctrl.maxGuests} pessoas para dividir o custo',
+                  style: text.bodySmall?.copyWith(color: Colors.black54),
+                ),
+                const SizedBox(height: 12),
+
+                // Lista de convidados já adicionados
+                if (ctrl.guests.isNotEmpty) ...[
+                  ...ctrl.guests.map((g) => _GuestTile(
+                        guest: g,
+                        perPersonAmount: ctrl.perPersonAmount(widget.reservation.totalPrice),
+                        onRemove: () => ctrl.removeGuest(g.guestEmail),
+                        scheme: scheme,
+                        text: text,
+                      )),
+                  const SizedBox(height: 8),
+
+                  // Resumo da divisão
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: scheme.primaryContainer.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Sua parte (${ctrl.totalParticipants} pessoas)',
+                                style: text.bodySmall,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                formatBRL0(ctrl.ownerAmount(widget.reservation.totalPrice)),
+                                style: text.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: scheme.primary),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Total:\n${formatBRL0(widget.reservation.totalPrice)}',
+                          textAlign: TextAlign.right,
+                          style: text.bodySmall?.copyWith(
+                            color: Colors.black45,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                // Erro
+                if (ctrl.error != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.red, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(ctrl.error!,
+                              style: text.bodySmall?.copyWith(color: Colors.red.shade700)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                // Campo de e-mail + botão
+                if (ctrl.guests.length < ctrl.maxGuests)
+                  Form(
+                    key: _formKey,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _emailCtrl,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              hintText: 'E-mail do convidado',
+                              prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                            ),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return 'Informe o e-mail';
+                              if (!v.contains('@')) return 'E-mail inválido';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton(
+                          onPressed: ctrl.isLoading ? null : () => _addGuest(ctrl),
+                          style: FilledButton.styleFrom(
+                              minimumSize: const Size(48, 48),
+                              padding: EdgeInsets.zero),
+                          child: ctrl.isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.white))
+                              : const Icon(Icons.person_add_alt_1_outlined),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: scheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle_outline,
+                            size: 16, color: scheme.primary),
+                        const SizedBox(width: 8),
+                        Text('Limite de convidados atingido',
+                            style: text.bodySmall),
+                      ],
+                    ),
+                  ),
+
+                const SizedBox(height: 20),
+                const Divider(),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _addGuest(SharedBookingController ctrl) async {
+    if (!_formKey.currentState!.validate()) return;
+    final email = _emailCtrl.text.trim();
+
+    // Passo 1: valida o e-mail e adiciona o convidado à lista
+    final result = await ctrl.addGuestByEmail(email);
+
+    if (!mounted) return;
+
+    if (result != AddGuestResult.success) {
+      // Trata erros de validação
+      switch (result) {
+        case AddGuestResult.selfInvite:
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Você não pode convidar a si mesmo.'),
+          backgroundColor: Colors.orange,
+        ));
+        break;
+      case AddGuestResult.userNotFound:
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Usuário não encontrado nesta plataforma.'),
+            backgroundColor: Colors.red,
+          ));
+          break;
+        case AddGuestResult.alreadyAdded:
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Este e-mail já foi adicionado.'),
+            backgroundColor: Colors.orange,
+          ));
+          break;
+        case AddGuestResult.error:
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(ctrl.error ?? 'Erro ao validar usuário.'),
+            backgroundColor: Colors.red,
+          ));
+          break;
+        default:
+          break;
+      }
+      return;
+    }
+
+    // Passo 2: envia o convite via endpoint POST /bookings/{id}/invites
+    _emailCtrl.clear();
+    try {
+      await ctrl.sendInviteForGuest(
+        bookingId: widget.reservation.id,
+        guestEmail: email,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Convite enviado para $email'),
+        backgroundColor: Colors.green,
+      ));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+          'Usuário adicionado, mas falha ao enviar convite: ${e.toString().replaceAll('Exception: ', '')}',
+        ),
+        backgroundColor: Colors.orange,
+      ));
+    }
+  }
+}
+
+class _GuestTile extends StatelessWidget {
+  final dynamic guest;
+  final double perPersonAmount;
+  final VoidCallback onRemove;
+  final ColorScheme scheme;
+  final TextTheme text;
+
+  const _GuestTile({
+    required this.guest,
+    required this.perPersonAmount,
+    required this.onRemove,
+    required this.scheme,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: scheme.primaryContainer,
+            child: Text(
+              (guest.guestName ?? guest.guestEmail)[0].toUpperCase(),
+              style: TextStyle(
+                  color: scheme.onPrimaryContainer, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  guest.guestName ?? guest.guestEmail,
+                  style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  formatBRL0(perPersonAmount),
+                  style: text.bodySmall?.copyWith(color: scheme.primary),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 18),
+            onPressed: onRemove,
+            color: Colors.black45,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ],
+      ),
+    );
+  }
 }
 

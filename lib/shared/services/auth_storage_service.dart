@@ -65,4 +65,3 @@ class AuthStorageService {
     return token != null && token.isNotEmpty;
   }
 }
-

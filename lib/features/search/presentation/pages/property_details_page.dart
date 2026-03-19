@@ -8,9 +8,6 @@ import '../../../../shared/widgets/chat_fab.dart';
 import '../../../explore/application/explore_controller.dart';
 import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../explore/presentation/widgets/localizacao_sheet.dart';
-import '../../../checkout/domain/reservation.dart';
-import '../../../checkout/application/reservations_controller.dart';
-import '../../../checkout/application/booking_service.dart';
 import '../../../auth/presentation/controllers/login_controller.dart';
 import '../../domain/property.dart';
 
@@ -27,16 +24,12 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
   late final PageController _pageCtrl;
   late final TextEditingController _descCtrl;
   int _page = 0;
-  static const int _descLimit = 300;
-  int _minPeriodo = 1;
 
   @override
   void initState() {
     super.initState();
     _pageCtrl = PageController();
-
     _descCtrl = TextEditingController(text: widget.property.description ?? '');
-    _minPeriodo = 1;
   }
 
   @override
@@ -281,20 +274,14 @@ class _BottomBar extends StatefulWidget {
 }
 
 class _BottomBarState extends State<_BottomBar> {
-  final _bookingService = BookingService();
   int _meses = 1;
-  bool _loading = false;
 
   void _decrementarMeses() {
-    if (_meses > 1) {
-      setState(() => _meses--);
-    }
+    if (_meses > 1) setState(() => _meses--);
   }
 
   void _incrementarMeses() {
-    if (_meses < 12) {
-      setState(() => _meses++);
-    }
+    if (_meses < 12) setState(() => _meses++);
   }
 
   @override
@@ -306,7 +293,7 @@ class _BottomBarState extends State<_BottomBar> {
         color: scheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -3),
           )
@@ -317,6 +304,7 @@ class _BottomBarState extends State<_BottomBar> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Seletor de meses
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
@@ -344,10 +332,7 @@ class _BottomBarState extends State<_BottomBar> {
                         ),
                         Text(
                           _meses == 1 ? 'mês' : 'meses',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                         ),
                       ],
                     ),
@@ -378,12 +363,10 @@ class _BottomBarState extends State<_BottomBar> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton(
-                    onPressed: _loading ? null : () async {
-                      // Verificar se o usuário está logado
+                    onPressed: () {
                       final loginController = context.read<LoginController>();
 
                       if (!loginController.isLoggedIn) {
-                        // Se não estiver logado, mostrar diálogo e redirecionar para login
                         showDialog(
                           context: context,
                           builder: (ctx) => AlertDialog(
@@ -409,113 +392,17 @@ class _BottomBarState extends State<_BottomBar> {
                         return;
                       }
 
-                      // Iniciar loading
-                      setState(() => _loading = true);
-
-                      try {
-                        print('\n🏠 === CRIANDO RESERVA NA API ===');
-
-                        // Obter dados do usuário
-                        final userEmail = loginController.userEmail ?? '';
-                        final userId = loginController.userId ?? userEmail; // Usar ID real ou fallback para email
-
-                        print('📧 User Email: $userEmail');
-                        print('🆔 User ID: $userId');
-                        print('🏡 Property ID: ${widget.property.id}');
-                        print('📅 Rental Months: $_meses');
-
-                        // Validar que temos IDs reais
-                        if (userId.isEmpty) {
-                          throw Exception('ID do usuário não encontrado. Faça login novamente.');
-                        }
-                        if (widget.property.id.isEmpty) {
-                          throw Exception('ID do imóvel inválido.');
-                        }
-
-                        // Chamar API para criar reserva
-                        final bookingData = await _bookingService.createBooking(
-                          accommodationId: widget.property.id,
-                          guestIds: [userId],
-                          rentalMonths: _meses,
-                        );
-
-                        print('✅ Resposta recebida da API!');
-                        print('📦 Booking Data: $bookingData');
-
-                        if (!mounted) return;
-
-                        if (bookingData != null) {
-                          // Criar objeto de reserva local com dados do backend
-                          final reservation = Reservation(
-                            id: bookingData['id']?.toString() ?? 'RES-${DateTime.now().millisecondsSinceEpoch}',
-                            propertyId: widget.property.id,
-                            propertyTitle: widget.property.title,
-                            propertyAddress: '${widget.property.address}, ${widget.property.city} - ${widget.property.state}',
-                            totalPrice: widget.property.price * _meses,
-                            createdAt: DateTime.now(),
-                            checkInDate: DateTime.now().add(const Duration(days: 7)),
-                            checkOutDate: DateTime.now().add(Duration(days: 7 + (_meses * 30))),
-                            status: ReservationStatus.awaitingPayment,
-                            paymentMethod: 'pix',
-                            pixCode: '00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890520400005303986540${(widget.property.price * _meses).toStringAsFixed(2)}5802BR5925IMOVATO PAGAMENTOS LTDA6009SAO PAULO62070503***6304ABCD',
-                            paymentDeadline: DateTime.now().add(const Duration(hours: 24)),
-                          );
-
-                          // Adicionar ao controller local
-                          context.read<ReservationsController>().addReservation(reservation);
-
-                          print('🎉 Reserva criada com sucesso no backend!');
-                          print('📍 Navegando para Minhas Reservas...');
-
-                          // Redirecionar para Minhas Reservas
-                          Navigator.pushReplacementNamed(
-                            context,
-                            Routes.myReservations,
-                          );
-
-                          // Mostrar snackbar de sucesso
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('✅ Reserva criada com sucesso no banco de dados!'),
-                              backgroundColor: Colors.green,
-                              duration: Duration(seconds: 3),
-                            ),
-                          );
-                        } else {
-                          throw Exception('API retornou null');
-                        }
-                      } catch (e) {
-                        print('\n❌ ERRO ao criar reserva: $e');
-
-                        if (!mounted) return;
-
-                        // Mostrar erro genérico ao usuário (não mostrar detalhes técnicos)
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Não foi possível processar a reserva. Tente novamente.'),
-                            backgroundColor: Colors.red,
-                            duration: Duration(seconds: 4),
-                          ),
-                        );
-                      } finally {
-                        if (mounted) {
-                          setState(() => _loading = false);
-                        }
-                      }
+                      // Navegar para o CheckoutPage passando o imóvel
+                      Navigator.pushNamed(
+                        context,
+                        Routes.checkout,
+                        arguments: widget.property,
+                      );
                     },
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(46),
                     ),
-                    child: _loading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text('Reservar'),
+                    child: const Text('Reservar'),
                   ),
                 ),
               ],

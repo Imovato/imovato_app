@@ -39,6 +39,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   bool _loading = false;
 
+  bool get _isColiving =>
+      widget.property.accommodationType.toLowerCase().contains('coliving');
+
   @override
   void dispose() {
     _cardCtrl.dispose();
@@ -92,22 +95,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
         throw Exception('ID do usuário não encontrado. Faça login novamente.');
       }
 
+      final totalPrice = widget.property.price * _rentalMonths;
+
       print('📧 User Email: $userEmail');
       print('🆔 User ID: $userId');
       print('🏡 Property ID: ${widget.property.id}');
       print('📅 Rental Months: $_rentalMonths');
-      print('\n📡 === CHAMANDO ENDPOINT ===');
-      print('Endpoint: POST /bookings');
-      print('Dados que serão enviados:');
-      print('  accommodationId: ${widget.property.id}');
-      print('  guestIds: [$userId]');
-      print('  rentalMonths: $_rentalMonths');
-      print('==============================\n');
 
       // Criar reserva no backend
       final bookingData = await _bookingService.createBooking(
         accommodationId: widget.property.id,
-        guestIds: [userId], // Usando o ID real do MongoDB
+        guestIds: [userId],
         rentalMonths: _rentalMonths,
       );
 
@@ -117,29 +115,34 @@ class _CheckoutPageState extends State<CheckoutPage> {
       if (!mounted) return;
 
       if (bookingData != null) {
-        print('✅ Booking criado com sucesso! Criando objeto Reservation...');
+        final bookingId = bookingData['id']?.toString() ??
+            bookingData['bookingId']?.toString() ??
+            'RES-${DateTime.now().millisecondsSinceEpoch}';
+
+        // Calcular o valor que o dono paga
+        final ownerPrice = totalPrice;
 
         // Criar reserva local com dados do backend
         final reservation = Reservation(
-          id: bookingData['id']?.toString() ?? 'RES-${DateTime.now().millisecondsSinceEpoch}',
+          id: bookingId,
           propertyId: widget.property.id,
           propertyTitle: widget.property.title,
           propertyAddress: '${widget.property.address}, ${widget.property.city} - ${widget.property.state}',
-          totalPrice: widget.property.price * _rentalMonths,
+          totalPrice: ownerPrice,
           createdAt: DateTime.now(),
           checkInDate: DateTime.now().add(const Duration(days: 7)),
           checkOutDate: DateTime.now().add(Duration(days: 7 + (_rentalMonths * 30))),
           status: ReservationStatus.awaitingPayment,
           paymentMethod: _metodo,
+          isColiving: _isColiving,
+          maxOccupancy: widget.property.maxOccupancy,
           pixCode: _metodo == 'pix'
-              ? '00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890520400005303986540${(widget.property.price * _rentalMonths).toStringAsFixed(2)}5802BR5925IMOVATO PAGAMENTOS LTDA6009SAO PAULO62070503***6304ABCD'
+              ? '00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890520400005303986540${ownerPrice.toStringAsFixed(2)}5802BR5925IMOVATO PAGAMENTOS LTDA6009SAO PAULO62070503***6304ABCD'
               : null,
           paymentDeadline: _metodo == 'pix'
               ? DateTime.now().add(const Duration(hours: 24))
               : null,
         );
-
-        print('🎉 Navegando para tela de status...');
 
         // Navegar para tela de status
         Navigator.pushReplacementNamed(
@@ -155,12 +158,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         );
       } else {
-        print('❌ bookingData é null!');
         throw Exception('Erro ao criar reserva');
       }
     } catch (e) {
       print('\n❌ ERRO ao confirmar pagamento: $e');
-      print('Stack trace: ${StackTrace.current}');
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -179,123 +180,28 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     final p = widget.property;
-    final rentalMonths = _rentalMonths; // Local variable for access in widgets
+    final rentalMonths = _rentalMonths;
     final totalPrice = p.price * rentalMonths;
 
-    return Scaffold(
-      appBar: ExploreSearchAppBar(
-        onTapLocation: () => _openLocalizacaoModal(context),
-        onTapFilter: () => _openFiltroModal(context),
-        showBack: true,
-      ),
-      floatingActionButton: ChatFab(onPressed: () {/* chat */}),
-      body: Consumer<LoginController>(
-        builder: (context, loginCtrl, _) {
-          return SafeArea(
-            child: Form(
-              key: _formKey,
-              child: Stack(
-                children: [
-                  ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
-                    children: [
-                      // Resumo
-                      Card(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: (p.imagesUrls.isNotEmpty)
-                                    ? Image.network(p.imagesUrls.first, width: 72, height: 72, fit: BoxFit.cover)
-                                    : Container(width: 72, height: 72, color: scheme.surfaceContainerHighest),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(p.title, style: text.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
-                                    const SizedBox(height: 4),
-                                    Text('${p.neighborhood}, ${p.city}', style: text.bodySmall?.copyWith(color: Colors.black54)),
-                                    const SizedBox(height: 8),
-                                    Text('${formatBRL0(p.price)} / mês', style: const TextStyle(fontWeight: FontWeight.w800)),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-
-                  // Modal de login sobreposto
-                  if (!loginCtrl.isLoggedIn)
-                    Positioned.fill(
-                      child: Container(
-                        color: Colors.black.withOpacity(0.3),
-                        child: Center(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(24),
-                                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                                  decoration: BoxDecoration(
-                                    color: scheme.surface,
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Para pagar você precisa estar logado',
-                                        style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      const SizedBox(height: 24),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: FilledButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pushNamed('/login');
-                                          },
-                                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
-                                          child: const Text('Fazer login'),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-
-      // Barra fixa com total e botão
-      bottomNavigationBar: Consumer<LoginController>(
-        builder: (context, loginCtrl, _) {
-          final isEnabled = loginCtrl.isLoggedIn;
-
-          return Container(
+    return Consumer<LoginController>(
+      builder: (context, loginCtrl, _) {
+        return Scaffold(
+          appBar: ExploreSearchAppBar(
+            onTapLocation: () => _openLocalizacaoModal(context),
+            onTapFilter: () => _openFiltroModal(context),
+            showBack: true,
+          ),
+          floatingActionButton: ChatFab(onPressed: () {}),
+          bottomNavigationBar: Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
             decoration: BoxDecoration(
               color: scheme.surface,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(.06), blurRadius: 12, offset: const Offset(0, -3))],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, -3))
+              ],
             ),
             child: SafeArea(
               top: false,
@@ -306,27 +212,159 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Total ($rentalMonths ${rentalMonths == 1 ? 'mês' : 'meses'})'),
-                        Text(formatBRL0(totalPrice), style: const TextStyle(fontWeight: FontWeight.w800)),
+                        Text(
+                            'Total ($rentalMonths ${rentalMonths == 1 ? 'mês' : 'meses'})'),
+                        Text(formatBRL0(totalPrice),
+                            style: const TextStyle(fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: FilledButton(
-                      onPressed: (isEnabled && !_loading) ? _confirmarPagamento : null,
-                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
+                      onPressed: (loginCtrl.isLoggedIn && !_loading)
+                          ? _confirmarPagamento
+                          : null,
+                      style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(46)),
                       child: _loading
-                          ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2))
                           : const Text('Reservar'),
                     ),
                   ),
                 ],
               ),
             ),
-          );
-        },
-      ),
+          ),
+          body: SafeArea(
+            child: Form(
+              key: _formKey,
+              child: Stack(
+                children: [
+                  ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                    children: [
+                      // Resumo do imóvel
+                      Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: (p.imagesUrls.isNotEmpty)
+                                    ? Image.network(p.imagesUrls.first,
+                                        width: 72,
+                                        height: 72,
+                                        fit: BoxFit.cover)
+                                    : Container(
+                                        width: 72,
+                                        height: 72,
+                                        color:
+                                            scheme.surfaceContainerHighest),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(p.title,
+                                        style: text.titleMedium,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis),
+                                    const SizedBox(height: 4),
+                                    Text('${p.neighborhood}, ${p.city}',
+                                        style: text.bodySmall
+                                            ?.copyWith(color: Colors.black54)),
+                                    const SizedBox(height: 8),
+                                    Text('${formatBRL0(p.price)} / mês',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w800)),
+                                    if (_isColiving) ...[
+                                      const SizedBox(height: 6),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.people_alt_outlined,
+                                              size: 14,
+                                              color: scheme.primary),
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: Text(
+                                              'Coliving — convide participantes após reservar',
+                                              style: text.bodySmall?.copyWith(
+                                                  color: scheme.primary,
+                                                  fontWeight: FontWeight.w600),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Overlay de login
+                  if (!loginCtrl.isLoggedIn)
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        child: Center(
+                          child: SingleChildScrollView(
+                            child: Container(
+                              padding: const EdgeInsets.all(24),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: scheme.surface,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Para reservar você precisa estar logado',
+                                    style: text.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w800),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 24),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: FilledButton(
+                                      onPressed: () => Navigator.of(context)
+                                          .pushNamed('/login'),
+                                      style: FilledButton.styleFrom(
+                                          minimumSize:
+                                              const Size.fromHeight(46)),
+                                      child: const Text('Fazer login'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

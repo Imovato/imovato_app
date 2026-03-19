@@ -58,6 +58,8 @@ class ReservationsController extends ChangeNotifier {
       paymentMethod: null,
       pixCode: null,
       paymentDeadline: null,
+      isColiving: accommodation?['accommodationType']?.toString().toLowerCase().contains('coliving') ?? false,
+      maxOccupancy: (accommodation?['maxOccupancy'] as num?)?.toInt() ?? 1,
     );
   }
 
@@ -82,6 +84,8 @@ class ReservationsController extends ChangeNotifier {
         return ReservationStatus.awaitingPayment;
       case 'PAYMENT_CONFIRMED':
         return ReservationStatus.paymentConfirmed;
+      case 'AWAITING_OTHERS_PAYMENT':
+        return ReservationStatus.awaitingOthersPayment;
       case 'CONFIRMED':
       case 'RESERVED':
         return ReservationStatus.reserved;

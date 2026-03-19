@@ -69,6 +69,7 @@ class LoginController extends ChangeNotifier {
         // Salvar token no storage
         await _authStorage.saveToken(authToken!);
 
+
         // Extrair dados do usuário
         userEmail = email;
         userName = data['userName'] ?? data['name'] ?? data['username'] ?? email.split('@').first;

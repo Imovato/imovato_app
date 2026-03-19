@@ -200,16 +200,22 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () {
-          Navigator.pushNamed(
+        onTap: () async {
+          await Navigator.pushNamed(
             context,
             Routes.reservationStatus,
             arguments: reservation,
           );
+          // Recarrega ao voltar para refletir status atualizado
+          if (mounted) {
+            final loginCtrl = context.read<LoginController>();
+            final userId = loginCtrl.userId;
+            if (userId != null && userId.isNotEmpty) {
+              context.read<ReservationsController>().loadReservationsByUserId(userId);
+            }
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -217,15 +223,14 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Título + status
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Text(
                       reservation.propertyTitle,
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -235,61 +240,51 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                 ],
               ),
               const SizedBox(height: 8),
+              // Endereço
               Row(
                 children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    size: 16,
-                    color: scheme.onSurface.withOpacity(0.6),
-                  ),
+                  Icon(Icons.location_on_outlined, size: 16,
+                      color: scheme.onSurface.withOpacity(0.6)),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       reservation.propertyAddress,
                       style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurface.withOpacity(0.6),
-                      ),
+                          color: scheme.onSurface.withOpacity(0.6)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
+              // Datas
               Row(
                 children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 16,
-                    color: scheme.onSurface.withOpacity(0.6),
-                  ),
+                  Icon(Icons.calendar_today, size: 16,
+                      color: scheme.onSurface.withOpacity(0.6)),
                   const SizedBox(width: 4),
                   Text(
-                    '${DateFormat('dd/MM/yyyy').format(reservation.checkInDate)} - ${DateFormat('dd/MM/yyyy').format(reservation.checkOutDate)}',
+                    '${DateFormat('dd/MM/yyyy').format(reservation.checkInDate)}'
+                    ' - ${DateFormat('dd/MM/yyyy').format(reservation.checkOutDate)}',
                     style: textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurface.withOpacity(0.6),
-                    ),
+                        color: scheme.onSurface.withOpacity(0.6)),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
               const Divider(height: 1),
               const SizedBox(height: 12),
+              // Total
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Total',
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  Text('Total',
+                      style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
                   Text(
                     'R\$ ${reservation.totalPrice.toStringAsFixed(2).replaceAll('.', ',')}',
                     style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: scheme.primary,
-                    ),
+                        fontWeight: FontWeight.bold, color: scheme.primary),
                   ),
                 ],
               ),
@@ -319,6 +314,11 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         backgroundColor = scheme.primaryContainer;
         textColor = scheme.onPrimaryContainer;
         icon = Icons.check_circle;
+        break;
+      case ReservationStatus.awaitingOthersPayment:
+        backgroundColor = Colors.orange.shade100;
+        textColor = Colors.orange.shade800;
+        icon = Icons.hourglass_top;
         break;
       case ReservationStatus.reserved:
         backgroundColor = scheme.primaryContainer;
@@ -371,6 +371,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         return 'Aguardando';
       case ReservationStatus.paymentConfirmed:
         return 'Confirmado';
+      case ReservationStatus.awaitingOthersPayment:
+        return 'Aguard. outros';
       case ReservationStatus.reserved:
         return 'Reservado';
       case ReservationStatus.checkedIn:

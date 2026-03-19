@@ -1,6 +1,7 @@
 enum ReservationStatus {
   awaitingPayment,
   paymentConfirmed,
+  awaitingOthersPayment, // coliving: eu paguei, aguardando outros
   reserved,
   checkedIn,
   completed,
@@ -20,6 +21,8 @@ class Reservation {
   final String? paymentMethod;
   final String? pixCode;
   final DateTime? paymentDeadline;
+  final bool isColiving;
+  final int maxOccupancy;
 
   const Reservation({
     required this.id,
@@ -34,6 +37,8 @@ class Reservation {
     this.paymentMethod,
     this.pixCode,
     this.paymentDeadline,
+    this.isColiving = false,
+    this.maxOccupancy = 1,
   });
 
   Reservation copyWith({
@@ -49,6 +54,8 @@ class Reservation {
     String? paymentMethod,
     String? pixCode,
     DateTime? paymentDeadline,
+    bool? isColiving,
+    int? maxOccupancy,
   }) {
     return Reservation(
       id: id ?? this.id,
@@ -63,6 +70,8 @@ class Reservation {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       pixCode: pixCode ?? this.pixCode,
       paymentDeadline: paymentDeadline ?? this.paymentDeadline,
+      isColiving: isColiving ?? this.isColiving,
+      maxOccupancy: maxOccupancy ?? this.maxOccupancy,
     );
   }
 
@@ -72,6 +81,8 @@ class Reservation {
         return 'Aguardando Pagamento';
       case ReservationStatus.paymentConfirmed:
         return 'Pagamento Confirmado';
+      case ReservationStatus.awaitingOthersPayment:
+        return 'Aguardando outros pagamentos';
       case ReservationStatus.reserved:
         return 'Reservado';
       case ReservationStatus.checkedIn:
@@ -88,6 +99,8 @@ class Reservation {
       case ReservationStatus.awaitingPayment:
         return 0;
       case ReservationStatus.paymentConfirmed:
+        return 1;
+      case ReservationStatus.awaitingOthersPayment:
         return 1;
       case ReservationStatus.reserved:
         return 2;
