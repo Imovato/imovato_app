@@ -74,15 +74,44 @@ class BookingInvite {
       }
     }
 
+    double? parseAmount(dynamic raw) {
+      if (raw is num) return raw.toDouble();
+      if (raw is String) return double.tryParse(raw.replaceAll(',', '.'));
+      return null;
+    }
+
+    final guestObj = json['guest'] is Map<String, dynamic>
+        ? json['guest'] as Map<String, dynamic>
+        : null;
+    final guestEmail = json['guestEmail']?.toString() ??
+        json['email']?.toString() ??
+        guestObj?['email']?.toString() ??
+        '';
+    final guestId = json['guestId']?.toString() ??
+        json['guestUserId']?.toString() ??
+        json['userId']?.toString() ??
+        guestObj?['id']?.toString() ??
+        guestObj?['_id']?.toString();
+    final guestName = json['guestName']?.toString() ??
+        json['name']?.toString() ??
+        guestObj?['name']?.toString() ??
+        guestObj?['fullName']?.toString();
+    final amountRaw = json['amountDue'] ??
+        json['valueDue'] ??
+        json['shareAmount'] ??
+        json['share_amount'] ??
+        json['amount_due'] ??
+        json['amount'] ??
+        json['value'];
+
     return BookingInvite(
       inviteId: json['inviteId']?.toString() ?? json['id']?.toString(),
-      guestEmail: json['guestEmail']?.toString() ?? json['email']?.toString() ?? '',
-      guestId: json['guestId']?.toString(),
-      guestName: json['guestName']?.toString() ?? json['name']?.toString(),
+      guestEmail: guestEmail,
+      guestId: guestId,
+      guestName: guestName,
       status: parseStatus(json['status']?.toString()),
       sentAt: json['sentAt'] != null ? DateTime.tryParse(json['sentAt'].toString()) : null,
-      amountDue: (json['amountDue'] as num?)?.toDouble(),
+      amountDue: parseAmount(amountRaw),
     );
   }
 }
-

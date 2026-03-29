@@ -360,4 +360,64 @@ class BookingService {
       rethrow;
     }
   }
+
+  /// Busca a quantidade de convidados de uma reserva (endpoint GET /bookings/{id}/guests/count)
+  ///
+  /// Retorna o total de convidados (exclui o dono) ou null se nao for possivel interpretar.
+  Future<int?> getGuestCount(String bookingId) async {
+    try {
+      final token = await _getAuthToken();
+
+      if (token == null) {
+        throw Exception('Token de autenticacao nao encontrado. Faça login novamente.');
+      }
+
+      final url = Uri.parse('$baseUrl/bookings/$bookingId/guests/count');
+      print('\n👥 === BUSCANDO QUANTIDADE DE CONVIDADOS ===');
+      print('🌐 URL: $url');
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Status: ${response.statusCode}');
+      print('Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        if (response.body.isEmpty) return null;
+        final decoded = jsonDecode(response.body);
+        if (decoded is num) return decoded.toInt();
+        if (decoded is List) return decoded.length;
+        if (decoded is Map<String, dynamic>) {
+          final keys = [
+            'count',
+            'guestCount',
+            'guestsCount',
+            'totalGuests',
+            'totalParticipants',
+            'total',
+          ];
+          for (final key in keys) {
+            final raw = decoded[key];
+            if (raw is num) return raw.toInt();
+            if (raw is String) return int.tryParse(raw);
+          }
+        }
+        return null;
+      } else if (response.statusCode == 401) {
+        throw Exception('Sessao expirada. Faça login novamente.');
+      } else if (response.statusCode == 404) {
+        throw Exception('Reserva nao encontrada.');
+      } else {
+        throw Exception('Erro ao buscar convidados (${response.statusCode}).');
+      }
+    } catch (e) {
+      print('Erro ao buscar quantidade de convidados: $e');
+      rethrow;
+    }
+  }
 }

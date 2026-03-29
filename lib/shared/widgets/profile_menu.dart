@@ -31,8 +31,6 @@ class ProfileMenu extends StatelessWidget {
               );
             } else if (value == 'reservas') {
               Navigator.of(context).pushNamed(Routes.myReservations);
-            } else if (value == 'convites') {
-              Navigator.of(context).pushNamed(Routes.pendingInvites);
             }
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -53,16 +51,6 @@ class ProfileMenu extends StatelessWidget {
                   const Icon(Icons.calendar_today, size: 20),
                   const SizedBox(width: 12),
                   const Text('Minhas reservas'),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'convites',
-              child: Row(
-                children: [
-                  const Icon(Icons.mail_outline, size: 20),
-                  const SizedBox(width: 12),
-                  const Text('Convites pendentes'),
                 ],
               ),
             ),

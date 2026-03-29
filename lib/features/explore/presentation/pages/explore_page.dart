@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../app/router.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../../../shared/widgets/appBar.dart';
-import '../../../../shared/widgets/chat_fab.dart';
 import '../../application/explore_controller.dart';
 import '../widgets/filtro_busca_sheet.dart';
 import '../widgets/localizacao_sheet.dart';
@@ -280,11 +279,7 @@ class ExplorePage extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: ChatFab(
-        onPressed: () {
-          // TODO: abrir chat/atendimento
-        },
-      ),
+      floatingActionButton: null,
     );
   }
 }

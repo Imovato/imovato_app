@@ -22,9 +22,29 @@ class ReservationsController extends ChangeNotifier {
     try {
       final data = await _bookingService.getBookingsByUserId(userId);
       final mapped = data.map(_mapBookingToReservation).toList();
+      final merged = mapped.map((incoming) {
+        final existing = _reservations.firstWhere(
+          (r) => r.id == incoming.id,
+          orElse: () => incoming,
+        );
+        if (existing.id == incoming.id) {
+          final mergedStatus = _maxStatus(existing.status, incoming.status);
+          return incoming.copyWith(
+            status: mergedStatus,
+            paymentMethod: incoming.paymentMethod ?? existing.paymentMethod,
+            pixCode: incoming.pixCode ?? existing.pixCode,
+            paymentDeadline: incoming.paymentDeadline ?? existing.paymentDeadline,
+            isColiving: incoming.isColiving || existing.isColiving,
+            maxOccupancy: incoming.maxOccupancy != 1
+                ? incoming.maxOccupancy
+                : existing.maxOccupancy,
+          );
+        }
+        return incoming;
+      }).toList();
       _reservations
         ..clear()
-        ..addAll(mapped);
+        ..addAll(merged);
     } catch (e) {
       _errorMessage = 'Não foi possível carregar suas reservas.';
     } finally {
@@ -45,22 +65,58 @@ class ReservationsController extends ChangeNotifier {
         ? DateTime.tryParse(endDate) ?? checkInDate
         : checkInDate;
 
+    final totalPrice = _resolveTotalPrice(booking, accommodation);
+
     return Reservation(
-      id: booking['bookingId']?.toString() ?? 'RES-${DateTime.now().millisecondsSinceEpoch}',
+      id: _resolveBookingId(booking),
       propertyId: booking['accommodationId']?.toString() ?? accommodation?['id']?.toString() ?? '',
       propertyTitle: accommodation?['title']?.toString() ?? 'Imóvel',
       propertyAddress: _formatAddress(accommodation),
-      totalPrice: (accommodation?['price'] as num?)?.toDouble() ?? 0.0,
+      totalPrice: totalPrice,
       createdAt: DateTime.now(),
       checkInDate: checkInDate,
       checkOutDate: checkOutDate,
-      status: _mapStatus(booking['statusReservation']?.toString()),
+      status: _mapStatus(_resolveStatus(booking)),
       paymentMethod: null,
       pixCode: null,
       paymentDeadline: null,
       isColiving: accommodation?['accommodationType']?.toString().toLowerCase().contains('coliving') ?? false,
       maxOccupancy: (accommodation?['maxOccupancy'] as num?)?.toInt() ?? 1,
     );
+  }
+
+  double _resolveTotalPrice(Map<String, dynamic> booking, Map<String, dynamic>? accommodation) {
+    final candidates = [
+      booking['totalAmount'],
+      booking['totalPrice'],
+      booking['amount'],
+      booking['price'],
+      booking['value'],
+      booking['totalValue'],
+      booking['valorTotal'],
+      booking['total'],
+    ];
+
+    for (final raw in candidates) {
+      if (raw is num) return raw.toDouble();
+      if (raw is String) {
+        final parsed = double.tryParse(raw.replaceAll(',', '.'));
+        if (parsed != null) return parsed;
+      }
+    }
+
+    return (accommodation?['price'] as num?)?.toDouble() ?? 0.0;
+  }
+
+  String _resolveBookingId(Map<String, dynamic> booking) {
+    final id = booking['bookingId'] ?? booking['id'] ?? booking['bookingID'];
+    return id?.toString() ?? 'RES-${DateTime.now().millisecondsSinceEpoch}';
+  }
+
+  String? _resolveStatus(Map<String, dynamic> booking) {
+    return booking['statusReservation']?.toString() ??
+        booking['status']?.toString() ??
+        booking['reservationStatus']?.toString();
   }
 
   String _formatAddress(Map<String, dynamic>? accommodation) {
@@ -98,6 +154,29 @@ class ReservationsController extends ChangeNotifier {
         return ReservationStatus.cancelled;
       default:
         return ReservationStatus.awaitingPayment;
+    }
+  }
+
+  ReservationStatus _maxStatus(ReservationStatus a, ReservationStatus b) {
+    return _statusRank(a) >= _statusRank(b) ? a : b;
+  }
+
+  int _statusRank(ReservationStatus status) {
+    switch (status) {
+      case ReservationStatus.awaitingPayment:
+        return 0;
+      case ReservationStatus.paymentConfirmed:
+        return 1;
+      case ReservationStatus.awaitingOthersPayment:
+        return 2;
+      case ReservationStatus.reserved:
+        return 3;
+      case ReservationStatus.checkedIn:
+        return 4;
+      case ReservationStatus.completed:
+        return 5;
+      case ReservationStatus.cancelled:
+        return -1;
     }
   }
 

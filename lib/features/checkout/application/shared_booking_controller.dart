@@ -25,6 +25,8 @@ class SharedBookingController extends ChangeNotifier {
   /// E-mail do usuário dono da reserva (para bloquear auto-convite)
   String? ownerEmail;
 
+  int? _participantsOverride;
+
   SharedBookingController({
     required this.maxGuests,
     this.ownerEmail,
@@ -38,13 +40,29 @@ class SharedBookingController extends ChangeNotifier {
   List<BookingInvite> get guests => List.unmodifiable(_guests);
   bool get isLoading => _isLoading;
   String? get error => _error;
-  int get totalParticipants => _guests.length + 1; // + owner
+  int get totalParticipants {
+    final override = _participantsOverride;
+    if (override != null && override > 0) return override;
+    return _guests.length + 1; // + owner
+  }
+
+  void setParticipantsOverride(int? participants) {
+    if (_participantsOverride == participants) return;
+    _participantsOverride = participants;
+    notifyListeners();
+  }
+
+  void clearParticipantsOverride() {
+    _participantsOverride = null;
+    notifyListeners();
+  }
 
   /// Calcula a parte de cada participante.
   ///
   /// A diferença de centavos fica para o dono (tratada no backend).
   double perPersonAmount(double totalPrice) {
-    if (totalParticipants <= 1) return totalPrice;
+    if (totalParticipants <= 0) return totalPrice;
+    if (totalParticipants == 1) return totalPrice;
     // Truncar para 2 casas – diferença fica com o dono
     final base = (totalPrice / totalParticipants * 100).truncate() / 100.0;
     return base;
@@ -52,8 +70,9 @@ class SharedBookingController extends ChangeNotifier {
 
   /// Quanto o dono paga (total - soma dos convidados arredondados)
   double ownerAmount(double totalPrice) {
-    if (totalParticipants <= 1) return totalPrice;
-    final guestPart = perPersonAmount(totalPrice) * _guests.length;
+    if (totalParticipants <= 0) return totalPrice;
+    if (totalParticipants == 1) return totalPrice;
+    final guestPart = perPersonAmount(totalPrice) * (totalParticipants - 1);
     return double.parse((totalPrice - guestPart).toStringAsFixed(2));
   }
 
@@ -113,6 +132,7 @@ class SharedBookingController extends ChangeNotifier {
       );
 
       _guests.add(invite);
+      _clearParticipantsOverrideForLocalChange();
       _isLoading = false;
       notifyListeners();
       return AddGuestResult.success;
@@ -129,9 +149,27 @@ class SharedBookingController extends ChangeNotifier {
     }
   }
 
+  void _clearParticipantsOverrideForLocalChange() {
+    if (_participantsOverride == null) return;
+    _participantsOverride = null;
+  }
+
   /// Remove um convidado da lista pelo e-mail
   void removeGuest(String email) {
     _guests.removeWhere((g) => g.guestEmail.toLowerCase() == email.toLowerCase());
+    _clearParticipantsOverrideForLocalChange();
+    _error = null;
+    notifyListeners();
+  }
+
+  void clearGuests() {
+    _guests.clear();
+    _clearParticipantsOverrideForLocalChange();
+    _error = null;
+    notifyListeners();
+  }
+
+  void clearError() {
     _error = null;
     notifyListeners();
   }
@@ -189,15 +227,22 @@ class SharedBookingController extends ChangeNotifier {
     }
   }
 
-  void clearGuests() {
-    _guests.clear();
+  Future<void> loadInvites(String bookingId) async {
+    _isLoading = true;
     _error = null;
     notifyListeners();
-  }
 
-  void clearError() {
-    _error = null;
-    notifyListeners();
+    try {
+      final invites = await _inviteService.getInvites(bookingId);
+      _guests
+        ..clear()
+        ..addAll(invites);
+    } catch (e) {
+      _error = 'Nao foi possivel carregar convidados.';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
 

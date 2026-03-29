@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../domain/reservation.dart';
 import '../../application/reservations_controller.dart';
 import '../../application/booking_service.dart';
 import '../../application/shared_booking_controller.dart';
 import '../../application/invite_service.dart';
+import '../../domain/booking_invite.dart';
 import '../../../../shared/services/auth_storage_service.dart';
 
 class ReservationStatusPage extends StatefulWidget {
@@ -24,6 +26,7 @@ class ReservationStatusPage extends StatefulWidget {
 class _ReservationStatusPageState extends State<ReservationStatusPage> {
   final BookingService _bookingService = BookingService();
   final AuthStorageService _authStorage = AuthStorageService();
+  final InviteService _inviteService = InviteService();
   bool _isProcessingPayment = false;
   bool _isProcessingCheckIn = false;
   bool _paymentDone = false;
@@ -32,6 +35,12 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
   static const String _doorPassword = 'PORTA-5678';
 
   late final SharedBookingController _sharedBookingCtrl;
+  String? _currentUserId;
+  String? _currentUserEmail;
+  List<Map<String, dynamic>> _pendingInvites = [];
+  bool _pendingLoaded = false;
+  int? _guestCount;
+  bool _guestCountLoaded = false;
 
   @override
   void initState() {
@@ -41,10 +50,24 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
       maxGuests: maxGuests,
       inviteService: InviteService(),
     );
+    _sharedBookingCtrl.addListener(_onSharedBookingChanged);
     // Carrega o email do dono para bloquear auto-convite
     _authStorage.getUserEmail().then((email) {
       _sharedBookingCtrl.setOwnerEmail(email);
+      if (!mounted) return;
+      setState(() => _currentUserEmail = email?.toLowerCase());
     });
+    _authStorage.getUserId().then((id) {
+      if (!mounted) return;
+      setState(() => _currentUserId = id);
+    });
+    _loadCurrentUserFromToken();
+
+    if (widget.reservation.isColiving) {
+      _sharedBookingCtrl.loadInvites(widget.reservation.id);
+    }
+    _loadPendingInvites();
+    _loadGuestCount();
 
     // Garante que a reserva está no controller para que as atualizações de
     // status reflitam na tela via context.watch<ReservationsController>()
@@ -59,8 +82,13 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
   @override
   void dispose() {
+    _sharedBookingCtrl.removeListener(_onSharedBookingChanged);
     _sharedBookingCtrl.dispose();
     super.dispose();
+  }
+
+  void _onSharedBookingChanged() {
+    if (mounted) setState(() {});
   }
 
   void _cancelReservation() {
@@ -142,20 +170,26 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
         setState(() => _paymentDone = true);
 
         final controller = context.read<ReservationsController>();
-        final isColiving = widget.reservation.isColiving;
+        final currentInvite = _findCurrentUserInvite();
+        final isSharedFlow = widget.reservation.isColiving || currentInvite != null || _guestCount != null;
 
         // Atualiza status localmente com o valor correto
-        final newStatus = isColiving
+        final newStatus = isSharedFlow
             ? ReservationStatus.awaitingOthersPayment
             : ReservationStatus.paymentConfirmed;
 
         controller.updateReservationStatus(widget.reservation.id, newStatus);
         setState(() {});
 
+        if (isSharedFlow) {
+          _sharedBookingCtrl.loadInvites(widget.reservation.id);
+          _loadGuestCount();
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              isColiving
+              isSharedFlow
                   ? 'Seu pagamento foi confirmado! Aguardando os demais participantes.'
                   : 'Pagamento confirmado com sucesso!',
             ),
@@ -164,7 +198,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
         );
 
         // Reserva individual: avança para reserved após confirmação
-        if (!isColiving) {
+        if (!isSharedFlow) {
           Future.delayed(const Duration(seconds: 2), () {
             if (!mounted) return;
             controller.updateReservationStatus(
@@ -314,6 +348,158 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     return isDateValid && isStatusValid;
   }
 
+  Future<void> _loadPendingInvites() async {
+    try {
+      final data = await _inviteService.getPendingInvites();
+      if (!mounted) return;
+      setState(() {
+        _pendingInvites = data;
+        _pendingLoaded = true;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _pendingLoaded = true);
+    }
+  }
+
+  Future<void> _loadGuestCount() async {
+    try {
+      final count = await _bookingService.getGuestCount(widget.reservation.id);
+      if (!mounted) return;
+      setState(() {
+        _guestCount = count;
+        _guestCountLoaded = true;
+      });
+      if (count != null) {
+        _sharedBookingCtrl.setParticipantsOverride(count);
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _guestCountLoaded = true);
+    }
+  }
+
+  Future<void> _loadCurrentUserFromToken() async {
+    if (_currentUserId != null && _currentUserEmail != null) return;
+    final token = await _authStorage.getToken();
+    if (token == null || token.isEmpty) return;
+
+    Map<String, dynamic> decoded;
+    try {
+      decoded = JwtDecoder.decode(token);
+    } catch (_) {
+      return;
+    }
+
+    String? tokenEmail;
+    final emailRaw = decoded['email'] ?? decoded['userEmail'] ?? decoded['mail'] ?? decoded['username'];
+    if (emailRaw is String && emailRaw.contains('@')) {
+      tokenEmail = emailRaw;
+    }
+
+    String? tokenId;
+    final idRaw = decoded['userId'] ?? decoded['id'] ?? decoded['_id'] ?? decoded['sub'];
+    if (idRaw != null) {
+      tokenId = idRaw.toString();
+      if (tokenId.contains('@')) tokenId = null;
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _currentUserEmail ??= tokenEmail?.toLowerCase();
+      _currentUserId ??= tokenId;
+    });
+  }
+
+  String? _normalizeEmail(String? email) {
+    if (email == null) return null;
+    final trimmed = email.trim().toLowerCase();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  String? _extractBookingId(Map<String, dynamic> invite) {
+    final booking = invite['booking'] as Map<String, dynamic>?;
+    final bookingValue = invite['booking'];
+    if (bookingValue is String) return bookingValue;
+    return invite['bookingId']?.toString() ??
+        invite['booking_id']?.toString() ??
+        invite['reservationId']?.toString() ??
+        booking?['id']?.toString() ??
+        booking?['bookingId']?.toString();
+  }
+
+  String? _extractAccommodationId(Map<String, dynamic> invite) {
+    final booking = invite['booking'] as Map<String, dynamic>?;
+    return invite['accommodationId']?.toString() ??
+        invite['propertyId']?.toString() ??
+        booking?['accommodationId']?.toString();
+  }
+
+  BookingInvite? _inviteFromPending(Map<String, dynamic> invite) {
+    final normalized = Map<String, dynamic>.from(invite);
+    if (normalized['status'] == null && normalized['statusInvite'] != null) {
+      normalized['status'] = normalized['statusInvite'];
+    }
+    if (normalized['amountDue'] == null && normalized['shareAmount'] != null) {
+      normalized['amountDue'] = normalized['shareAmount'];
+    }
+    return BookingInvite.fromJson(normalized);
+  }
+
+  double? _extractShareAmount(Map<String, dynamic> invite) {
+    final raw = invite['shareAmount'] ??
+        invite['share_amount'] ??
+        invite['amountDue'] ??
+        invite['valueDue'] ??
+        invite['amount_due'];
+    if (raw is num) return raw.toDouble();
+    if (raw is String) return double.tryParse(raw.replaceAll(',', '.'));
+    return null;
+  }
+
+  BookingInvite? _findCurrentUserInvite() {
+    final email = _normalizeEmail(_currentUserEmail);
+    for (final invite in _sharedBookingCtrl.guests) {
+      final inviteEmail = _normalizeEmail(invite.guestEmail);
+      final sameId = _currentUserId != null && invite.guestId == _currentUserId;
+      final sameEmail = email != null && inviteEmail == email;
+      if (sameId || sameEmail) return invite;
+    }
+
+    for (final pending in _pendingInvites) {
+      final bookingId = _extractBookingId(pending);
+      final accommodationId = _extractAccommodationId(pending);
+      final matchesBooking = bookingId != null && bookingId == widget.reservation.id;
+      final matchesAccommodation = accommodationId != null && accommodationId == widget.reservation.propertyId;
+      if (!matchesBooking && !matchesAccommodation) continue;
+      final invite = _inviteFromPending(pending);
+      if (invite == null) continue;
+      final inviteEmail = _normalizeEmail(invite.guestEmail);
+      final sameId = _currentUserId != null && invite.guestId == _currentUserId;
+      final sameEmail = email != null && inviteEmail == email;
+      final noInviteIdentity = invite.guestId == null && inviteEmail == null;
+      final noUserIdentity = _currentUserId == null && email == null;
+      if (sameId || sameEmail || noInviteIdentity || noUserIdentity) return invite;
+      // Endpoint /invites/pending retorna convites do usuario logado.
+      return invite;
+    }
+
+    return null;
+  }
+
+  bool _canGuestPay(Reservation reservation, BookingInvite invite) {
+    final statusOk = reservation.status == ReservationStatus.awaitingPayment ||
+        reservation.status == ReservationStatus.awaitingOthersPayment;
+    final inviteOk = invite.status == InviteStatus.pending || invite.status == InviteStatus.accepted;
+    return statusOk && inviteOk;
+  }
+
+  double _resolveGuestAmount(Reservation reservation, BookingInvite? currentInvite, double? pendingShare) {
+    final inviteAmount = currentInvite?.amountDue;
+    if (inviteAmount != null && inviteAmount > 0) return inviteAmount;
+    if (pendingShare != null && pendingShare > 0) return pendingShare;
+    return _sharedBookingCtrl.perPersonAmount(reservation.totalPrice);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -323,6 +509,24 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     // Buscar a reserva atualizada do controller
     final controller = context.watch<ReservationsController>();
     final reservation = controller.getReservationById(widget.reservation.id) ?? widget.reservation;
+
+    final currentInvite = _findCurrentUserInvite();
+    final isGuestView = currentInvite != null;
+    final pendingMatch = _pendingInvites.firstWhere(
+      (invite) {
+        final bookingId = _extractBookingId(invite);
+        final accommodationId = _extractAccommodationId(invite);
+        return (bookingId != null && bookingId == reservation.id) ||
+            (accommodationId != null && accommodationId == reservation.propertyId);
+      },
+      orElse: () => {},
+    );
+    final pendingShare = pendingMatch.isNotEmpty ? _extractShareAmount(pendingMatch) : null;
+    final guestAmount = _resolveGuestAmount(reservation, currentInvite, pendingShare);
+    final participantsLabel = _guestCountLoaded && _guestCount != null
+        ? '${_guestCount!} pessoas'
+        : '${_sharedBookingCtrl.totalParticipants} pessoas';
+    final isSharedReservation = reservation.isColiving || pendingMatch.isNotEmpty || _guestCount != null;
 
     return Scaffold(
       backgroundColor: scheme.surface,
@@ -430,7 +634,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Acompanhe seu pedido',
+                    'Acompanhe a sua reserva',
                     style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -482,8 +686,87 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                 child: _ColivingInviteSection(
                   reservation: reservation,
                   sharedCtrl: _sharedBookingCtrl,
+                  readOnly: isGuestView,
                 ),
               ),
+
+            // Pagamento do convidado
+            if (isGuestView && reservation.status != ReservationStatus.cancelled)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: scheme.primaryContainer.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Sua parte',
+                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        formatBRL0(guestAmount),
+                        style: textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: scheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Divisao: $participantsLabel',
+                        style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            if (!isGuestView && isSharedReservation)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Valor por pessoa',
+                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        formatBRL0(_sharedBookingCtrl.perPersonAmount(reservation.totalPrice)),
+                        style: textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: scheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Divisao: $participantsLabel',
+                        style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Nao foi possivel identificar voce como convidado desta reserva.',
+                        style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            const SizedBox(height: 12),
 
             // Botões de ação
             if (reservation.status != ReservationStatus.cancelled)
@@ -491,8 +774,9 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    // Botão Pagar (apenas se aguardando pagamento)
-                    if (reservation.status == ReservationStatus.awaitingPayment) ...[
+                    // Botão Pagar (dono aguardando pagamento ou convidado)
+                    if ((reservation.status == ReservationStatus.awaitingPayment) ||
+                        (isGuestView && currentInvite != null && _canGuestPay(reservation, currentInvite))) ...[
                       FilledButton(
                         onPressed: (_isProcessingPayment || _paymentDone) ? null : _processPayment,
                         style: FilledButton.styleFrom(
@@ -648,9 +932,10 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
         final step = steps[index];
         final isLast = index == steps.length - 1;
         final currentStep = reservation.currentStep;
-        final stepIndex = step.status.index;
+        // Usa o índice da lista (posição), não o índice do enum
+        final stepIndex = index;
 
-        final isCompleted = currentStep >= stepIndex;
+        final isCompleted = currentStep > stepIndex;
         final isCurrent = currentStep == stepIndex;
         final isCancelled = reservation.status == ReservationStatus.cancelled;
 
@@ -819,10 +1104,12 @@ class _TimelineStep {
 class _ColivingInviteSection extends StatefulWidget {
   final Reservation reservation;
   final SharedBookingController sharedCtrl;
+  final bool readOnly;
 
   const _ColivingInviteSection({
     required this.reservation,
     required this.sharedCtrl,
+    this.readOnly = false,
   });
 
   @override
@@ -866,7 +1153,9 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Convide até ${ctrl.maxGuests} pessoas para dividir o custo',
+                  widget.readOnly
+                      ? 'Veja quem participa da reserva'
+                      : 'Convide até ${ctrl.maxGuests} pessoas para dividir o custo',
                   style: text.bodySmall?.copyWith(color: Colors.black54),
                 ),
                 const SizedBox(height: 12),
@@ -876,53 +1165,56 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                   ...ctrl.guests.map((g) => _GuestTile(
                         guest: g,
                         perPersonAmount: ctrl.perPersonAmount(widget.reservation.totalPrice),
-                        onRemove: () => ctrl.removeGuest(g.guestEmail),
+                        onRemove: widget.readOnly ? () {} : () => ctrl.removeGuest(g.guestEmail),
                         scheme: scheme,
                         text: text,
+                        readOnly: widget.readOnly,
                       )),
                   const SizedBox(height: 8),
 
-                  // Resumo da divisão
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: scheme.primaryContainer.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Sua parte (${ctrl.totalParticipants} pessoas)',
-                                style: text.bodySmall,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                formatBRL0(ctrl.ownerAmount(widget.reservation.totalPrice)),
-                                style: text.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: scheme.primary),
-                              ),
-                            ],
+                  // Resumo da divisão (apenas para o dono)
+                  if (!widget.readOnly) ...[
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: scheme.primaryContainer.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Sua parte (${ctrl.totalParticipants} pessoas)',
+                                  style: text.bodySmall,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  formatBRL0(ctrl.ownerAmount(widget.reservation.totalPrice)),
+                                  style: text.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: scheme.primary),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Total:\n${formatBRL0(widget.reservation.totalPrice)}',
-                          textAlign: TextAlign.right,
-                          style: text.bodySmall?.copyWith(
-                            color: Colors.black45,
-                            decoration: TextDecoration.lineThrough,
+                          const SizedBox(width: 8),
+                          Text(
+                            'Total:\n${formatBRL0(widget.reservation.totalPrice)}',
+                            textAlign: TextAlign.right,
+                            style: text.bodySmall?.copyWith(
+                              color: Colors.black45,
+                              decoration: TextDecoration.lineThrough,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
+                  ],
                 ],
 
                 // Erro
@@ -947,8 +1239,8 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                   const SizedBox(height: 12),
                 ],
 
-                // Campo de e-mail + botão
-                if (ctrl.guests.length < ctrl.maxGuests)
+                // Campo de e-mail + botão (apenas dono)
+                if (!widget.readOnly && ctrl.guests.length < ctrl.maxGuests)
                   Form(
                     key: _formKey,
                     child: Row(
@@ -990,7 +1282,7 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                       ],
                     ),
                   )
-                else
+                else if (!widget.readOnly)
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
@@ -1091,6 +1383,7 @@ class _GuestTile extends StatelessWidget {
   final VoidCallback onRemove;
   final ColorScheme scheme;
   final TextTheme text;
+  final bool readOnly;
 
   const _GuestTile({
     required this.guest,
@@ -1098,6 +1391,7 @@ class _GuestTile extends StatelessWidget {
     required this.onRemove,
     required this.scheme,
     required this.text,
+    this.readOnly = false,
   });
 
   @override
@@ -1138,16 +1432,18 @@ class _GuestTile extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.close, size: 18),
-            onPressed: onRemove,
-            color: Colors.black45,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
+          if (!readOnly)
+            IconButton(
+              icon: const Icon(Icons.close, size: 18),
+              onPressed: onRemove,
+              color: Colors.black45,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
         ],
       ),
     );
   }
 }
+
 

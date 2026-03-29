@@ -84,7 +84,7 @@ class _Undefined {
 }
 
 class ExploreController extends ChangeNotifier {
-  ExploreController({double initialValor = 1000, String initialCidade = 'Alegrete, RS' })
+  ExploreController({double initialValor = 500, String initialCidade = 'Alegrete, RS' })
       : _valorSelecionado = initialValor,
         _cidade = initialCidade,
         _filters = SearchFilters();

@@ -16,7 +16,7 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
   @override
   void initState() {
     super.initState();
-    value = widget.initialValue.clamp(1000, 15000);
+    value = widget.initialValue.clamp(500, 15000);
   }
 
   @override
@@ -67,7 +67,7 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('R\$ 1.000', style: Theme.of(context).textTheme.labelMedium),
+                  Text('R\$ 500', style: Theme.of(context).textTheme.labelMedium),
                   Text(
                     formatBRL0(value),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.primary, fontWeight: FontWeight.w800),
@@ -84,9 +84,9 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
                 ),
                 child: Slider(
                   value: value,
-                  min: 1000,
+                  min: 500,
                   max: 15000,
-                  divisions: 140,
+                  divisions: 145,
                   onChanged: (v) => setState(() => value = v),
                 ),
               ),

@@ -101,13 +101,23 @@ class Reservation {
       case ReservationStatus.paymentConfirmed:
         return 1;
       case ReservationStatus.awaitingOthersPayment:
-        return 1;
-      case ReservationStatus.reserved:
+        // Na timeline coliving: awaitingPayment(0), paymentConfirmed(1), awaitingOthersPayment(2), reserved(3)
         return 2;
+      case ReservationStatus.reserved:
+        // Coliving: posição 3 / individual: posição 2
+        // O _buildTimeline não inclui awaitingOthersPayment para não-coliving,
+        // então para individual reserved fica na posição 2 e para coliving na 3.
+        // Usamos isColiving para diferenciar, mas currentStep não tem acesso.
+        // Para o cálculo correto, reserved = 3 (coliving usa) ou 2 (individual).
+        // Como a lógica da timeline usa índice da lista, e para individual
+        // reserved é o índice 2 e para coliving é o índice 3,
+        // retornamos um valor alto o suficiente (3) — para individual o step
+        // só tem 3 itens (0,1,2), então 3 > 2 marca todos como completed. ✓
+        return isColiving ? 3 : 2;
       case ReservationStatus.checkedIn:
-        return 3;
+        return isColiving ? 4 : 3;
       case ReservationStatus.completed:
-        return 4;
+        return isColiving ? 5 : 4;
       case ReservationStatus.cancelled:
         return -1;
     }
