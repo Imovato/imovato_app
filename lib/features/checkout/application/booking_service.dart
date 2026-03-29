@@ -393,15 +393,22 @@ class BookingService {
         if (decoded is num) return decoded.toInt();
         if (decoded is List) return decoded.length;
         if (decoded is Map<String, dynamic>) {
-          final keys = [
-            'count',
+          final preferredKeys = [
             'guestCount',
             'guestsCount',
             'totalGuests',
+          ];
+          for (final key in preferredKeys) {
+            final raw = decoded[key];
+            if (raw is num) return raw.toInt();
+            if (raw is String) return int.tryParse(raw);
+          }
+          final fallbackKeys = [
+            'count',
             'totalParticipants',
             'total',
           ];
-          for (final key in keys) {
+          for (final key in fallbackKeys) {
             final raw = decoded[key];
             if (raw is num) return raw.toInt();
             if (raw is String) return int.tryParse(raw);

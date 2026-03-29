@@ -366,12 +366,13 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     try {
       final count = await _bookingService.getGuestCount(widget.reservation.id);
       if (!mounted) return;
+      final normalized = (count != null && count > 0) ? count : null;
       setState(() {
-        _guestCount = count;
+        _guestCount = normalized;
         _guestCountLoaded = true;
       });
-      if (count != null) {
-        _sharedBookingCtrl.setParticipantsOverride(count);
+      if (normalized != null) {
+        _sharedBookingCtrl.setParticipantsOverride(normalized);
       }
     } catch (_) {
       if (!mounted) return;
@@ -718,7 +719,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Divisao: $participantsLabel',
+                        'Convidado',
                         style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
                       ),
                     ],
@@ -752,15 +753,12 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        'Divisao: $participantsLabel',
-                        style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
-                      ),
+                      // Text(
+                      //   'Divisao: $participantsLabel',
+                      //   style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
+                      // ),
                       const SizedBox(height: 4),
-                      Text(
-                        'Nao foi possivel identificar voce como convidado desta reserva.',
-                        style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
-                      ),
+
                     ],
                   ),
                 ),
@@ -1164,7 +1162,7 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                 if (ctrl.guests.isNotEmpty) ...[
                   ...ctrl.guests.map((g) => _GuestTile(
                         guest: g,
-                        perPersonAmount: ctrl.perPersonAmount(widget.reservation.totalPrice),
+                        // perPersonAmount: ctrl.perPersonAmount(widget.reservation.totalPrice),
                         onRemove: widget.readOnly ? () {} : () => ctrl.removeGuest(g.guestEmail),
                         scheme: scheme,
                         text: text,
@@ -1173,48 +1171,48 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                   const SizedBox(height: 8),
 
                   // Resumo da divisão (apenas para o dono)
-                  if (!widget.readOnly) ...[
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: scheme.primaryContainer.withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Sua parte (${ctrl.totalParticipants} pessoas)',
-                                  style: text.bodySmall,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  formatBRL0(ctrl.ownerAmount(widget.reservation.totalPrice)),
-                                  style: text.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: scheme.primary),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Total:\n${formatBRL0(widget.reservation.totalPrice)}',
-                            textAlign: TextAlign.right,
-                            style: text.bodySmall?.copyWith(
-                              color: Colors.black45,
-                              decoration: TextDecoration.lineThrough,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
+                  // if (!widget.readOnly) ...[
+                  //   Container(
+                  //     padding: const EdgeInsets.all(12),
+                  //     decoration: BoxDecoration(
+                  //       color: scheme.primaryContainer.withOpacity(0.4),
+                  //       borderRadius: BorderRadius.circular(10),
+                  //     ),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //       children: [
+                  //         Expanded(
+                  //           child: Column(
+                  //             crossAxisAlignment: CrossAxisAlignment.start,
+                  //             children: [
+                  //               Text(
+                  //                 'Sua parte (${ctrl.totalParticipants} pessoas)',
+                  //                 style: text.bodySmall,
+                  //                 overflow: TextOverflow.ellipsis,
+                  //               ),
+                  //               Text(
+                  //                 formatBRL0(ctrl.ownerAmount(widget.reservation.totalPrice)),
+                  //                 style: text.titleMedium?.copyWith(
+                  //                     fontWeight: FontWeight.bold,
+                  //                     color: scheme.primary),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //         ),
+                  //         const SizedBox(width: 8),
+                  //         Text(
+                  //           'Total:\n${formatBRL0(widget.reservation.totalPrice)}',
+                  //           textAlign: TextAlign.right,
+                  //           style: text.bodySmall?.copyWith(
+                  //             color: Colors.black45,
+                  //             decoration: TextDecoration.lineThrough,
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 12),
+                  // ],
                 ],
 
                 // Erro
@@ -1379,7 +1377,7 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
 
 class _GuestTile extends StatelessWidget {
   final dynamic guest;
-  final double perPersonAmount;
+  // final double perPersonAmount;
   final VoidCallback onRemove;
   final ColorScheme scheme;
   final TextTheme text;
@@ -1387,7 +1385,7 @@ class _GuestTile extends StatelessWidget {
 
   const _GuestTile({
     required this.guest,
-    required this.perPersonAmount,
+    // required this.perPersonAmount,
     required this.onRemove,
     required this.scheme,
     required this.text,
@@ -1425,10 +1423,10 @@ class _GuestTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  formatBRL0(perPersonAmount),
-                  style: text.bodySmall?.copyWith(color: scheme.primary),
-                ),
+                // Text(
+                //   // formatBRL0(perPersonAmount),
+                //   // style: text.bodySmall?.copyWith(color: scheme.primary),
+                // ),
               ],
             ),
           ),
@@ -1445,5 +1443,9 @@ class _GuestTile extends StatelessWidget {
     );
   }
 }
+
+
+
+
 
 
