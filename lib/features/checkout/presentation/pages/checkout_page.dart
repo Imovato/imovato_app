@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
-import '../../../../shared/widgets/chat_fab.dart';
 import '../../../explore/application/explore_controller.dart';
 import 'package:provider/provider.dart';
 import '../../../explore/presentation/widgets/localizacao_sheet.dart';
@@ -191,7 +190,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
             onTapFilter: () => _openFiltroModal(context),
             showBack: true,
           ),
-          floatingActionButton: ChatFab(onPressed: () {}),
           bottomNavigationBar: Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
             decoration: BoxDecoration(

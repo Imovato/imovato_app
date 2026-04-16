@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../../../app/router.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../../../shared/widgets/appBar.dart';
-import '../../../../shared/widgets/chat_fab.dart';
 import '../../../explore/application/explore_controller.dart';
 import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../explore/presentation/widgets/localizacao_sheet.dart';
@@ -71,9 +70,6 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
         onTapFilter: () => _openFiltroModal(context),
         showBack: true,
       ),
-      floatingActionButton: ChatFab(onPressed: () {
-        /* abrir chat */
-      }),
       bottomNavigationBar: _BottomBar(property: p),
       body: ListView(
         children: [

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
-import '../../../../shared/widgets/chat_fab.dart';
 import '../../../explore/application/explore_controller.dart';
 import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../explore/presentation/widgets/localizacao_sheet.dart';
@@ -101,7 +100,6 @@ class _ListingsPageState extends State<ListingsPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -143,12 +141,6 @@ class _ListingsPageState extends State<ListingsPage> {
               );
             },
           );
-        },
-      ),
-
-      floatingActionButton: ChatFab(
-        onPressed: () {
-          // TODO: abrir chat/atendimento
         },
       ),
     );
