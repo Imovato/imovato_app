@@ -152,7 +152,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                 ),
                 _SpecTile(
                   icon: Icons.people_outline,
-                  title: 'Ocupância Máxima',
+                  title: 'Ocupação Máxima',
                   subtitle: '${p.maxOccupancy} ${p.maxOccupancy == 1 ? 'pessoa' : 'pessoas'}',
                 ),
                 _SpecTile(

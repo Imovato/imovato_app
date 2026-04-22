@@ -88,7 +88,6 @@ class _TipoMoradiaSheetState extends State<TipoMoradiaSheet> {
                 groupValue: _selected,
                 activeColor: scheme.primary,
                 title: const Text('Compartilhado'),
-                subtitle: const Text('Coliving'),
                 onChanged: (v) => setState(() => _selected = v),
               ),
               RadioListTile<String>(
