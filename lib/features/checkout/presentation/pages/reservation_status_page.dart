@@ -30,7 +30,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
   bool _isProcessingPayment = false;
   bool _isProcessingCheckIn = false;
   bool _paymentDone = false;
-  static const bool _forceEnableCheckInForTest = false;
+  static const bool _forceEnableCheckInForTest = true;
   static const String _wifiPassword = 'WIFI-1234';
   static const String _doorPassword = 'PORTA-5678';
 
@@ -1443,6 +1443,8 @@ class _GuestTile extends StatelessWidget {
     );
   }
 }
+
+
 
 
 
