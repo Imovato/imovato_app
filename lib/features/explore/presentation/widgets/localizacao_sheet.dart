@@ -10,18 +10,8 @@ class LocalizacaoSheet extends StatefulWidget {
     this.cidades = const [
       'Alegrete, RS',
       'Bagé, RS',
-      'Caçapava do Sul, RS',
-      'Dom Pedrito, RS',
-      'Itaqui, RS',
-      'Jaguarão, RS',
-      'Porto Alegre, RS',
-      'Santana do Livramento, RS',
-      'São Borja, RS',
       'São Gabriel, RS',
       'Uruguaiana, RS',
-      'São Paulo, SP',
-      'Florianópolis, SC',
-      'Curitiba, PR',
     ],
   });
 
