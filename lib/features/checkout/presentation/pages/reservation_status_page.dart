@@ -855,34 +855,34 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                     ],
 
                     // Mensagem informativa sobre check-in
-                    if (!_isCheckInAvailable(reservation)) ...[
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: scheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              size: 16,
-                              color: scheme.onSurface.withOpacity(0.6),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Check-in disponível a partir de ${DateFormat('dd/MM/yyyy').format(reservation.checkInDate)}',
-                                style: textTheme.bodySmall?.copyWith(
-                                  color: scheme.onSurface.withOpacity(0.6),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    // if (!_isCheckInAvailable(reservation)) ...[
+                    //   const SizedBox(height: 12),
+                    //   Container(
+                    //     padding: const EdgeInsets.all(12),
+                    //     decoration: BoxDecoration(
+                    //       color: scheme.surfaceContainerHighest,
+                    //       borderRadius: BorderRadius.circular(8),
+                    //     ),
+                    //     child: Row(
+                    //       children: [
+                    //         Icon(
+                    //           Icons.info_outline,
+                    //           size: 16,
+                    //           color: scheme.onSurface.withOpacity(0.6),
+                    //         ),
+                    //         const SizedBox(width: 8),
+                    //         Expanded(
+                    //           child: Text(
+                    //             'Check-in disponível a partir de ${DateFormat('dd/MM/yyyy').format(reservation.checkInDate)}',
+                    //             style: textTheme.bodySmall?.copyWith(
+                    //               color: scheme.onSurface.withOpacity(0.6),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ],
                   ],
                 ),
               ),
@@ -1443,11 +1443,5 @@ class _GuestTile extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
 
 
