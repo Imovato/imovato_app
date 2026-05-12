@@ -30,7 +30,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
   bool _isProcessingPayment = false;
   bool _isProcessingCheckIn = false;
   bool _paymentDone = false;
-  static const bool _forceEnableCheckInForTest = true;
+  static const bool _forceEnableCheckInForTest = false;
   static const String _wifiPassword = 'WIFI-1234';
   static const String _doorPassword = 'PORTA-5678';
 
@@ -269,83 +269,15 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
   }
 
   void _performCheckIn() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Realizar Check-in'),
-        content: const Text(
-          'Confirmar check-in neste imóvel?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-
-              try {
-                final success = await _bookingService.checkInBooking(
-                  widget.reservation.id,
-                );
-
-                if (!mounted) return;
-
-                if (success) {
-                  final controller = context.read<ReservationsController>();
-                  controller.updateReservationStatus(
-                    widget.reservation.id,
-                    ReservationStatus.checkedIn,
-                  );
-                  setState(() {});
-
-                  _showAccessInfo();
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Check-in realizado com sucesso!'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Não foi possível realizar o check-in.'),
-                  ),
-                );
-              }
-            },
-            child: Text(
-              'Confirmar Check-in',
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-            ),
-          ),
-        ],
-      ),
-    );
+    _showAccessInfo();
   }
 
   bool _isCheckInAvailable(Reservation reservation) {
     if (_forceEnableCheckInForTest) return true;
 
-    final now = DateTime.now();
-    final checkInDate = reservation.checkInDate;
-
-    // Check-in disponível se:
-    // 1. A data atual é igual ou posterior à data de check-in
-    // 2. A reserva está confirmada (pagamento confirmado ou reservada)
-    // 3. Não está cancelada
-    final isDateValid = now.year >= checkInDate.year &&
-        now.month >= checkInDate.month &&
-        now.day >= checkInDate.day;
-
-    final isStatusValid = reservation.status == ReservationStatus.paymentConfirmed ||
-        reservation.status == ReservationStatus.reserved;
-
-    return isDateValid && isStatusValid;
+    // Check-in disponível APENAS quando a reserva está confirmada
+    // (status == reserved, que é o estado "Reserva Confirmada")
+    return reservation.status == ReservationStatus.reserved;
   }
 
   Future<void> _loadPendingInvites() async {
@@ -1144,7 +1076,7 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                     Icon(Icons.people_alt_outlined, color: scheme.primary, size: 20),
                     const SizedBox(width: 8),
                     Text(
-                      'Participantes do Coliving',
+                      'Participantes da hospedagem',
                       style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],

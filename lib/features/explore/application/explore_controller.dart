@@ -36,7 +36,7 @@ class SearchFilters {
     final params = <String, String>{};
 
     if (priceMin != null) params['priceMin'] = priceMin!.toStringAsFixed(2);
-    if (priceMax != null) params['priceMax'] = priceMax!.toStringAsFixed(2);
+    if (priceMax != null) params['price'] = priceMax!.toStringAsFixed(2);
     if (city != null && city!.isNotEmpty) params['city'] = city!;
     if (state != null && state!.isNotEmpty) params['state'] = state!;
     if (neighborhood != null && neighborhood!.isNotEmpty) params['neighborhood'] = neighborhood!;

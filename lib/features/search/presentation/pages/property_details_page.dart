@@ -168,7 +168,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                 _SpecTile(
                   icon: Icons.home_work_outlined,
                   title: 'Tipo de Moradia',
-                  subtitle: p.accommodationType == 'coliving' ? 'Coliving' : 'Moradia Individual',
+                  subtitle: p.accommodationType == 'coliving' ? 'Compartilhado' : 'Moradia Individual',
                 ),
                 _SpecTile(
                   icon: Icons.pets,

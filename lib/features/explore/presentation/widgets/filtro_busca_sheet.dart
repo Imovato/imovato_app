@@ -213,7 +213,7 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                               onChanged: (checked) => setState(
                                 () => _isSharedHosting = checked == true ? true : null,
                               ),
-                              title: const Text('Coliving (Compartilhado)'),
+                              title: const Text('Compartilhado'),
                               controlAffinity: ListTileControlAffinity.leading,
                               activeColor: scheme.primary,
                               contentPadding: EdgeInsets.zero,
