@@ -1,44 +1,31 @@
 import 'package:flutter/material.dart';
+import 'app/app.dart';
+import 'shared/services/auth_storage_service.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Limpar sessão sempre que o app iniciar
+  final authStorage = AuthStorageService();
+  await authStorage.clearAuthData();
+  print('🔄 App iniciado - sessão limpa');
+
+  runApp(const App());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+//TODO: Criar uma estrutura de pastas para o backend.
+//TODO: Estruturar uma camada de comunicacao HTTP.
+//TODO: Configurar o cliente HTTP.
+//TODO: Criar o service que consome os endpoints.
+//TODO: Adaptar o modelo.
+//TODO: Usar o repository no controller / provider
+//TODO: Integre com seu estado (Provider, Riverpod, etc.)
+//TODO: Autenticação.
+//TODO: Configurar arquivos para ambientes (.env)
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
 
-class _MyAppState extends State<MyApp> {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home: Scaffold(
-          backgroundColor: Color(0xFFD10B58),
-          body: SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      'Imovato :)',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ));
-  }
-}
+//Fluxo visual da requisicao: Flutter UI → Controller (Provider) → Repository → Dio → Backend Java
+
+
+
+//TODO: Validar se o usuário está logado ao tentar pagar.
