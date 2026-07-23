@@ -38,7 +38,12 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
           });
         }
         return Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 0,
+          color: scheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: scheme.outlineVariant),
+          ),
           child: Column(
             children: [
               // ── Header toggle ──────────────────────────────────────────
@@ -46,7 +51,8 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                 borderRadius: BorderRadius.circular(12),
                 onTap: () => setState(() => _expanded = !_expanded),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   child: Row(
                     children: [
                       Icon(Icons.people_alt_outlined, color: scheme.primary),
@@ -57,13 +63,15 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                           children: [
                             Text(
                               'Dividir hospedagem',
-                              style: text.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                              style: text.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                             Text(
                               ctrl.guests.isEmpty
                                   ? 'Convide usuários para dividir o custo'
                                   : '${ctrl.guests.length} convidado${ctrl.guests.length > 1 ? 's' : ''} adicionado${ctrl.guests.length > 1 ? 's' : ''}',
-                              style: text.bodySmall?.copyWith(color: Colors.black54),
+                              style: text.bodySmall
+                                  ?.copyWith(color: scheme.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -99,7 +107,8 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                         ...ctrl.guests.map(
                           (g) => _GuestTile(
                             invite: g,
-                            perPersonAmount: ctrl.perPersonAmount(widget.totalPrice),
+                            perPersonAmount:
+                                ctrl.perPersonAmount(widget.totalPrice),
                             onRemove: () => ctrl.removeGuest(g.guestEmail),
                             scheme: scheme,
                             text: text,
@@ -113,17 +122,20 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.red.shade50,
+                            color:
+                                scheme.errorContainer.withValues(alpha: 0.45),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.error_outline, color: Colors.red, size: 18),
+                              Icon(Icons.error_outline,
+                                  color: scheme.error, size: 18),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   ctrl.error!,
-                                  style: text.bodySmall?.copyWith(color: Colors.red.shade700),
+                                  style: text.bodySmall?.copyWith(
+                                      color: scheme.onErrorContainer),
                                 ),
                               ),
                             ],
@@ -144,11 +156,14 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                                 ? const SizedBox(
                                     width: 18,
                                     height: 18,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
                                   )
                                 : const Icon(Icons.person_add_alt_1_outlined),
                             label: Text(
-                              ctrl.isLoading ? 'Validando...' : 'Adicionar convidado',
+                              ctrl.isLoading
+                                  ? 'Validando...'
+                                  : 'Adicionar convidado',
                             ),
                           ),
                         )
@@ -156,17 +171,20 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.orange.shade50,
+                            color: scheme.tertiaryContainer
+                                .withValues(alpha: 0.45),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+                              Icon(Icons.info_outline,
+                                  color: scheme.tertiary, size: 18),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'Limite máximo de ${widget.maxGuests} convidado${widget.maxGuests > 1 ? 's' : ''} atingido.',
-                                  style: text.bodySmall?.copyWith(color: Colors.orange.shade800),
+                                  style: text.bodySmall?.copyWith(
+                                      color: scheme.onTertiaryContainer),
                                 ),
                               ),
                             ],
@@ -185,14 +203,16 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.schedule, color: scheme.primary, size: 18),
+                            Icon(Icons.schedule,
+                                color: scheme.primary, size: 18),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'Os convidados têm 3 dias para aceitar e pagar. '
                                 'Caso contrário, a reserva será cancelada automaticamente.',
                                 style: text.bodySmall?.copyWith(
-                                  color: scheme.onSurface.withValues(alpha: 0.7),
+                                  color:
+                                      scheme.onSurface.withValues(alpha: 0.7),
                                 ),
                               ),
                             ),
@@ -257,7 +277,8 @@ class _DivisionSummary extends StatelessWidget {
             children: [
               Text('Total da reserva', style: text.bodyMedium),
               Text(formatBRL0(totalPrice),
-                  style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
+                  style:
+                      text.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
             ],
           ),
           if (total > 1) ...[
@@ -291,7 +312,8 @@ class _DivisionSummary extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.people_alt_outlined, size: 14, color: scheme.primary),
+                Icon(Icons.people_alt_outlined,
+                    size: 14, color: scheme.primary),
                 const SizedBox(width: 4),
                 Text(
                   '$total participante${total > 1 ? 's' : ''} no total',
@@ -397,24 +419,25 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     Color bg;
     Color fg;
     switch (status) {
       case InviteStatus.accepted:
-        bg = Colors.green.shade100;
-        fg = Colors.green.shade800;
+        bg = scheme.primaryContainer;
+        fg = scheme.onPrimaryContainer;
         break;
       case InviteStatus.declined:
-        bg = Colors.red.shade100;
-        fg = Colors.red.shade800;
+        bg = scheme.errorContainer;
+        fg = scheme.onErrorContainer;
         break;
       case InviteStatus.expired:
-        bg = Colors.grey.shade200;
-        fg = Colors.grey.shade700;
+        bg = scheme.outlineVariant;
+        fg = scheme.onSurfaceVariant;
         break;
       default:
-        bg = Colors.orange.shade100;
-        fg = Colors.orange.shade800;
+        bg = scheme.tertiaryContainer;
+        fg = scheme.onTertiaryContainer;
     }
 
     final invite = BookingInvite(guestEmail: '', status: status);
@@ -466,7 +489,8 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
           child: Container(
             decoration: BoxDecoration(
               color: scheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
             child: Form(
@@ -481,7 +505,7 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
+                        color: scheme.outlineVariant,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -490,12 +514,14 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
 
                   Text(
                     'Adicionar convidado',
-                    style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                    style:
+                        text.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Informe o e-mail de um usuário cadastrado na plataforma.',
-                    style: text.bodySmall?.copyWith(color: Colors.black54),
+                    style: text.bodySmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 20),
 
@@ -526,7 +552,9 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.icon(
-                      onPressed: ctrl.isLoading ? null : () => _onConfirm(context, ctrl),
+                      onPressed: ctrl.isLoading
+                          ? null
+                          : () => _onConfirm(context, ctrl),
                       icon: ctrl.isLoading
                           ? const SizedBox(
                               width: 18,
@@ -537,8 +565,10 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
                               ),
                             )
                           : const Icon(Icons.check),
-                      label: Text(ctrl.isLoading ? 'Validando...' : 'Adicionar'),
-                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
+                      label:
+                          Text(ctrl.isLoading ? 'Validando...' : 'Adicionar'),
+                      style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(46)),
                     ),
                   ),
                 ],
@@ -550,7 +580,8 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
     );
   }
 
-  Future<void> _onConfirm(BuildContext context, SharedBookingController ctrl) async {
+  Future<void> _onConfirm(
+      BuildContext context, SharedBookingController ctrl) async {
     if (!_formKey.currentState!.validate()) return;
 
     final email = _emailCtrl.text.trim();
@@ -558,33 +589,47 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
 
     if (!mounted) return;
 
+    final scheme = Theme.of(context).colorScheme;
+
     switch (result) {
       case AddGuestResult.success:
+        if (!context.mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Convidado adicionado: $email'),
-            backgroundColor: Colors.green,
+            backgroundColor: scheme.primary,
           ),
         );
         break;
       case AddGuestResult.userNotFound:
-        // Erro já exibido no SharedBookingSection via ctrl.error
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Usuário não encontrado nesta plataforma.'),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: const Text('Usuário não encontrado nesta plataforma.'),
+            backgroundColor: scheme.error,
           ),
         );
         break;
       case AddGuestResult.limitReached:
+        if (!context.mounted) return;
         Navigator.of(context).pop();
         break;
       case AddGuestResult.alreadyAdded:
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Este e-mail já foi adicionado.'),
-            backgroundColor: Colors.orange,
+          SnackBar(
+            content: const Text('Este e-mail já foi adicionado.'),
+            backgroundColor: scheme.tertiary,
+          ),
+        );
+        break;
+      case AddGuestResult.selfInvite:
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Você não pode convidar a si mesmo.'),
+            backgroundColor: scheme.error,
           ),
         );
         break;
@@ -595,6 +640,7 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
             errorMsg.contains('Sessão expirada');
 
         if (isSessionExpired) {
+          if (!context.mounted) return;
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
@@ -620,10 +666,11 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
             ),
           );
         } else {
+          if (!context.mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(errorMsg),
-              backgroundColor: Colors.red,
+              backgroundColor: scheme.error,
             ),
           );
         }
@@ -631,4 +678,3 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
     }
   }
 }
-

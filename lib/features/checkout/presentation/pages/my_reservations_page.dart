@@ -69,7 +69,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                 Text(
                   'Você precisa estar logado para acessar suas reservas.',
                   style: textTheme.bodyMedium?.copyWith(
-                    color: scheme.onSurface.withOpacity(0.6),
+                    color: scheme.onSurfaceVariant,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -136,10 +136,18 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.calendar_today_outlined,
-              size: 80,
-              color: scheme.onSurface.withOpacity(0.3),
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: scheme.primaryContainer.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Icon(
+                Icons.calendar_today_outlined,
+                size: 42,
+                color: scheme.primary,
+              ),
             ),
             const SizedBox(height: 24),
             Text(
@@ -152,7 +160,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
             Text(
               'Suas reservas aparecerão aqui assim que você realizar uma',
               style: textTheme.bodyMedium?.copyWith(
-                color: scheme.onSurface.withOpacity(0.6),
+                color: scheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -199,8 +207,12 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
   ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: scheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: scheme.outlineVariant),
+      ),
       child: InkWell(
         onTap: () async {
           await Navigator.pushNamed(
@@ -213,7 +225,9 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
             final loginCtrl = context.read<LoginController>();
             final userId = loginCtrl.userId;
             if (userId != null && userId.isNotEmpty) {
-              context.read<ReservationsController>().loadReservationsByUserId(userId);
+              context
+                  .read<ReservationsController>()
+                  .loadReservationsByUserId(userId);
             }
           }
         },
@@ -230,7 +244,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   Expanded(
                     child: Text(
                       reservation.propertyTitle,
-                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      style: textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -243,14 +258,14 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
               // Endereço
               Row(
                 children: [
-                  Icon(Icons.location_on_outlined, size: 16,
-                      color: scheme.onSurface.withOpacity(0.6)),
+                  Icon(Icons.location_on_outlined,
+                      size: 16, color: scheme.onSurface.withValues(alpha: 0.6)),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       reservation.propertyAddress,
                       style: textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurface.withOpacity(0.6)),
+                          color: scheme.onSurface.withValues(alpha: 0.6)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -261,14 +276,14 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
               // Datas
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 16,
-                      color: scheme.onSurface.withOpacity(0.6)),
+                  Icon(Icons.calendar_today,
+                      size: 16, color: scheme.onSurface.withValues(alpha: 0.6)),
                   const SizedBox(width: 4),
                   Text(
                     '${DateFormat('dd/MM/yyyy').format(reservation.checkInDate)}'
                     ' - ${DateFormat('dd/MM/yyyy').format(reservation.checkOutDate)}',
                     style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurface.withOpacity(0.6)),
+                        color: scheme.onSurface.withValues(alpha: 0.6)),
                   ),
                 ],
               ),
@@ -280,7 +295,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Total',
-                      style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                      style: textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w600)),
                   Text(
                     'R\$ ${reservation.totalPrice.toStringAsFixed(2).replaceAll('.', ',')}',
                     style: textTheme.titleMedium?.copyWith(
@@ -384,4 +400,3 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
     }
   }
 }
-

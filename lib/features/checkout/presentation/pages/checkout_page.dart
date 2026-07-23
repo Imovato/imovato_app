@@ -126,11 +126,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
           id: bookingId,
           propertyId: widget.property.id,
           propertyTitle: widget.property.title,
-          propertyAddress: '${widget.property.address}, ${widget.property.city} - ${widget.property.state}',
+          propertyAddress:
+              '${widget.property.address}, ${widget.property.city} - ${widget.property.state}',
           totalPrice: ownerPrice,
           createdAt: DateTime.now(),
           checkInDate: DateTime.now().add(const Duration(days: 7)),
-          checkOutDate: DateTime.now().add(Duration(days: 7 + (_rentalMonths * 30))),
+          checkOutDate:
+              DateTime.now().add(Duration(days: 7 + (_rentalMonths * 30))),
           status: ReservationStatus.awaitingPayment,
           paymentMethod: _metodo,
           isColiving: _isColiving,
@@ -213,7 +215,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         Text(
                             'Total ($rentalMonths ${rentalMonths == 1 ? 'mês' : 'meses'})'),
                         Text(formatBRL0(totalPrice),
-                            style: const TextStyle(fontWeight: FontWeight.w800)),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ),
@@ -247,24 +250,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     children: [
                       // Resumo do imóvel
                       Card(
+                        elevation: 0,
+                        color: scheme.surface,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(24),
+                          side: BorderSide(color: scheme.outlineVariant),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(12),
                           child: Row(
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(16),
                                 child: (p.imagesUrls.isNotEmpty)
                                     ? Image.network(p.imagesUrls.first,
-                                        width: 72,
-                                        height: 72,
+                                        width: 78,
+                                        height: 78,
                                         fit: BoxFit.cover)
                                     : Container(
-                                        width: 72,
-                                        height: 72,
-                                        color:
-                                            scheme.surfaceContainerHighest),
+                                        width: 78,
+                                        height: 78,
+                                        color: scheme.surfaceContainerHighest),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -272,24 +278,26 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(p.title,
-                                        style: text.titleMedium,
+                                        style: text.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                            color: scheme.onSurface),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis),
                                     const SizedBox(height: 4),
                                     Text('${p.neighborhood}, ${p.city}',
-                                        style: text.bodySmall
-                                            ?.copyWith(color: Colors.black54)),
+                                        style: text.bodySmall?.copyWith(
+                                            color: scheme.onSurfaceVariant)),
                                     const SizedBox(height: 8),
                                     Text('${formatBRL0(p.price)} / mês',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w800)),
+                                        style: text.titleSmall?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                            color: scheme.primary)),
                                     if (_isColiving) ...[
                                       const SizedBox(height: 6),
                                       Row(
                                         children: [
                                           Icon(Icons.people_alt_outlined,
-                                              size: 14,
-                                              color: scheme.primary),
+                                              size: 14, color: scheme.primary),
                                           const SizedBox(width: 4),
                                           Flexible(
                                             child: Text(
@@ -334,8 +342,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 children: [
                                   Text(
                                     'Para reservar você precisa estar logado',
-                                    style: text.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.w800),
+                                    style: text.titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w800),
                                     textAlign: TextAlign.center,
                                   ),
                                   const SizedBox(height: 24),

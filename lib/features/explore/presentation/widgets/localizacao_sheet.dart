@@ -42,48 +42,86 @@ class _LocalizacaoSheetState extends State<LocalizacaoSheet> {
         return Container(
           decoration: BoxDecoration(
             color: scheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(.15), blurRadius: 24, offset: const Offset(0, -6))],
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 24,
+                offset: const Offset(0, -6),
+              ),
+            ],
           ),
           child: ListView(
             controller: scrollCtrl,
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
             children: [
-              // pegador
               Center(
                 child: Container(
-                  width: 44, height: 4,
-                  decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(4)),
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: scheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
-
-              // header
               Row(
                 children: [
                   Expanded(
-                    child: Text('Localização', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    child: Text(
+                      'Localização',
+                      style: textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
-                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close), tooltip: 'Fechar'),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    tooltip: 'Fechar',
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
-
-              ...widget.cidades.map((c) => RadioListTile<String>(
-                value: c,
-                groupValue: _selected,
-                onChanged: (v) => setState(() => _selected = v),
-                activeColor: scheme.primary,
-                title: Text(c),
-                contentPadding: EdgeInsets.zero,
-              )),
-
-              const SizedBox(height: 12),
-
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: scheme.outlineVariant),
+                ),
+                child: Column(
+                  children: widget.cidades.map((c) {
+                    final selected = c == _selected;
+                    return RadioListTile<String>(
+                      value: c,
+                      groupValue: _selected,
+                      onChanged: (v) => setState(() => _selected = v),
+                      activeColor: scheme.primary,
+                      title: Text(
+                        c,
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: selected ? scheme.primary : scheme.onSurface,
+                          fontWeight:
+                              selected ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 16),
               FilledButton(
                 onPressed: () => Navigator.pop(context, _selected),
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                child: const Text('ok'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: const Text('Aplicar'),
               ),
             ],
           ),

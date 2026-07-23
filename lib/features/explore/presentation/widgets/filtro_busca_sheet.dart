@@ -84,10 +84,10 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
         return Container(
           decoration: BoxDecoration(
             color: scheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 24,
                 offset: const Offset(0, -6),
               ),
@@ -106,7 +106,7 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                           width: 44,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: Colors.black12,
+                            color: scheme.outlineVariant,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -117,7 +117,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                           Expanded(
                             child: Text(
                               'Filtros',
-                              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                              style: textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.w800),
                             ),
                           ),
                           IconButton(
@@ -152,7 +153,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                                 ),
                                 onChanged: (value) {
                                   if (value.isNotEmpty) {
-                                    setState(() => _priceMin = double.tryParse(value) ?? 0);
+                                    setState(() => _priceMin =
+                                        double.tryParse(value) ?? 0);
                                   }
                                 },
                               ),
@@ -171,7 +173,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                                 ),
                                 onChanged: (value) {
                                   if (value.isNotEmpty) {
-                                    setState(() => _priceMax = double.tryParse(value) ?? 10000);
+                                    setState(() => _priceMax =
+                                        double.tryParse(value) ?? 10000);
                                   }
                                 },
                               ),
@@ -187,7 +190,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             RadioListTile<String>(
                               value: 'APARTMENT',
                               groupValue: _accommodationType,
-                              onChanged: (v) => setState(() => _accommodationType = v),
+                              onChanged: (v) =>
+                                  setState(() => _accommodationType = v),
                               activeColor: scheme.primary,
                               title: const Text('Apartamento'),
                               contentPadding: EdgeInsets.zero,
@@ -195,7 +199,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             RadioListTile<String>(
                               value: 'HOUSE',
                               groupValue: _accommodationType,
-                              onChanged: (v) => setState(() => _accommodationType = v),
+                              onChanged: (v) =>
+                                  setState(() => _accommodationType = v),
                               activeColor: scheme.primary,
                               title: const Text('Casa'),
                               contentPadding: EdgeInsets.zero,
@@ -211,7 +216,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             CheckboxListTile(
                               value: _isSharedHosting == true,
                               onChanged: (checked) => setState(
-                                () => _isSharedHosting = checked == true ? true : null,
+                                () => _isSharedHosting =
+                                    checked == true ? true : null,
                               ),
                               title: const Text('Compartilhado'),
                               controlAffinity: ListTileControlAffinity.leading,
@@ -221,7 +227,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             CheckboxListTile(
                               value: _isSharedHosting == false,
                               onChanged: (checked) => setState(
-                                () => _isSharedHosting = checked == true ? false : null,
+                                () => _isSharedHosting =
+                                    checked == true ? false : null,
                               ),
                               title: const Text('Moradia Individual'),
                               controlAffinity: ListTileControlAffinity.leading,
@@ -242,14 +249,17 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                               ChoiceChip(
                                 label: Text('$occ'),
                                 selected: _maxOccupancy == occ,
-                                onSelected: (sel) => setState(() => _maxOccupancy = sel ? occ : null),
+                                onSelected: (sel) => setState(
+                                    () => _maxOccupancy = sel ? occ : null),
                                 selectedColor: scheme.primary,
                                 labelStyle: TextStyle(
-                                  color: _maxOccupancy == occ ? scheme.onPrimary : textTheme.bodyMedium?.color,
+                                  color: _maxOccupancy == occ
+                                      ? scheme.onPrimary
+                                      : textTheme.bodyMedium?.color,
                                   fontWeight: FontWeight.w600,
                                 ),
-                                backgroundColor: scheme.surfaceContainerHighest,
-                                side: const BorderSide(color: Colors.black12),
+                                backgroundColor: scheme.surfaceContainerLowest,
+                                side: BorderSide(color: scheme.outlineVariant),
                               ),
                           ],
                         ),
@@ -264,10 +274,13 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             ChoiceChip(
                               label: const Text('Sim'),
                               selected: _allowsPets == true,
-                              onSelected: (sel) => setState(() => _allowsPets = sel ? true : null),
+                              onSelected: (sel) => setState(
+                                  () => _allowsPets = sel ? true : null),
                               selectedColor: scheme.primary,
                               labelStyle: TextStyle(
-                                color: _allowsPets == true ? scheme.onPrimary : textTheme.bodyMedium?.color,
+                                color: _allowsPets == true
+                                    ? scheme.onPrimary
+                                    : textTheme.bodyMedium?.color,
                                 fontWeight: FontWeight.w600,
                               ),
                               backgroundColor: scheme.surfaceContainerHighest,
@@ -276,10 +289,13 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             ChoiceChip(
                               label: const Text('Não'),
                               selected: _allowsPets == false,
-                              onSelected: (sel) => setState(() => _allowsPets = sel ? false : null),
+                              onSelected: (sel) => setState(
+                                  () => _allowsPets = sel ? false : null),
                               selectedColor: scheme.primary,
                               labelStyle: TextStyle(
-                                color: _allowsPets == false ? scheme.onPrimary : textTheme.bodyMedium?.color,
+                                color: _allowsPets == false
+                                    ? scheme.onPrimary
+                                    : textTheme.bodyMedium?.color,
                                 fontWeight: FontWeight.w600,
                               ),
                               backgroundColor: scheme.surfaceContainerHighest,
@@ -298,10 +314,13 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             ChoiceChip(
                               label: const Text('Sim'),
                               selected: _allowsChildren == true,
-                              onSelected: (sel) => setState(() => _allowsChildren = sel ? true : null),
+                              onSelected: (sel) => setState(
+                                  () => _allowsChildren = sel ? true : null),
                               selectedColor: scheme.primary,
                               labelStyle: TextStyle(
-                                color: _allowsChildren == true ? scheme.onPrimary : textTheme.bodyMedium?.color,
+                                color: _allowsChildren == true
+                                    ? scheme.onPrimary
+                                    : textTheme.bodyMedium?.color,
                                 fontWeight: FontWeight.w600,
                               ),
                               backgroundColor: scheme.surfaceContainerHighest,
@@ -310,10 +329,13 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             ChoiceChip(
                               label: const Text('Não'),
                               selected: _allowsChildren == false,
-                              onSelected: (sel) => setState(() => _allowsChildren = sel ? false : null),
+                              onSelected: (sel) => setState(
+                                  () => _allowsChildren = sel ? false : null),
                               selectedColor: scheme.primary,
                               labelStyle: TextStyle(
-                                color: _allowsChildren == false ? scheme.onPrimary : textTheme.bodyMedium?.color,
+                                color: _allowsChildren == false
+                                    ? scheme.onPrimary
+                                    : textTheme.bodyMedium?.color,
                                 fontWeight: FontWeight.w600,
                               ),
                               backgroundColor: scheme.surfaceContainerHighest,
@@ -331,12 +353,13 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                     color: scheme.surface,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 10,
                         offset: const Offset(0, -2),
                       )
                     ],
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+                    borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(24)),
                   ),
                   child: Row(
                     children: [
@@ -370,10 +393,13 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                               ),
                             );
                           },
-                          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                          style: OutlinedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(48)),
                           child: Text(
                             'Limpar',
-                            style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700),
+                            style: TextStyle(
+                                color: scheme.primary,
+                                fontWeight: FontWeight.w700),
                           ),
                         ),
                       ),
@@ -385,10 +411,12 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             double? finalPriceMax;
 
                             if (_priceMinController.text.isNotEmpty) {
-                              finalPriceMin = double.tryParse(_priceMinController.text);
+                              finalPriceMin =
+                                  double.tryParse(_priceMinController.text);
                             }
                             if (_priceMaxController.text.isNotEmpty) {
-                              finalPriceMax = double.tryParse(_priceMaxController.text);
+                              finalPriceMax =
+                                  double.tryParse(_priceMaxController.text);
                             }
 
                             final result = FiltroBuscaResult(
@@ -404,16 +432,20 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                             debugPrint('===== FILTROS APLICADOS =====');
                             debugPrint('priceMin: ${result.priceMin}');
                             debugPrint('priceMax: ${result.priceMax}');
-                            debugPrint('accommodationType: ${result.accommodationType}');
+                            debugPrint(
+                                'accommodationType: ${result.accommodationType}');
                             debugPrint('maxOccupancy: ${result.maxOccupancy}');
                             debugPrint('allowsPets: ${result.allowsPets}');
-                            debugPrint('allowsChildren: ${result.allowsChildren}');
-                            debugPrint('isSharedHosting: ${result.isSharedHosting}');
+                            debugPrint(
+                                'allowsChildren: ${result.allowsChildren}');
+                            debugPrint(
+                                'isSharedHosting: ${result.isSharedHosting}');
                             debugPrint('=============================');
 
                             Navigator.pop(context, result);
                           },
-                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                          style: FilledButton.styleFrom(
+                              minimumSize: const Size.fromHeight(48)),
                           child: const Text('Aplicar filtros'),
                         ),
                       ),
@@ -444,15 +476,20 @@ class _SectionCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Card(
-      elevation: 1.5,
+      elevation: 0,
       color: scheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: scheme.outlineVariant),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+            Text(title,
+                style: textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 12),
             child,
           ],
@@ -461,4 +498,3 @@ class _SectionCard extends StatelessWidget {
     );
   }
 }
-

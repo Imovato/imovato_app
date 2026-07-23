@@ -42,8 +42,8 @@ class ExploreSearchAppBar extends StatelessWidget
         height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(18),
+          color: scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(

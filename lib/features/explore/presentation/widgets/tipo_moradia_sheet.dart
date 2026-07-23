@@ -20,6 +20,7 @@ class _TipoMoradiaSheetState extends State<TipoMoradiaSheet> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return DraggableScrollableSheet(
       expand: false,
@@ -30,10 +31,10 @@ class _TipoMoradiaSheetState extends State<TipoMoradiaSheet> {
         return Container(
           decoration: BoxDecoration(
             color: scheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 24,
                 offset: const Offset(0, -6),
               ),
@@ -48,22 +49,20 @@ class _TipoMoradiaSheetState extends State<TipoMoradiaSheet> {
                   width: 44,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.black12,
+                    color: scheme.outlineVariant,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
-
               Row(
                 children: [
                   Expanded(
                     child: Text(
                       'Tipo de Moradia',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.w800),
+                      style: textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -74,39 +73,51 @@ class _TipoMoradiaSheetState extends State<TipoMoradiaSheet> {
                 ],
               ),
               const SizedBox(height: 12),
-
-              RadioListTile<String>(
-                value: 'Apartamento Inteiro',
-                groupValue: _selected,
-                activeColor: scheme.primary,
-                title: const Text('Apartamento Inteiro'),
-                subtitle: const Text('Individual, Casal ou Família'),
-                onChanged: (v) => setState(() => _selected = v),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: scheme.outlineVariant),
+                ),
+                child: Column(
+                  children: [
+                    RadioListTile<String>(
+                      value: 'Apartamento Inteiro',
+                      groupValue: _selected,
+                      activeColor: scheme.primary,
+                      title: const Text('Apartamento Inteiro'),
+                      subtitle: const Text('Individual, Casal ou Família'),
+                      onChanged: (v) => setState(() => _selected = v),
+                    ),
+                    RadioListTile<String>(
+                      value: 'Compartilhado',
+                      groupValue: _selected,
+                      activeColor: scheme.primary,
+                      title: const Text('Compartilhado'),
+                      onChanged: (v) => setState(() => _selected = v),
+                    ),
+                    RadioListTile<String>(
+                      value: 'Tanto Faz',
+                      groupValue: _selected,
+                      activeColor: scheme.primary,
+                      title: const Text('Tanto Faz'),
+                      subtitle: const Text('Inteiro e compartilhado'),
+                      onChanged: (v) => setState(() => _selected = v),
+                    ),
+                  ],
+                ),
               ),
-              RadioListTile<String>(
-                value: 'Compartilhado',
-                groupValue: _selected,
-                activeColor: scheme.primary,
-                title: const Text('Compartilhado'),
-                onChanged: (v) => setState(() => _selected = v),
-              ),
-              RadioListTile<String>(
-                value: 'Tanto Faz',
-                groupValue: _selected,
-                activeColor: scheme.primary,
-                title: const Text('Tanto Faz'),
-                subtitle: const Text('Inteiro e compartilhado'),
-                onChanged: (v) => setState(() => _selected = v),
-              ),
-
               const SizedBox(height: 16),
-
               FilledButton(
                 onPressed: () => Navigator.pop(context, _selected),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
-                child: const Text('ok'),
+                child: const Text('Aplicar'),
               ),
             ],
           ),
