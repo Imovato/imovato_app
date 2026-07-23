@@ -1,90 +1,109 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../app/router.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
-  final String TEXTO_BOAS_VINDAS = 'Olá, Boas Vindas!';
-  final String TEXTO_INICIAL =
-      'Acesse o painel ou alugue sua nova casa de forma simples e rápida com a Imovato!';
-  final String LABEL_LOGIN = 'Fazer Login';
-  final String LABEL_ALUGAR = 'Quero Alugar';
+  static const String textoBoasVindas = 'Olá, boas vindas!';
+  static const String textoInicial =
+      'Acesse o painel ou alugue sua nova casa de forma simples e rápida com a Imovato.';
+  static const String labelLogin = 'Fazer Login';
+  static const String labelAlugar = 'Quero Alugar';
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header image com canto inferior arredondado
-            Expanded(
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(bottom: Radius.circular(40)),
-                child: Image.asset(
-                  'images/image-onboarding.jpg', // veja pubspec abaixo
-                  fit: BoxFit.cover,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      height: 360,
+                      width: double.infinity,
+                      child: Image.asset(
+                        'images/image-onboarding.jpg',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black.withValues(alpha: 0.02),
+                              Colors.black.withValues(alpha: 0.42),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: 16,
+                      top: 16,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.94),
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.10),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: SvgPicture.asset(
+                          'images/imovato.svg',
+                          width: 54,
+                          height: 54,
+                          semanticsLabel: 'Logo da Imovato',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Títulos
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                TEXTO_BOAS_VINDAS,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: scheme.onSurface,
-                    ),
+              const SizedBox(height: 24),
+              Text(
+                textoBoasVindas,
+                style: textTheme.headlineLarge?.copyWith(
+                  color: scheme.onSurface,
+                ),
               ),
-            ),
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                TEXTO_INICIAL,
-                style: Theme.of(context).textTheme.bodyMedium,
+              const SizedBox(height: 8),
+              Text(
+                textoInicial,
+                style: textTheme.bodyLarge?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // CTAs
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: FilledButton(
+              const SizedBox(height: 24),
+              FilledButton(
                 onPressed: () =>
                     Navigator.pushNamed(context, Routes.loginMorador),
-                child: Text(
-                  LABEL_LOGIN,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: Text(labelLogin),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
-              child: OutlinedButton(
+              const SizedBox(height: 12),
+              OutlinedButton(
                 onPressed: () => Navigator.pushNamed(context, Routes.alugar),
-                child: Text(
-                  LABEL_ALUGAR,
-                  style: TextStyle(
-                    color: scheme.primary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: Text(labelAlugar),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
