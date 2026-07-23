@@ -92,13 +92,13 @@ class WelcomePage extends StatelessWidget {
                   color: scheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: Space.md),
               FilledButton(
                 onPressed: () =>
                     Navigator.pushNamed(context, Routes.loginMorador),
                 child: Text(labelLogin),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: Space.sm),
               OutlinedButton(
                 onPressed: () => Navigator.pushNamed(context, Routes.alugar),
                 child: Text(labelAlugar),
