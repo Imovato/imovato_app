@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:imovato_app/app/theme/Space.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../domain/reservation.dart';
 import '../../application/reservations_controller.dart';
@@ -195,7 +196,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                   ? 'Seu pagamento foi confirmado! Aguardando os demais participantes.'
                   : 'Pagamento confirmado com sucesso!',
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
 
@@ -228,7 +229,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erro ao processar pagamento. Tente novamente.'),
-          backgroundColor: Colors.orange,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     } finally {
@@ -479,12 +480,9 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
         _guestCount != null;
 
     return Scaffold(
-      backgroundColor: scheme.surface,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Status da Reserva'),
-        centerTitle: true,
-        backgroundColor: scheme.surface,
-        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -492,9 +490,9 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
             // Header com informações do imóvel
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(Space.md),
               decoration: BoxDecoration(
-                color: scheme.primaryContainer.withValues(alpha: 0.35),
+                color: scheme.primaryContainer,
                 border: Border(
                   bottom: BorderSide(color: scheme.outlineVariant),
                 ),
@@ -508,7 +506,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: Space.xxs),
                   Row(
                     children: [
                       Icon(
@@ -516,7 +514,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                         size: 16,
                         color: scheme.onSurfaceVariant,
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: Space.xxs),
                       Expanded(
                         child: Text(
                           reservation.propertyAddress,
@@ -527,7 +525,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: Space.sm),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -537,15 +535,16 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                           Text(
                             'Check-in',
                             style: textTheme.bodySmall?.copyWith(
-                              color: scheme.onSurface.withOpacity(0.6),
+                              color: scheme.onPrimaryContainer
+                                  .withValues(alpha: 0.72),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: Space.xxs),
                           Text(
                             DateFormat('dd/MM/yyyy')
                                 .format(reservation.checkInDate),
                             style: textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
+                              color: scheme.onPrimaryContainer,
                             ),
                           ),
                         ],
@@ -560,15 +559,16 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                           Text(
                             'Check-out',
                             style: textTheme.bodySmall?.copyWith(
-                              color: scheme.onSurface.withOpacity(0.6),
+                              color: scheme.onPrimaryContainer
+                                  .withValues(alpha: 0.72),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: Space.xxs),
                           Text(
                             DateFormat('dd/MM/yyyy')
                                 .format(reservation.checkOutDate),
                             style: textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
+                              color: scheme.onPrimaryContainer,
                             ),
                           ),
                         ],
@@ -581,17 +581,17 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
             // Status Timeline
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(Space.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Acompanhe a sua reserva',
                     style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: Space.md),
                   _buildTimeline(scheme, textTheme, reservation),
                 ],
               ),
@@ -599,12 +599,12 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
             // Total
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: Space.md),
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(Space.sm),
                 decoration: BoxDecoration(
-                  color: scheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(24),
+                  color: scheme.surface,
+                  borderRadius: BorderRadius.circular(Space.md),
                   border: Border.all(color: scheme.outlineVariant),
                 ),
                 child: Row(
@@ -628,7 +628,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: Space.md),
 
             // ── Seção de convidados coliving ──────────────────────────
             if (reservation.isColiving &&
@@ -646,13 +646,13 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
             if (isGuestView &&
                 reservation.status != ReservationStatus.cancelled)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: Space.md),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(Space.sm),
                   decoration: BoxDecoration(
-                    color: scheme.primaryContainer.withValues(alpha: 0.35),
-                    borderRadius: BorderRadius.circular(24),
+                    color: scheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(Space.md),
                     border: Border.all(color: scheme.outlineVariant),
                   ),
                   child: Column(
@@ -663,7 +663,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: Space.xs),
                       Text(
                         formatBRL0(guestAmount),
                         style: textTheme.titleLarge?.copyWith(
@@ -671,7 +671,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                           color: scheme.primary,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: Space.xs),
                       Text(
                         'Convidado',
                         style: textTheme.bodySmall
@@ -684,13 +684,13 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
             if (!isGuestView && isSharedReservation)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: Space.md),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(Space.sm),
                   decoration: BoxDecoration(
                     color: scheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(Space.md),
                     border: Border.all(color: scheme.outlineVariant),
                   ),
                   child: Column(
@@ -701,7 +701,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: Space.xs),
                       Text(
                         formatBRL0(_sharedBookingCtrl
                             .perPersonAmount(reservation.totalPrice)),
@@ -710,23 +710,23 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                           color: scheme.primary,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: Space.xs),
                       // Text(
                       //   'Divisao: $participantsLabel',
                       //   style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
                       // ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: Space.xxs),
                     ],
                   ),
                 ),
               ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: Space.sm),
 
             // Botões de ação
             if (reservation.status != ReservationStatus.cancelled)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: Space.md),
                 child: Column(
                   children: [
                     // Botão Pagar (dono aguardando pagamento ou convidado)
@@ -739,21 +739,18 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                         onPressed: (_isProcessingPayment || _paymentDone)
                             ? null
                             : _processPayment,
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                        ),
                         child: _isProcessingPayment
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.white,
+                                  color: scheme.onPrimary,
                                 ),
                               )
                             : const Text('Pagar'),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: Space.sm),
                     ],
 
                     // Botões Check-in e Cancelar (lado a lado)
@@ -765,9 +762,6 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                             onPressed: _isCheckInAvailable(reservation)
                                 ? _performCheckIn
                                 : null,
-                            style: FilledButton.styleFrom(
-                              minimumSize: const Size.fromHeight(48),
-                            ),
                             child: _isProcessingCheckIn
                                 ? const SizedBox(
                                     width: 20,
@@ -783,38 +777,32 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                                         Icons.login,
                                         size: 18,
                                         color: _isCheckInAvailable(reservation)
-                                            ? scheme.onSecondaryContainer
+                                            ? scheme.onPrimary
                                             : scheme.onSurface
-                                                .withOpacity(0.38),
+                                                .withValues(alpha: 0.38),
                                       ),
-                                      const SizedBox(width: 8),
+                                      const SizedBox(width: Space.xs),
                                       Text('Check-in'),
                                     ],
                                   ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: Space.sm),
                         // Botão Cancelar
                         Expanded(
                           child: OutlinedButton(
                             onPressed: _isProcessingPayment
                                 ? null
                                 : _cancelReservation,
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(48),
-                            ),
                             child: const Text('Cancelar'),
                           ),
                         ),
                       ],
                     ),
                     if (reservation.status == ReservationStatus.checkedIn) ...[
-                      const SizedBox(height: 12),
+                      const SizedBox(height: Space.sm),
                       FilledButton.tonal(
                         onPressed: _showAccessInfo,
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                        ),
                         child: const Text('Ver informacoes de acesso'),
                       ),
                     ],
@@ -852,7 +840,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                 ),
               ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: Space.lg),
           ],
         ),
       ),
