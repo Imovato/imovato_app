@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:imovato_app/shared/models/location_option.dart';
 import 'dart:convert';
 import 'dart:convert' show utf8;
 
@@ -36,19 +37,33 @@ class SearchFilters {
     final params = <String, String>{};
 
     if (priceMin != null) params['priceMin'] = priceMin!.toStringAsFixed(2);
-    if (priceMax != null) params['price'] = priceMax!.toStringAsFixed(2);
+    if (priceMax != null) params['priceMax'] = priceMax!.toStringAsFixed(2);
+
     if (city != null && city!.isNotEmpty) params['city'] = city!;
     if (state != null && state!.isNotEmpty) params['state'] = state!;
-    if (neighborhood != null && neighborhood!.isNotEmpty)
+    if (neighborhood != null && neighborhood!.isNotEmpty) {
       params['neighborhood'] = neighborhood!;
-    if (accommodationType != null && accommodationType!.isNotEmpty)
+    }
+
+    if (accommodationType != null && accommodationType!.isNotEmpty) {
       params['accommodationType'] = accommodationType!;
-    if (maxOccupancy != null) params['maxOccupancy'] = maxOccupancy!.toString();
-    if (allowsPets != null) params['allowsPets'] = allowsPets!.toString();
-    if (allowsChildren != null)
+    }
+
+    if (maxOccupancy != null) {
+      params['maxOccupancyMin'] = maxOccupancy!.toString();
+    }
+
+    if (allowsPets != null) {
+      params['allowsPets'] = allowsPets!.toString();
+    }
+
+    if (allowsChildren != null) {
       params['allowsChildren'] = allowsChildren!.toString();
-    if (isSharedHosting != null)
+    }
+
+    if (isSharedHosting != null) {
       params['isSharedHosting'] = isSharedHosting!.toString();
+    }
 
     return params;
   }
@@ -141,16 +156,16 @@ class ExploreController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setCidade(String value) {
-    if (value == _cidade) return;
-    _cidade = value;
+  void setCidade(LocationOption value) {
+    _cidade = value.label;
 
-    // Atualiza também o filtro de city
-    _filters = _filters.copyWith(city: value);
+    _filters = _filters.copyWith(
+      city: value.city,
+      state: value.state,
+    );
 
     notifyListeners();
 
-    // Dispara a busca automaticamente
     searchAccommodations();
   }
 
@@ -212,6 +227,8 @@ class ExploreController extends ChangeNotifier {
     try {
       // Construir URL com query parameters baseado nos filtros
       final queryParams = _filters.toQueryParameters();
+      print('city: ${_filters.city}');
+      print('state: ${_filters.state}');
       final url = Uri.parse('$_baseUrl/accommodations/search')
           .replace(queryParameters: queryParams);
 

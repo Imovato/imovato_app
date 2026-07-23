@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/shared/models/location_option.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/router.dart';
@@ -13,11 +14,15 @@ class ExplorePage extends StatelessWidget {
 
   Future<void> _openLocation(BuildContext context) async {
     final controller = context.read<ExploreController>();
-    final selected = await showModalBottomSheet<String>(
+    final selected = await showModalBottomSheet<LocationOption>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => LocalizacaoSheet(initialValue: controller.cidade),
+      builder: (_) => LocalizacaoSheet(
+        initialValue: LocalizacaoSheet.defaultCities.firstWhere(
+          (e) => e.label == controller.cidade,
+        ),
+      ),
     );
 
     if (selected != null && context.mounted) {

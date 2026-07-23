@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/shared/models/location_option.dart';
 
 class LocalizacaoSheet extends StatefulWidget {
-  final String? initialValue;
-  final List<String> cidades;
+  final LocationOption? initialValue;
 
-  const LocalizacaoSheet({
-    super.key,
-    this.initialValue,
-    this.cidades = const [
-      'Alegrete, RS',
-      'Bagé, RS',
-      'São Gabriel, RS',
-      'Uruguaiana, RS',
-    ],
-  });
+  static const defaultCities = [
+    LocationOption(city: 'Alegrete', state: 'RS'),
+    LocationOption(city: 'Bagé', state: 'RS'),
+    LocationOption(city: 'São Gabriel', state: 'RS'),
+    LocationOption(city: 'Uruguaiana', state: 'RS'),
+  ];
+
+  final List<LocationOption> cidades;
+
+  const LocalizacaoSheet(
+      {super.key, this.initialValue, this.cidades = defaultCities});
 
   @override
   State<LocalizacaoSheet> createState() => _LocalizacaoSheetState();
 }
 
 class _LocalizacaoSheetState extends State<LocalizacaoSheet> {
-  String? _selected;
+  LocationOption? _selected;
 
   @override
   void initState() {
@@ -94,13 +95,13 @@ class _LocalizacaoSheetState extends State<LocalizacaoSheet> {
                 child: Column(
                   children: widget.cidades.map((c) {
                     final selected = c == _selected;
-                    return RadioListTile<String>(
+                    return RadioListTile<LocationOption>(
                       value: c,
                       groupValue: _selected,
                       onChanged: (v) => setState(() => _selected = v),
                       activeColor: scheme.primary,
                       title: Text(
-                        c,
+                        c.label,
                         style: textTheme.bodyLarge?.copyWith(
                           color: selected ? scheme.primary : scheme.onSurface,
                           fontWeight:
