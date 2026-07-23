@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/Space.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../../app/router.dart';
@@ -206,11 +207,11 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
     TextTheme textTheme,
   ) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 0,
+      margin: const EdgeInsets.only(bottom: Space.sm),
+      elevation: 8,
       color: scheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(Space.md),
         side: BorderSide(color: scheme.outlineVariant),
       ),
       child: InkWell(
@@ -231,9 +232,9 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
             }
           }
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(Space.sm),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(Space.sm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -254,7 +255,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   _buildStatusChip(reservation.status, scheme, textTheme),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: Space.xs),
               // Endereço
               Row(
                 children: [
@@ -272,7 +273,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: Space.xs),
               // Datas
               Row(
                 children: [
@@ -287,9 +288,9 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: Space.sm),
               const Divider(height: 1),
-              const SizedBox(height: 12),
+              const SizedBox(height: Space.sm),
               // Total
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
