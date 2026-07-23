@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:imovato_app/app/theme/Space.dart';
 import '../../../../../app/router.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -51,12 +52,12 @@ class WelcomePage extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      left: 16,
-                      top: 16,
+                      right: Space.xl,
+                      bottom: Space.xl,
                       child: Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.94),
+                          color: Colors.white.withValues(alpha: 0.95),
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [
                             BoxShadow(
@@ -68,8 +69,8 @@ class WelcomePage extends StatelessWidget {
                         ),
                         child: SvgPicture.asset(
                           'images/imovato.svg',
-                          width: 54,
-                          height: 54,
+                          width: 128,
+                          height: 128,
                           semanticsLabel: 'Logo da Imovato',
                         ),
                       ),
