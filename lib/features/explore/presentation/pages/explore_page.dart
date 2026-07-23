@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/Space.dart';
 
 import '../../../../app/router.dart';
 import '../../../../app/utils/br_currency.dart';
@@ -138,13 +139,15 @@ class ExplorePage extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+          padding:
+              const EdgeInsets.fromLTRB(Space.md, Space.md, Space.md, Space.md),
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(Space.md),
               decoration: BoxDecoration(
                 color: scheme.surface,
-                borderRadius: BorderRadius.circular(28),
+                borderRadius: BorderRadius.circular(Space.md),
+                border: Border.all(color: scheme.outlineVariant),
                 boxShadow: [
                   BoxShadow(
                     color: scheme.shadow.withAlpha(18),
@@ -192,23 +195,23 @@ class ExplorePage extends StatelessWidget {
               margin: EdgeInsets.zero,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(Space.md),
                 side: BorderSide(color: scheme.outlineVariant),
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                    vertical: Space.sm, horizontal: Space.sm),
                 child: Column(
                   children: [
                     Consumer<ExploreController>(
                       builder: (context, c, _) => ListTile(
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
+                          horizontal: Space.xs,
+                          vertical: Space.xxs,
                         ),
                         leading: Container(
-                          width: 42,
-                          height: 42,
+                          width: Space.xl,
+                          height: Space.xl,
                           decoration: BoxDecoration(
                             color: scheme.primaryContainer,
                             borderRadius: BorderRadius.circular(14),
@@ -240,15 +243,15 @@ class ExplorePage extends StatelessWidget {
                     Consumer<ExploreController>(
                       builder: (context, c, _) => ListTile(
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
+                          horizontal: Space.sm,
+                          vertical: Space.xxs,
                         ),
                         leading: Container(
-                          width: 42,
-                          height: 42,
+                          width: Space.xxl,
+                          height: Space.xxl,
                           decoration: BoxDecoration(
                             color: scheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(Space.sm),
                           ),
                           child: Icon(
                             Icons.attach_money,
@@ -273,7 +276,7 @@ class ExplorePage extends StatelessWidget {
                         onTap: () => _openValorTotalModal(context),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: Space.sm),
                     FilledButton.icon(
                       onPressed: () async {
                         final controller = context.read<ExploreController>();
