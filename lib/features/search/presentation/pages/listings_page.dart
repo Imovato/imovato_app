@@ -108,7 +108,6 @@ class _ListingsPageState extends State<ListingsPage> {
       appBar: ExploreSearchAppBar(
           onTapLocation: () => _openLocalizacaoModal(context),
           onTapFilter: () => _openFiltroModal(context)),
-
       body: Consumer<ExploreController>(
         builder: (context, c, _) {
           if (c.isLoading) {
@@ -130,12 +129,16 @@ class _ListingsPageState extends State<ListingsPage> {
             itemBuilder: (context, i) {
               final item = items[i];
               return InkWell(
-                onTap: () => Navigator.pushNamed(context, Routes.propertyDetails, arguments: item),
+                onTap: () => Navigator.pushNamed(
+                    context, Routes.propertyDetails,
+                    arguments: item),
                 child: PropertyCard(
                   data: item,
                   onToggleFavorite: (fav) {
                     // delegate to controller
-                    context.read<ExploreController>().toggleFavoriteById(item.id, fav);
+                    context
+                        .read<ExploreController>()
+                        .toggleFavoriteById(item.id, fav);
                   },
                 ),
               );

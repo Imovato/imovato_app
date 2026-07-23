@@ -8,11 +8,10 @@ import 'package:imovato_app/features/checkout/presentation/pages/pending_invites
 import 'package:imovato_app/features/checkout/domain/reservation.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/controllers/login_controller.dart';
-import '../features/explore/presentation/pages/explore_page.dart';
 import '../features/onboarding/presentation/pages/welcome_page.dart';
 import '../features/search/domain/property.dart';
-import '../features/search/presentation/pages/listings_page.dart';
 import '../features/search/presentation/pages/property_details_page.dart';
+import 'app_shell.dart';
 
 class Routes {
   static const welcome = '/';
@@ -25,33 +24,39 @@ class Routes {
   static const reservationStatus = '/reserva-status';
   static const myReservations = '/minhas-reservas';
   static const pendingInvites = '/convites-pendentes';
+  static const profile = '/perfil';
 }
 
 final Map<String, WidgetBuilder> appRoutes = {
   Routes.welcome: (_) => const WelcomePage(),
-  Routes.alugar: (_) => const ExplorePage(),
-  Routes.buscar: (_) => const ListingsPage(),
+  Routes.alugar: (_) => const AppShell(),
+  Routes.buscar: (_) => const AppShell(initialIndex: 1),
+  Routes.profile: (_) => const AppShell(initialIndex: 3),
   Routes.myReservations: (_) => const MyReservationsPage(),
   Routes.pendingInvites: (_) => const PendingInvitesPage(),
 };
 
 Route<dynamic>? onGenerateRoute(RouteSettings settings) {
   // Proteção de rotas de autenticação
-  if (settings.name == Routes.loginMorador || settings.name == Routes.cadastro) {
+  if (settings.name == Routes.loginMorador ||
+      settings.name == Routes.cadastro) {
     return MaterialPageRoute(
       builder: (context) {
         final isLoggedIn = context.read<LoginController>().isLoggedIn;
         if (isLoggedIn) {
-          return const ExplorePage();
+          return const AppShell();
         }
-        return settings.name == Routes.loginMorador ? const LoginPage() : const RegisterPage();
+        return settings.name == Routes.loginMorador
+            ? const LoginPage()
+            : const RegisterPage();
       },
     );
   }
 
   if (settings.name == Routes.propertyDetails) {
     final prop = settings.arguments as Property;
-    return MaterialPageRoute(builder: (_) => PropertyDetailsPage(property: prop));
+    return MaterialPageRoute(
+        builder: (_) => PropertyDetailsPage(property: prop));
   }
 
   if (settings.name == Routes.checkout) {
@@ -61,7 +66,8 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
 
   if (settings.name == Routes.reservationStatus) {
     final reservation = settings.arguments as Reservation;
-    return MaterialPageRoute(builder: (_) => ReservationStatusPage(reservation: reservation));
+    return MaterialPageRoute(
+        builder: (_) => ReservationStatusPage(reservation: reservation));
   }
 
   return null;
@@ -79,4 +85,3 @@ class _StubPage extends StatelessWidget {
     );
   }
 }
-

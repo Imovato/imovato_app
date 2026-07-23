@@ -35,11 +35,12 @@ class _LoginPageState extends State<LoginPage> {
     if (!mounted) return;
 
     if (loginOk) {
-      //TODO: navegar para a tela inicial do app com a lista de vários imóveis.
-      Navigator.pushReplacementNamed(context, Routes.alugar);
+      final returnRoute = ModalRoute.of(context)?.settings.arguments as String?;
+      Navigator.pushReplacementNamed(context, returnRoute ?? Routes.alugar);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(controller.errorMessage ?? 'Credenciais inválidas')),
+        SnackBar(
+            content: Text(controller.errorMessage ?? 'Credenciais inválidas')),
       );
     }
   }
@@ -57,7 +58,6 @@ class _LoginPageState extends State<LoginPage> {
             key: _formKey,
             child: ListView(
               children: [
-
                 // título
                 Text(
                   'Bem-vindo de volta 👋',
@@ -137,7 +137,8 @@ class _LoginPageState extends State<LoginPage> {
                 //botão cadastre-se
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, Routes.cadastro); // defina a rota '/cadastro'
+                    Navigator.pushNamed(
+                        context, Routes.cadastro); // defina a rota '/cadastro'
                   },
                   child: const Text('Cadastre-se'),
                 ),

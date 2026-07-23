@@ -39,12 +39,16 @@ class SearchFilters {
     if (priceMax != null) params['price'] = priceMax!.toStringAsFixed(2);
     if (city != null && city!.isNotEmpty) params['city'] = city!;
     if (state != null && state!.isNotEmpty) params['state'] = state!;
-    if (neighborhood != null && neighborhood!.isNotEmpty) params['neighborhood'] = neighborhood!;
-    if (accommodationType != null && accommodationType!.isNotEmpty) params['accommodationType'] = accommodationType!;
+    if (neighborhood != null && neighborhood!.isNotEmpty)
+      params['neighborhood'] = neighborhood!;
+    if (accommodationType != null && accommodationType!.isNotEmpty)
+      params['accommodationType'] = accommodationType!;
     if (maxOccupancy != null) params['maxOccupancy'] = maxOccupancy!.toString();
     if (allowsPets != null) params['allowsPets'] = allowsPets!.toString();
-    if (allowsChildren != null) params['allowsChildren'] = allowsChildren!.toString();
-    if (isSharedHosting != null) params['isSharedHosting'] = isSharedHosting!.toString();
+    if (allowsChildren != null)
+      params['allowsChildren'] = allowsChildren!.toString();
+    if (isSharedHosting != null)
+      params['isSharedHosting'] = isSharedHosting!.toString();
 
     return params;
   }
@@ -68,12 +72,22 @@ class SearchFilters {
       priceMax: priceMax is _Undefined ? this.priceMax : priceMax as double?,
       city: city is _Undefined ? this.city : city as String?,
       state: state is _Undefined ? this.state : state as String?,
-      neighborhood: neighborhood is _Undefined ? this.neighborhood : neighborhood as String?,
-      accommodationType: accommodationType is _Undefined ? this.accommodationType : accommodationType as String?,
-      maxOccupancy: maxOccupancy is _Undefined ? this.maxOccupancy : maxOccupancy as int?,
-      allowsPets: allowsPets is _Undefined ? this.allowsPets : allowsPets as bool?,
-      allowsChildren: allowsChildren is _Undefined ? this.allowsChildren : allowsChildren as bool?,
-      isSharedHosting: isSharedHosting is _Undefined ? this.isSharedHosting : isSharedHosting as bool?,
+      neighborhood: neighborhood is _Undefined
+          ? this.neighborhood
+          : neighborhood as String?,
+      accommodationType: accommodationType is _Undefined
+          ? this.accommodationType
+          : accommodationType as String?,
+      maxOccupancy:
+          maxOccupancy is _Undefined ? this.maxOccupancy : maxOccupancy as int?,
+      allowsPets:
+          allowsPets is _Undefined ? this.allowsPets : allowsPets as bool?,
+      allowsChildren: allowsChildren is _Undefined
+          ? this.allowsChildren
+          : allowsChildren as bool?,
+      isSharedHosting: isSharedHosting is _Undefined
+          ? this.isSharedHosting
+          : isSharedHosting as bool?,
     );
   }
 }
@@ -84,7 +98,8 @@ class _Undefined {
 }
 
 class ExploreController extends ChangeNotifier {
-  ExploreController({double initialValor = 500, String initialCidade = 'Alegrete, RS' })
+  ExploreController(
+      {double initialValor = 500, String initialCidade = 'Alegrete, RS'})
       : _valorSelecionado = initialValor,
         _cidade = initialCidade,
         _filters = SearchFilters();
@@ -111,11 +126,15 @@ class ExploreController extends ChangeNotifier {
   List<Property> _results = [];
   List<Property> get results => List.unmodifiable(_results);
 
+  final Map<String, Property> _favoritesById = {};
+  List<Property> get favorites => List.unmodifiable(_favoritesById.values);
+
   // Filtros de busca
   late SearchFilters _filters;
   SearchFilters get filters => _filters;
 
-  static const _baseUrl = 'https://cadastral-imovato-35ca7e6548df.herokuapp.com';
+  static const _baseUrl =
+      'https://cadastral-imovato-35ca7e6548df.herokuapp.com';
 
   void setValor(double v) {
     _valorSelecionado = v;
@@ -214,7 +233,8 @@ class ExploreController extends ChangeNotifier {
       final String decodedBody = utf8.decode(res.bodyBytes);
 
       print('\n🔍🔍🔍 === DEBUGGING RESPOSTA DA API === 🔍🔍🔍');
-      print('Body completo (primeiros 500 chars): ${decodedBody.substring(0, decodedBody.length > 500 ? 500 : decodedBody.length)}');
+      print(
+          'Body completo (primeiros 500 chars): ${decodedBody.substring(0, decodedBody.length > 500 ? 500 : decodedBody.length)}');
 
       final List<dynamic> data = json.decode(decodedBody) as List<dynamic>;
 
@@ -231,7 +251,8 @@ class ExploreController extends ChangeNotifier {
             if (key.toString().toLowerCase().contains('id')) {
               print('  ⭐ $key: $value (${value.runtimeType})');
             } else {
-              print('  $key: ${value.toString().length > 50 ? value.toString().substring(0, 50) + "..." : value}');
+              print(
+                  '  $key: ${value.toString().length > 50 ? value.toString().substring(0, 50) + "..." : value}');
             }
           });
         }
@@ -255,7 +276,8 @@ class ExploreController extends ChangeNotifier {
         } else {
           // NENHUM ID ENCONTRADO - usar timestamp e avisar
           realId = DateTime.now().millisecondsSinceEpoch.toString();
-          print('⚠️⚠️⚠️ AVISO: Nenhum ID encontrado! Usando timestamp: $realId');
+          print(
+              '⚠️⚠️⚠️ AVISO: Nenhum ID encontrado! Usando timestamp: $realId');
           print('⚠️ Keys disponíveis: ${(e as Map).keys.toList()}');
         }
 
@@ -267,19 +289,28 @@ class ExploreController extends ChangeNotifier {
         final city = e['city']?.toString() ?? '';
         final state = e['state']?.toString() ?? '';
         final description = e['description']?.toString() ?? '';
-        final price = (e['price'] is num) ? (e['price'] as num).toDouble() : 0.0;
-        final maxOccupancy = (e['maxOccupancy'] is num) ? (e['maxOccupancy'] as num).toInt() : 1;
-        final bedrooms = (e['roomCount'] is num) ? (e['roomCount'] as num).toInt() : 0;
-        final bathrooms = (e['bathroomCount'] is num) ? (e['bathroomCount'] as num).toInt() : 0;
-        final petFriendly = (e['allowsPets'] is bool) ? (e['allowsPets'] as bool) : false;
-        final isSharedHosting = (e['isSharedHosting'] is bool) ? (e['isSharedHosting'] as bool) : false;
-        final accommodationType = isSharedHosting ? 'coliving' : 'moradia individual';
+        final price =
+            (e['price'] is num) ? (e['price'] as num).toDouble() : 0.0;
+        final maxOccupancy =
+            (e['maxOccupancy'] is num) ? (e['maxOccupancy'] as num).toInt() : 1;
+        final bedrooms =
+            (e['roomCount'] is num) ? (e['roomCount'] as num).toInt() : 0;
+        final bathrooms = (e['bathroomCount'] is num)
+            ? (e['bathroomCount'] as num).toInt()
+            : 0;
+        final petFriendly =
+            (e['allowsPets'] is bool) ? (e['allowsPets'] as bool) : false;
+        final isSharedHosting = (e['isSharedHosting'] is bool)
+            ? (e['isSharedHosting'] as bool)
+            : false;
+        final accommodationType =
+            isSharedHosting ? 'coliving' : 'moradia individual';
         final images = <String>[];
         if (e['imagesUrls'] is List) {
           images.addAll(List<String>.from(e['imagesUrls']));
         }
 
-        return Property(
+        final property = Property(
           id: id,
           title: title,
           address: address,
@@ -296,6 +327,7 @@ class ExploreController extends ChangeNotifier {
           accommodationType: accommodationType,
           petFriendly: petFriendly,
         );
+        return _favoritesById[id]?.copyWith(favorito: true) ?? property;
       }).toList(growable: false);
     } catch (ex) {
       _error = 'Erro: ${ex.toString()}';
@@ -306,13 +338,22 @@ class ExploreController extends ChangeNotifier {
     }
   }
 
-  /// Toggle favorite by property id
+  /// Atualiza o favorito no resultado e o mantém disponível entre buscas.
   void toggleFavoriteById(String id, bool fav) {
     final idx = _results.indexWhere((r) => r.id == id);
-    if (idx == -1) return;
-    final updated = _results[idx].copyWith(favorito: fav);
-    _results = List<Property>.from(_results)
-      ..[idx] = updated;
+    Property? property = idx == -1 ? _favoritesById[id] : _results[idx];
+    if (property == null) return;
+
+    property = property.copyWith(favorito: fav);
+    if (fav) {
+      _favoritesById[id] = property;
+    } else {
+      _favoritesById.remove(id);
+    }
+
+    if (idx != -1) {
+      _results = List<Property>.from(_results)..[idx] = property;
+    }
     notifyListeners();
   }
 }
