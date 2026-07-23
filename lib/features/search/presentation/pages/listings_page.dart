@@ -4,7 +4,6 @@ import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
 import '../../../explore/application/explore_controller.dart';
 import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
-import '../../../explore/presentation/widgets/localizacao_sheet.dart';
 import '../widgets/property_card.dart';
 
 class ListingsPage extends StatefulWidget {
@@ -14,20 +13,7 @@ class ListingsPage extends StatefulWidget {
 }
 
 class _ListingsPageState extends State<ListingsPage> {
-  int _filtrosAtivos = 0;
   FiltroBuscaResult? _currentFilters;
-
-  int _countFiltrosAtivos(FiltroBuscaResult f) {
-    var c = 0;
-    if (f.priceMin != null) c++;
-    if (f.priceMax != null) c++;
-    if (f.accommodationType != null) c++;
-    if (f.maxOccupancy != null) c++;
-    if (f.allowsPets != null) c++;
-    if (f.allowsChildren != null) c++;
-    if (f.isSharedHosting != null) c++;
-    return c;
-  }
 
   Future<void> _openFiltroModal(BuildContext context) async {
     final result = await showModalBottomSheet<FiltroBuscaResult>(
@@ -49,7 +35,6 @@ class _ListingsPageState extends State<ListingsPage> {
 
       setState(() {
         _currentFilters = isCleared ? null : result;
-        _filtrosAtivos = isCleared ? 0 : _countFiltrosAtivos(result);
       });
 
       // Atualizar os filtros no controller
@@ -87,27 +72,18 @@ class _ListingsPageState extends State<ListingsPage> {
     }
   }
 
-  Future<void> _openLocalizacaoModal(BuildContext context) async {
-    final c = context.read<ExploreController>();
-    final selected = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => LocalizacaoSheet(initialValue: c.cidade),
-    );
-    if (selected != null && context.mounted) {
-      c.setCidade(selected);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Scaffold(
-      appBar: ExploreSearchAppBar(
-          onTapLocation: () => _openLocalizacaoModal(context),
-          onTapFilter: () => _openFiltroModal(context)),
+      appBar: ImovatoAppBar(
+        title: 'Buscar imóveis',
+        showBack: false,
+        action: IconButton(
+          tooltip: 'Filtros',
+          onPressed: () => _openFiltroModal(context),
+          icon: const Icon(Icons.tune_outlined),
+        ),
+      ),
       body: Consumer<ExploreController>(
         builder: (context, c, _) {
           if (c.isLoading) {

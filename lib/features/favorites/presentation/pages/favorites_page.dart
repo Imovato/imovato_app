@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../app/router.dart';
 import '../../../explore/application/explore_controller.dart';
 import '../../../search/presentation/widgets/property_card.dart';
+import '../../../../shared/widgets/appBar.dart';
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});
@@ -14,7 +15,7 @@ class FavoritesPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Favoritos')),
+      appBar: const ImovatoAppBar(title: 'Favoritos', showBack: false),
       body: Consumer<ExploreController>(
         builder: (context, controller, _) {
           final favorites = controller.favorites;

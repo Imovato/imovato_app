@@ -3,10 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
-import '../../../explore/application/explore_controller.dart';
 import 'package:provider/provider.dart';
-import '../../../explore/presentation/widgets/localizacao_sheet.dart';
-import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../search/domain/property.dart';
 import '../../../auth/presentation/controllers/login_controller.dart';
 import '../../domain/reservation.dart';
@@ -48,26 +45,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _expiryCtrl.dispose();
     _cvvCtrl.dispose();
     super.dispose();
-  }
-
-  Future<void> _openLocalizacaoModal(BuildContext context) async {
-    final c = context.read<ExploreController>();
-    final selected = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => LocalizacaoSheet(initialValue: c.cidade),
-    );
-    if (selected != null && mounted) c.setCidade(selected);
-  }
-
-  Future<void> _openFiltroModal(BuildContext context) async {
-    await showModalBottomSheet<FiltroBuscaResult>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const FiltroBuscaSheet(),
-    );
   }
 
   Future<void> _confirmarPagamento() async {
@@ -187,9 +164,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Consumer<LoginController>(
       builder: (context, loginCtrl, _) {
         return Scaffold(
-          appBar: ExploreSearchAppBar(
-            onTapLocation: () => _openLocalizacaoModal(context),
-            onTapFilter: () => _openFiltroModal(context),
+          appBar: ImovatoAppBar(
+            title: 'Finalizar reserva',
             showBack: true,
           ),
           bottomNavigationBar: Container(

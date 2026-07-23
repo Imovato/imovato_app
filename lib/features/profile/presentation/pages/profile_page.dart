@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/router.dart';
 import '../../../auth/presentation/controllers/login_controller.dart';
+import '../../../../shared/widgets/appBar.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -15,7 +16,7 @@ class ProfilePage extends StatelessWidget {
 
     if (!login.isLoggedIn) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Perfil')),
+        appBar: const ImovatoAppBar(title: 'Perfil', showBack: false),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -52,7 +53,7 @@ class ProfilePage extends StatelessWidget {
 
     final name = login.userName ?? 'Usuário';
     return Scaffold(
-      appBar: AppBar(title: const Text('Perfil')),
+      appBar: const ImovatoAppBar(title: 'Perfil', showBack: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

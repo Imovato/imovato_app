@@ -5,8 +5,6 @@ import '../../../../app/router.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../../../shared/widgets/appBar.dart';
 import '../../../explore/application/explore_controller.dart';
-import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
-import '../../../explore/presentation/widgets/localizacao_sheet.dart';
 import '../../../auth/presentation/controllers/login_controller.dart';
 import '../../domain/property.dart';
 
@@ -38,26 +36,6 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
     super.dispose();
   }
 
-  Future<void> _openLocalizacaoModal(BuildContext context) async {
-    final c = context.read<ExploreController>();
-    final selected = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => LocalizacaoSheet(initialValue: c.cidade),
-    );
-    if (selected != null && mounted) c.setCidade(selected);
-  }
-
-  Future<void> _openFiltroModal(BuildContext context) async {
-    await showModalBottomSheet<FiltroBuscaResult>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const FiltroBuscaSheet(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -65,10 +43,25 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
     final p = widget.property;
 
     return Scaffold(
-      appBar: ExploreSearchAppBar(
-        onTapLocation: () => _openLocalizacaoModal(context),
-        onTapFilter: () => _openFiltroModal(context),
+      appBar: ImovatoAppBar(
+        title: 'Detalhes do imóvel',
         showBack: true,
+        action: Consumer<ExploreController>(
+          builder: (context, controller, _) {
+            final isFavorite =
+                controller.favorites.any((item) => item.id == p.id);
+            return IconButton(
+              tooltip: isFavorite
+                  ? 'Remover dos favoritos'
+                  : 'Adicionar aos favoritos',
+              onPressed: () => controller.toggleFavoriteById(p.id, !isFavorite),
+              icon: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? scheme.primary : scheme.primary,
+              ),
+            );
+          },
+        ),
       ),
       bottomNavigationBar: _BottomBar(property: p),
       body: ListView(

@@ -61,10 +61,14 @@ class ExplorePage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: ExploreSearchAppBar(
+      appBar: ImovatoAppBar(
+        title: 'Início',
         showBack: false,
-        onTapLocation: () => _openLocation(context),
-        onTapFilter: () => _openFilters(context),
+        action: IconButton(
+          tooltip: 'Escolher região',
+          onPressed: () => _openLocation(context),
+          icon: const Icon(Icons.location_on_outlined),
+        ),
       ),
       body: SafeArea(
         child: ListView(
