@@ -70,8 +70,11 @@ class ExplorePage extends StatelessWidget {
         state: controller.filters.state,
         // Filtros avançados têm prioridade sobre os da tela principal
         priceMin: result.priceMin,
-        priceMax: result.priceMax ?? controller.valorSelecionado, // Se não definiu no modal, usa da tela principal
-        accommodationType: result.accommodationType ?? tipoMoradiaFromMain, // Se não definiu no modal, usa da tela principal
+        priceMax: result.priceMax ??
+            controller
+                .valorSelecionado, // Se não definiu no modal, usa da tela principal
+        accommodationType: result.accommodationType ??
+            tipoMoradiaFromMain, // Se não definiu no modal, usa da tela principal
         maxOccupancy: result.maxOccupancy,
         allowsPets: result.allowsPets,
         allowsChildren: result.allowsChildren,
@@ -82,8 +85,10 @@ class ExplorePage extends StatelessWidget {
       debugPrint('city: ${controller.filters.city}');
       debugPrint('state: ${controller.filters.state}');
       debugPrint('priceMin: ${result.priceMin}');
-      debugPrint('priceMax: ${result.priceMax ?? controller.valorSelecionado} (modal ou tela principal)');
-      debugPrint('accommodationType: ${result.accommodationType ?? tipoMoradiaFromMain} (modal ou tela principal)');
+      debugPrint(
+          'priceMax: ${result.priceMax ?? controller.valorSelecionado} (modal ou tela principal)');
+      debugPrint(
+          'accommodationType: ${result.accommodationType ?? tipoMoradiaFromMain} (modal ou tela principal)');
       debugPrint('maxOccupancy: ${result.maxOccupancy}');
       debugPrint('allowsPets: ${result.allowsPets}');
       debugPrint('allowsChildren: ${result.allowsChildren}');
@@ -121,91 +126,150 @@ class ExplorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    // Se o usuário está logado, não mostra botão voltar. Caso contrário, comportamento automático
+    final textTheme = Theme.of(context).textTheme;
     final isLoggedIn = context.read<LoginController>().isLoggedIn;
 
     return Scaffold(
+      backgroundColor: scheme.surface,
       appBar: ExploreSearchAppBar(
-          showBack: isLoggedIn ? false : null,
-          onTapLocation: () => _openLocalizacaoModal(context),
-          onTapFilter: () => _openFiltroModal(context)),
-      body: Container(
-        color: scheme.primary,
+        showBack: isLoggedIn ? false : null,
+        onTapLocation: () => _openLocalizacaoModal(context),
+        onTapFilter: () => _openFiltroModal(context),
+      ),
+      body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
           children: [
-            Text(
-              'Seu lar pronto, do seu jeito!',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: scheme.surface,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: scheme.shadow.withAlpha(18),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
                   ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Descubra o apartamento perfeito, escolha por quanto tempo quer chamar de lar e alugue online com a Imovato.',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.white70),
-            ),
-            const SizedBox(height: 24),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                ],
               ),
-              elevation: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: scheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      'Busca inteligente',
+                      style: textTheme.labelLarge?.copyWith(
+                        color: scheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Seu lar pronto, do seu jeito!',
+                    style: textTheme.headlineLarge?.copyWith(
+                      color: scheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Descubra o apartamento perfeito, escolha por quanto tempo quer chamar de lar e alugue online com a Imovato.',
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Card(
+              margin: EdgeInsets.zero,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+                side: BorderSide(color: scheme.outlineVariant),
+              ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 12,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                 child: Column(
                   children: [
                     Consumer<ExploreController>(
                       builder: (context, c, _) => ListTile(
-                        leading: Icon(
-                          Icons.home_outlined,
-                          color: scheme.primary,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
                         ),
-                        title: const Text(
-                          'TIPO DE MORADIA',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                        leading: Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: scheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(
+                            Icons.home_outlined,
+                            color: scheme.primary,
+                          ),
+                        ),
+                        title: Text(
+                          'Tipo de moradia',
+                          style: textTheme.labelLarge?.copyWith(
+                            color: scheme.onSurfaceVariant,
                           ),
                         ),
                         subtitle: Text(
                           c.tipoMoradiaLabel,
-                          style: TextStyle(
-                              color: scheme.primary,
-                              fontWeight: FontWeight.w700),
+                          style: textTheme.titleMedium?.copyWith(
+                            color: scheme.onSurface,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                        trailing: const Icon(Icons.chevron_right),
+                        trailing:
+                            Icon(Icons.chevron_right, color: scheme.primary),
                         onTap: () => _openTipoMoradiaModal(context),
                       ),
                     ),
                     const Divider(height: 1),
                     Consumer<ExploreController>(
                       builder: (context, c, _) => ListTile(
-                        leading: Icon(
-                          Icons.attach_money,
-                          color: scheme.primary,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
                         ),
-                        title: const Text(
-                          'VALOR TOTAL',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                        leading: Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: scheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(
+                            Icons.attach_money,
+                            color: scheme.primary,
+                          ),
+                        ),
+                        title: Text(
+                          'Valor total',
+                          style: textTheme.labelLarge?.copyWith(
+                            color: scheme.onSurfaceVariant,
                           ),
                         ),
                         subtitle: Text(
                           formatBRL0(c.valorSelecionado),
-                          style: TextStyle(
-                              color: scheme.primary,
-                              fontWeight: FontWeight.w700),
+                          style: textTheme.titleMedium?.copyWith(
+                            color: scheme.onSurface,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                        trailing: const Icon(Icons.chevron_right),
+                        trailing:
+                            Icon(Icons.chevron_right, color: scheme.primary),
                         onTap: () => _openValorTotalModal(context),
                       ),
                     ),
@@ -214,30 +278,27 @@ class ExplorePage extends StatelessWidget {
                       onPressed: () async {
                         final controller = context.read<ExploreController>();
 
-                        // Extrair cidade e estado da string no formato "Cidade, UF"
                         final cidadePartes = controller.cidade.split(',');
-                        final cidade = cidadePartes.isNotEmpty ? cidadePartes[0].trim() : '';
-                        final state = cidadePartes.length > 1 ? cidadePartes[1].trim() : '';
+                        final cidade = cidadePartes.isNotEmpty
+                            ? cidadePartes[0].trim()
+                            : '';
+                        final state = cidadePartes.length > 1
+                            ? cidadePartes[1].trim()
+                            : '';
 
-                        // Converter tipo de moradia para accommodationType
                         String? accommodationType;
                         if (controller.tipoMoradia == 'Apartamento Inteiro') {
                           accommodationType = 'APARTMENT';
                         } else if (controller.tipoMoradia == 'Compartilhado') {
-                          accommodationType = 'HOUSE'; // ou 'COLIVING' dependendo da API
+                          accommodationType = 'HOUSE';
                         }
-                        // Se for 'Tanto Faz', deixa null para buscar todos
 
-                        // ✅ MERGE: Combina filtros da tela principal + filtros avançados
                         controller.updateFilter(
-                          // Filtros da tela principal
                           city: cidade.isNotEmpty ? cidade : null,
                           state: state.isNotEmpty ? state : null,
-                          priceMax: controller.valorSelecionado, // Valor máximo da tela principal
-                          accommodationType: accommodationType, // Tipo de moradia
-                          // Mantém filtros avançados do modal (se existirem)
+                          priceMax: controller.valorSelecionado,
+                          accommodationType: accommodationType,
                           priceMin: controller.filters.priceMin,
-                          // priceMax já foi definido acima, mas se existir no filtro avançado, sobrescreve
                           maxOccupancy: controller.filters.maxOccupancy,
                           allowsPets: controller.filters.allowsPets,
                           allowsChildren: controller.filters.allowsChildren,
@@ -247,29 +308,33 @@ class ExplorePage extends StatelessWidget {
                         debugPrint('===== BUSCAR COM FILTROS MESCLADOS =====');
                         debugPrint('city: $cidade');
                         debugPrint('state: $state');
-                        debugPrint('priceMax (tela principal): ${controller.valorSelecionado}');
-                        debugPrint('accommodationType (tela principal): $accommodationType');
-                        debugPrint('Filtros avançados preservados: ${controller.filters}');
+                        debugPrint(
+                            'priceMax (tela principal): ${controller.valorSelecionado}');
+                        debugPrint(
+                            'accommodationType (tela principal): $accommodationType');
+                        debugPrint(
+                            'Filtros avançados preservados: ${controller.filters}');
                         debugPrint('=======================================');
 
-                        // Mostrar loading e fazer busca
                         showDialog(
                           context: context,
                           barrierDismissible: false,
-                          builder: (_) => const Center(child: CircularProgressIndicator()),
+                          builder: (_) =>
+                              const Center(child: CircularProgressIndicator()),
                         );
                         await controller.searchAccommodations();
                         if (context.mounted) {
-                          Navigator.of(context).pop(); // close loading
+                          Navigator.of(context).pop();
                           Navigator.pushNamed(context, Routes.buscar);
                         }
                       },
                       icon: const Icon(Icons.search),
                       label: const Text('Buscar'),
                       style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        backgroundColor: scheme.primary,
-                        foregroundColor: Colors.white,
+                        minimumSize: const Size.fromHeight(52),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
                       ),
                     ),
                   ],

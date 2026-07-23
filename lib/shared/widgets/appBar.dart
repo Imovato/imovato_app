@@ -3,14 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:imovato_app/features/explore/application/explore_controller.dart';
 import 'profile_menu.dart';
 
-class ExploreSearchAppBar extends StatelessWidget implements PreferredSizeWidget {
+class ExploreSearchAppBar extends StatelessWidget
+    implements PreferredSizeWidget {
   const ExploreSearchAppBar({
     super.key,
     required this.onTapLocation,
     required this.onTapFilter,
-    this.showBack,         // null = auto (mostra se puder voltar)
-    this.onBackPressed,    // opcional: ação custom no back
-    this.actions,          // opcional: ações extras no canto direito
+    this.showBack,
+    this.onBackPressed,
+    this.actions,
   });
 
   final VoidCallback onTapLocation;
@@ -26,35 +27,39 @@ class ExploreSearchAppBar extends StatelessWidget implements PreferredSizeWidget
   Widget build(BuildContext context) {
     final canPopAuto = Navigator.canPop(context);
     final showLeading = showBack ?? canPopAuto;
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return AppBar(
       automaticallyImplyLeading: false,
       leading: showLeading
-        ? BackButton(onPressed: onBackPressed)
-        : const SizedBox(width: 48), // Espaço em branco do tamanho do botão
+          ? BackButton(onPressed: onBackPressed)
+          : const SizedBox(width: 48),
       actions: actions ?? [const ProfileMenu(), const SizedBox(width: 8)],
-      backgroundColor: Colors.white,
+      backgroundColor: scheme.surface,
       elevation: 0,
       title: Container(
-        height: 42,
+        height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
+          color: scheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: scheme.outlineVariant),
         ),
         child: Row(
           children: [
-            const Icon(Icons.apartment, color: Colors.black54, size: 20),
+            Icon(Icons.apartment_outlined, color: scheme.primary, size: 20),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Buscar apartamentos',
-                    style: TextStyle(fontSize: 13, color: Colors.black87),
+                    style: textTheme.labelLarge?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -76,10 +81,11 @@ class ExploreSearchAppBar extends StatelessWidget implements PreferredSizeWidget
               icon: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  const Icon(Icons.tune, color: Colors.black54),
+                  Icon(Icons.tune, color: scheme.primary),
                   Consumer<ExploreController>(
                     builder: (context, controller, _) {
-                      final activeFilters = _countActiveFilters(controller.filters);
+                      final activeFilters =
+                          _countActiveFilters(controller.filters);
                       if (activeFilters == 0) return const SizedBox.shrink();
 
                       return Positioned(
@@ -88,7 +94,7 @@ class ExploreSearchAppBar extends StatelessWidget implements PreferredSizeWidget
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.error,
+                            color: scheme.primary,
                             shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(
@@ -125,9 +131,14 @@ class _CidadeLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cidade = context.select<ExploreController, String>((c) => c.cidade);
+    final scheme = Theme.of(context).colorScheme;
+
     return Text(
       cidade,
-      style: const TextStyle(fontSize: 13, color: Colors.black87),
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: scheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
@@ -146,4 +157,3 @@ int _countActiveFilters(SearchFilters filters) {
   if (filters.isSharedHosting != null) count++;
   return count;
 }
-
