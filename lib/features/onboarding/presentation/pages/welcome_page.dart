@@ -26,62 +26,71 @@ class WelcomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ClipRRect(
-                borderRadius:
-                    ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
-                child: Stack(
-                  children: [
-                    SizedBox(
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  ClipRRect(
+                    borderRadius: ImovatoBorderRadius.circular(
+                      ImovatoBorderRadius.xl,
+                    ),
+                    child: SizedBox(
                       height: 360,
                       width: double.infinity,
-                      child: Image.asset(
-                        'images/image-onboarding.jpg',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black.withValues(alpha: 0.02),
-                              Colors.black.withValues(alpha: 0.42),
-                            ],
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            'images/image-onboarding.jpg',
+                            width: double.infinity,
+                            height: 360,
+                            fit: BoxFit.cover,
                           ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: ImovatoSpacing.xl,
-                      bottom: ImovatoSpacing.xl,
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.95),
-                          borderRadius: ImovatoBorderRadius.circular(
-                              ImovatoBorderRadius.lg),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.10),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                          Positioned.fill(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.black.withValues(alpha: 0.02),
+                                    Colors.black.withValues(alpha: 0.42),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                        child: SvgPicture.asset(
-                          'images/imovato.svg',
-                          width: 128,
-                          height: 128,
-                          semanticsLabel: 'Logo da Imovato',
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  Positioned(
+                    right: 16,
+                    bottom: -64,
+                    child: Container(
+                      padding: const EdgeInsets.all(ImovatoSpacing.xxs),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: ImovatoBorderRadius.circular(
+                          ImovatoBorderRadius.xxl,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.10),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: SvgPicture.asset(
+                        'images/imovato.svg',
+                        width: 128,
+                        height: 128,
+                        semanticsLabel: 'Logo da Imovato',
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: ImovatoSpacing.md),
+              const SizedBox(height: 72),
               Text(
                 textoBoasVindas,
                 style: textTheme.headlineLarge?.copyWith(
@@ -99,12 +108,12 @@ class WelcomePage extends StatelessWidget {
               FilledButton(
                 onPressed: () =>
                     Navigator.pushNamed(context, Routes.loginMorador),
-                child: Text(labelLogin),
+                child: const Text(labelLogin),
               ),
               const SizedBox(height: ImovatoSpacing.sm),
               OutlinedButton(
                 onPressed: () => Navigator.pushNamed(context, Routes.alugar),
-                child: Text(labelAlugar),
+                child: const Text(labelAlugar),
               ),
             ],
           ),
