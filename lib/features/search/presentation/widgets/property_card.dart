@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/Space.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../domain/property.dart';
 
@@ -35,7 +36,7 @@ class _PropertyCardState extends State<PropertyCard> {
     final data = widget.data;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: Space.sm),
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),

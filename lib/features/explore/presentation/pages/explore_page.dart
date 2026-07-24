@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/Space.dart';
 import 'package:imovato_app/shared/models/location_option.dart';
 import 'package:provider/provider.dart';
 
@@ -77,7 +78,7 @@ class ExplorePage extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(Space.sm),
           children: [
             Container(
               padding: const EdgeInsets.all(24),

@@ -493,7 +493,7 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(20)),
             ),
-            padding: const EdgeInsets.all(Space.md),
+            padding: const EdgeInsets.all(Space.sm),
             child: Form(
               key: _formKey,
               child: Column(

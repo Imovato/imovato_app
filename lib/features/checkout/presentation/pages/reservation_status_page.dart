@@ -490,7 +490,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
             // Header com informações do imóvel
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(Space.md),
+              padding: const EdgeInsets.all(Space.sm),
               decoration: BoxDecoration(
                 color: scheme.primaryContainer,
                 border: Border(
@@ -581,7 +581,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
             // Status Timeline
             Padding(
-              padding: const EdgeInsets.all(Space.md),
+              padding: const EdgeInsets.all(Space.sm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

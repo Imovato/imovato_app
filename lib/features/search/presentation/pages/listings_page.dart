@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/Space.dart';
 import 'package:provider/provider.dart';
 import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
@@ -100,7 +101,7 @@ class _ListingsPageState extends State<ListingsPage> {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            padding: const EdgeInsets.all(Space.sm),
             itemCount: items.length,
             itemBuilder: (context, i) {
               final item = items[i];
