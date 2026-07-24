@@ -52,7 +52,8 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
                   height: 4,
                   decoration: BoxDecoration(
                     color: scheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius:
+                        ImovatoBorderRadius.circular(ImovatoBorderRadius.xs),
                   ),
                 ),
               ),
@@ -77,7 +78,8 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
               Container(
                 decoration: BoxDecoration(
                   color: scheme.primaryContainer.withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius:
+                      ImovatoBorderRadius.circular(ImovatoBorderRadius.lg),
                 ),
                 padding: const EdgeInsets.all(12),
                 child: Text(
@@ -130,7 +132,8 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius:
+                        ImovatoBorderRadius.circular(ImovatoBorderRadius.lg),
                   ),
                 ),
                 child: const Text('Aplicar'),

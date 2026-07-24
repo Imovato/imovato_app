@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/router.dart';
@@ -75,7 +76,8 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               color: scheme.onPrimary,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
+                borderRadius:
+                    ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
                 side: BorderSide(color: scheme.outlineVariant),
               ),
               child: SizedBox(
@@ -167,7 +169,8 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius:
+                    ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
                 border: Border.all(color: scheme.outlineVariant),
               ),
               child: Column(
@@ -266,7 +269,8 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: scheme.surface,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius:
+                    ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
                 border: Border.all(color: scheme.outlineVariant),
               ),
               child: Column(
@@ -320,7 +324,7 @@ class _SpecTile extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: scheme.surface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.lg),
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Row(
@@ -331,7 +335,8 @@ class _SpecTile extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: scheme.primaryContainer,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  ImovatoBorderRadius.circular(ImovatoBorderRadius.md),
             ),
             child: Icon(icon, color: scheme.onPrimaryContainer),
           ),
@@ -445,7 +450,8 @@ class _BottomBarState extends State<_BottomBar> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius:
+                    ImovatoBorderRadius.circular(ImovatoBorderRadius.lg),
                 border: Border.all(color: scheme.outlineVariant),
               ),
               child: Row(
@@ -544,7 +550,8 @@ class _BottomBarState extends State<_BottomBar> {
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius:
+                      ImovatoBorderRadius.circular(ImovatoBorderRadius.lg),
                 ),
               ),
               label: const Text('Reservar'),

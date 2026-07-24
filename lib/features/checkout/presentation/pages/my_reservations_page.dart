@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:imovato_app/app/theme/Space.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../../app/router.dart';
@@ -142,7 +143,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
               height: 96,
               decoration: BoxDecoration(
                 color: scheme.primaryContainer.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(24),
+                borderRadius:
+                    ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
               ),
               child: Icon(
                 Icons.calendar_today_outlined,
@@ -363,7 +365,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

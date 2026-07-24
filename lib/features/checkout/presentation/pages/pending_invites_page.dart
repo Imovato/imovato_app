@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import '../../application/invite_service.dart';
 
 class PendingInvitesPage extends StatefulWidget {
@@ -96,8 +97,8 @@ class _PendingInvitesPageState extends State<PendingInvitesPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.mail_outline, size: 72,
-                color: scheme.onSurface.withValues(alpha: 0.3)),
+            Icon(Icons.mail_outline,
+                size: 72, color: scheme.onSurface.withValues(alpha: 0.3)),
             const SizedBox(height: 16),
             Text(
               'Nenhum convite pendente',
@@ -153,9 +154,8 @@ class _InviteCard extends StatelessWidget {
         invite['booking_id']?.toString() ??
         invite['id']?.toString() ??
         '—';
-    final guestId = invite['guestId']?.toString() ??
-        invite['guest_id']?.toString() ??
-        '—';
+    final guestId =
+        invite['guestId']?.toString() ?? invite['guest_id']?.toString() ?? '—';
     final guestName = invite['guestName']?.toString() ??
         invite['guest_name']?.toString() ??
         invite['userName']?.toString();
@@ -164,11 +164,13 @@ class _InviteCard extends StatelessWidget {
         invite['email']?.toString();
     final status = invite['status']?.toString() ?? 'PENDING';
     final createdAt = invite['createdAt']?.toString() ??
-        invite['created_at']?.toString() ?? '';
+        invite['created_at']?.toString() ??
+        '';
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+          borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.md)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -181,7 +183,8 @@ class _InviteCard extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: scheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius:
+                        ImovatoBorderRadius.circular(ImovatoBorderRadius.sm),
                   ),
                   child: Icon(Icons.home_outlined,
                       size: 20, color: scheme.onPrimaryContainer),
@@ -301,7 +304,7 @@ class _StatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(
@@ -314,4 +317,3 @@ class _StatusChip extends StatelessWidget {
     );
   }
 }
-

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:imovato_app/app/theme/Space.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import 'package:provider/provider.dart';
 import '../controllers/register_controller.dart';
 import '../../../../../app/router.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:imovato_app/app/theme/Space.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../domain/reservation.dart';
 import '../../application/reservations_controller.dart';
@@ -818,7 +819,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                     //     padding: const EdgeInsets.all(12),
                     //     decoration: BoxDecoration(
                     //       color: scheme.surfaceContainerHighest,
-                    //       borderRadius: BorderRadius.circular(8),
+                    //       borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.sm),
                     //     ),
                     //     child: Row(
                     //       children: [
@@ -991,7 +992,8 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                       ),
                       decoration: BoxDecoration(
                         color: scheme.errorContainer,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: ImovatoBorderRadius.circular(
+                            ImovatoBorderRadius.xl),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -1136,7 +1138,7 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                   //     padding: const EdgeInsets.all(12),
                   //     decoration: BoxDecoration(
                   //       color: scheme.primaryContainer.withOpacity(0.4),
-                  //       borderRadius: BorderRadius.circular(10),
+                  //       borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.md),
                   //     ),
                   //     child: Row(
                   //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1181,7 +1183,8 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: scheme.errorContainer.withValues(alpha: 0.45),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius:
+                          ImovatoBorderRadius.circular(ImovatoBorderRadius.sm),
                     ),
                     child: Row(
                       children: [
@@ -1214,7 +1217,8 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                               prefixIcon:
                                   const Icon(Icons.email_outlined, size: 20),
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10)),
+                                  borderRadius: ImovatoBorderRadius.circular(
+                                      ImovatoBorderRadius.md)),
                               isDense: true,
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 12),
@@ -1250,7 +1254,8 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: scheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius:
+                          ImovatoBorderRadius.circular(ImovatoBorderRadius.sm),
                     ),
                     child: Row(
                       children: [
@@ -1364,7 +1369,7 @@ class _GuestTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.md),
       ),
       child: Row(
         children: [

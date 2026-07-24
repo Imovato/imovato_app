@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/router.dart';
@@ -61,7 +62,8 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: scheme.primaryContainer,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius:
+                  ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
             ),
             child: Row(
               children: [

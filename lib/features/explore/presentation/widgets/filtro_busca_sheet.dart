@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 
 class FiltroBuscaResult {
   final double? priceMin;
@@ -107,7 +108,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                           height: 4,
                           decoration: BoxDecoration(
                             color: scheme.outlineVariant,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: ImovatoBorderRadius.circular(
+                                ImovatoBorderRadius.xs),
                           ),
                         ),
                       ),
@@ -147,7 +149,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                                 decoration: InputDecoration(
                                   labelText: 'Preço mínimo',
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: ImovatoBorderRadius.circular(
+                                        ImovatoBorderRadius.sm),
                                   ),
                                   prefixText: 'R\$ ',
                                 ),
@@ -167,7 +170,8 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                                 decoration: InputDecoration(
                                   labelText: 'Preço máximo',
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: ImovatoBorderRadius.circular(
+                                        ImovatoBorderRadius.sm),
                                   ),
                                   prefixText: 'R\$ ',
                                 ),
@@ -479,7 +483,7 @@ class _SectionCard extends StatelessWidget {
       elevation: 0,
       color: scheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
         side: BorderSide(color: scheme.outlineVariant),
       ),
       child: Padding(

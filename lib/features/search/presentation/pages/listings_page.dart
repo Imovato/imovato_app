@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:imovato_app/app/theme/Space.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import 'package:provider/provider.dart';
 import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
 import '../../../explore/application/explore_controller.dart';
 import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../widgets/property_card.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 
 class ListingsPage extends StatefulWidget {
   const ListingsPage({super.key});

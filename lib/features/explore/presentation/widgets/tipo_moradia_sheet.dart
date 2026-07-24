@@ -50,7 +50,8 @@ class _TipoMoradiaSheetState extends State<TipoMoradiaSheet> {
                   height: 4,
                   decoration: BoxDecoration(
                     color: scheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius:
+                        ImovatoBorderRadius.circular(ImovatoBorderRadius.xs),
                   ),
                 ),
               ),
@@ -77,7 +78,8 @@ class _TipoMoradiaSheetState extends State<TipoMoradiaSheet> {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius:
+                      ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
                   border: Border.all(color: scheme.outlineVariant),
                 ),
                 child: Column(
@@ -114,7 +116,8 @@ class _TipoMoradiaSheetState extends State<TipoMoradiaSheet> {
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius:
+                        ImovatoBorderRadius.circular(ImovatoBorderRadius.lg),
                   ),
                 ),
                 child: const Text('Aplicar'),

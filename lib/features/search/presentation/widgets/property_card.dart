@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:imovato_app/app/theme/Space.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../domain/property.dart';
 
@@ -40,7 +41,7 @@ class _PropertyCardState extends State<PropertyCard> {
       clipBehavior: Clip.antiAlias,
       color: scheme.onPrimary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
         side: BorderSide(color: scheme.outlineVariant),
       ),
       elevation: 0,

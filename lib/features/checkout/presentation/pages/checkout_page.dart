@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
@@ -229,7 +230,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         elevation: 0,
                         color: scheme.onPrimary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: ImovatoBorderRadius.circular(
+                              ImovatoBorderRadius.xl),
                           side: BorderSide(color: scheme.outlineVariant),
                         ),
                         child: Padding(
@@ -237,7 +239,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           child: Row(
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: ImovatoBorderRadius.circular(
+                                    ImovatoBorderRadius.lg),
                                 child: (p.imagesUrls.isNotEmpty)
                                     ? Image.network(p.imagesUrls.first,
                                         width: 78,
@@ -311,7 +314,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   const EdgeInsets.symmetric(horizontal: 16),
                               decoration: BoxDecoration(
                                 color: scheme.surface,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: ImovatoBorderRadius.circular(
+                                    ImovatoBorderRadius.lg),
                               ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,

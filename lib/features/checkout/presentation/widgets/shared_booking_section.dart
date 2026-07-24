@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imovato_app/app/theme/Space.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import 'package:provider/provider.dart';
 import '../../application/shared_booking_controller.dart';
 import '../../domain/booking_invite.dart';
@@ -42,14 +42,15 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
           elevation: 0,
           color: scheme.surface,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
             side: BorderSide(color: scheme.outlineVariant),
           ),
           child: Column(
             children: [
               // ── Header toggle ──────────────────────────────────────────
               InkWell(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius:
+                    ImovatoBorderRadius.circular(ImovatoBorderRadius.md),
                 onTap: () => setState(() => _expanded = !_expanded),
                 child: Padding(
                   padding:
@@ -125,7 +126,8 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                           decoration: BoxDecoration(
                             color:
                                 scheme.errorContainer.withValues(alpha: 0.45),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: ImovatoBorderRadius.circular(
+                                ImovatoBorderRadius.sm),
                           ),
                           child: Row(
                             children: [
@@ -174,7 +176,8 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                           decoration: BoxDecoration(
                             color: scheme.tertiaryContainer
                                 .withValues(alpha: 0.45),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: ImovatoBorderRadius.circular(
+                                ImovatoBorderRadius.sm),
                           ),
                           child: Row(
                             children: [
@@ -199,7 +202,8 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: scheme.primaryContainer.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: ImovatoBorderRadius.circular(
+                              ImovatoBorderRadius.sm),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,7 +273,7 @@ class _DivisionSummary extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: scheme.primaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.md),
       ),
       child: Column(
         children: [
@@ -353,7 +357,7 @@ class _GuestTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         border: Border.all(color: scheme.outlineVariant),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.md),
       ),
       child: Row(
         children: [
@@ -447,7 +451,7 @@ class _StatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
       ),
       child: Text(
         invite.statusLabel,

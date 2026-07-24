@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:imovato_app/app/theme/Space.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import 'package:imovato_app/shared/models/location_option.dart';
 import 'package:provider/provider.dart';
 
@@ -94,7 +95,8 @@ class ExplorePage extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: scheme.secondary,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius:
+                    ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

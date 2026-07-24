@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import 'package:imovato_app/shared/models/location_option.dart';
 
 class LocalizacaoSheet extends StatefulWidget {
@@ -62,7 +63,8 @@ class _LocalizacaoSheetState extends State<LocalizacaoSheet> {
                   height: 4,
                   decoration: BoxDecoration(
                     color: scheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius:
+                        ImovatoBorderRadius.circular(ImovatoBorderRadius.xs),
                   ),
                 ),
               ),
@@ -89,7 +91,8 @@ class _LocalizacaoSheetState extends State<LocalizacaoSheet> {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius:
+                      ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
                   border: Border.all(color: scheme.outlineVariant),
                 ),
                 child: Column(
@@ -119,7 +122,8 @@ class _LocalizacaoSheetState extends State<LocalizacaoSheet> {
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius:
+                        ImovatoBorderRadius.circular(ImovatoBorderRadius.lg),
                   ),
                 ),
                 child: const Text('Aplicar'),

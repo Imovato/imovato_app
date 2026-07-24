@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:imovato_app/app/theme/Space.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import '../../../../../app/router.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -26,7 +27,8 @@ class WelcomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(28),
+                borderRadius:
+                    ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
                 child: Stack(
                   children: [
                     SizedBox(
@@ -58,7 +60,8 @@ class WelcomePage extends StatelessWidget {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.95),
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: ImovatoBorderRadius.circular(
+                              ImovatoBorderRadius.lg),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.10),
