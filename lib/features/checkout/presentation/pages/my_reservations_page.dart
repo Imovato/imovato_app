@@ -208,8 +208,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
   ) {
     return Card(
       margin: const EdgeInsets.only(bottom: Space.sm),
-      elevation: 8,
-      color: scheme.surface,
+      elevation: 0,
+      color: scheme.onPrimary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Space.md),
         side: BorderSide(color: scheme.outlineVariant),

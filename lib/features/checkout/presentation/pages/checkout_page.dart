@@ -227,7 +227,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       // Resumo do imóvel
                       Card(
                         elevation: 0,
-                        color: scheme.surface,
+                        color: scheme.onPrimary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                           side: BorderSide(color: scheme.outlineVariant),

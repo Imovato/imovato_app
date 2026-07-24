@@ -72,6 +72,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
             child: Card(
               margin: EdgeInsets.zero,
               clipBehavior: Clip.antiAlias,
+              color: scheme.onPrimary,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(28),

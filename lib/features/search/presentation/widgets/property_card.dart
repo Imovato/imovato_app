@@ -38,6 +38,7 @@ class _PropertyCardState extends State<PropertyCard> {
     return Card(
       margin: const EdgeInsets.only(bottom: Space.sm),
       clipBehavior: Clip.antiAlias,
+      color: scheme.onPrimary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
         side: BorderSide(color: scheme.outlineVariant),
