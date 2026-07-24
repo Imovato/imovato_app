@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
@@ -53,23 +54,19 @@ class _PropertyCardState extends State<PropertyCard> {
             child: Stack(
               children: [
                 PageView.builder(
-                  controller: _pageCtrl,
-                  onPageChanged: (i) => setState(() => _page = i),
-                  itemCount: data.imagesUrls.length,
-                  itemBuilder: (_, i) => Image.network(
-                    data.imagesUrls[i],
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    loadingBuilder: (c, w, p) => p == null
-                        ? w
-                        : const Center(child: CircularProgressIndicator()),
-                    errorBuilder: (_, __, ___) => Container(
-                      color: scheme.surfaceContainerHighest,
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.photo, size: 48),
-                    ),
-                  ),
-                ),
+                    controller: _pageCtrl,
+                    onPageChanged: (i) => setState(() => _page = i),
+                    itemCount: data.imagesUrls.length,
+                    itemBuilder: (_, i) => CachedNetworkImage(
+                          imageUrl: data.imagesUrls[i],
+                          memCacheWidth: 800,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          placeholder: (context, url) =>
+                              const Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.photo, size: 48),
+                        )),
                 Positioned.fill(
                   child: IgnorePointer(
                     child: DecoratedBox(
