@@ -48,22 +48,22 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
       appBar: ImovatoAppBar(
         title: 'Detalhes do imóvel',
         showBack: true,
-        action: Consumer<ExploreController>(
-          builder: (context, controller, _) {
-            final isFavorite =
-                controller.favorites.any((item) => item.id == p.id);
-            return IconButton(
-              tooltip: isFavorite
-                  ? 'Remover dos favoritos'
-                  : 'Adicionar aos favoritos',
-              onPressed: () => controller.toggleFavoriteById(p.id, !isFavorite),
-              icon: Icon(
-                isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? scheme.primary : scheme.primary,
-              ),
-            );
-          },
-        ),
+        // action: Consumer<ExploreController>(
+        //   builder: (context, controller, _) {
+        //     final isFavorite =
+        //         controller.favorites.any((item) => item.id == p.id);
+        //     return IconButton(
+        //       tooltip: isFavorite
+        //           ? 'Remover dos favoritos'
+        //           : 'Adicionar aos favoritos',
+        //       onPressed: () => controller.toggleFavoriteById(p.id, !isFavorite),
+        //       icon: Icon(
+        //         isFavorite ? Icons.favorite : Icons.favorite_border,
+        //         color: isFavorite ? scheme.primary : scheme.primary,
+        //       ),
+        //     );
+        //   },
+        // ),
       ),
       bottomNavigationBar: _BottomBar(property: p),
       body: ListView(
