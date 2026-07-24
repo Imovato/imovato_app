@@ -30,12 +30,12 @@ class ImovatoBottomNavigation extends StatelessWidget {
       selectedIcon: Icons.search,
       icon: Icons.search_outlined,
     ),
-    _NavigationItem(
-      destination: ImovatoNavigationDestination.favorites,
-      label: 'Favoritos',
-      selectedIcon: Icons.favorite,
-      icon: Icons.favorite_border,
-    ),
+    // _NavigationItem(
+    //   destination: ImovatoNavigationDestination.favorites,
+    //   label: 'Favoritos',
+    //   selectedIcon: Icons.favorite,
+    //   icon: Icons.favorite_border,
+    // ),
     _NavigationItem(
       destination: ImovatoNavigationDestination.profile,
       label: 'Perfil',

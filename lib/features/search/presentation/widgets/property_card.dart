@@ -105,27 +105,27 @@ class _PropertyCardState extends State<PropertyCard> {
                     ),
                   ),
                 ),
-                Positioned(
-                  right: 12,
-                  top: 12,
-                  child: Material(
-                    color: Colors.white,
-                    shape: const CircleBorder(),
-                    child: IconButton(
-                      tooltip: data.favorito
-                          ? 'Remover dos favoritos'
-                          : 'Adicionar aos favoritos',
-                      onPressed: widget.onToggleFavorite == null
-                          ? null
-                          : () => widget.onToggleFavorite!(!data.favorito),
-                      icon: Icon(
-                        data.favorito ? Icons.favorite : Icons.favorite_border,
-                        color:
-                            data.favorito ? scheme.primary : scheme.onSurface,
-                      ),
-                    ),
-                  ),
-                ),
+                // Positioned(
+                //   right: 12,
+                //   top: 12,
+                //   child: Material(
+                //     color: Colors.white,
+                //     shape: const CircleBorder(),
+                //     child: IconButton(
+                //       tooltip: data.favorito
+                //           ? 'Remover dos favoritos'
+                //           : 'Adicionar aos favoritos',
+                //       onPressed: widget.onToggleFavorite == null
+                //           ? null
+                //           : () => widget.onToggleFavorite!(!data.favorito),
+                //       icon: Icon(
+                //         data.favorito ? Icons.favorite : Icons.favorite_border,
+                //         color:
+                //             data.favorito ? scheme.primary : scheme.onSurface,
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 Positioned(
                   bottom: 10,
                   left: 0,
