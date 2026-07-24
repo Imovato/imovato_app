@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import 'package:provider/provider.dart';
 import '../../../../../app/router.dart';
 import '../controllers/login_controller.dart';
@@ -35,113 +38,212 @@ class _LoginPageState extends State<LoginPage> {
     if (!mounted) return;
 
     if (loginOk) {
-      //TODO: navegar para a tela inicial do app com a lista de vários imóveis.
-      Navigator.pushReplacementNamed(context, Routes.alugar);
+      final returnRoute = ModalRoute.of(context)?.settings.arguments as String?;
+      Navigator.pushReplacementNamed(context, returnRoute ?? Routes.alugar);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(controller.errorMessage ?? 'Credenciais inválidas')),
+        SnackBar(
+            content: Text(controller.errorMessage ?? 'Credenciais inválidas')),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Entrar')),
+      appBar: AppBar(
+        title: const Text('Entrar'),
+      ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              children: [
-
-                // título
-                Text(
-                  'Bem-vindo de volta 👋',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: scheme.onSurface,
-                        fontWeight: FontWeight.w700,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Padding(
+              padding: const EdgeInsets.all(ImovatoSpacing.sm),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    ClipRRect(
+                      borderRadius: ImovatoBorderRadius.circular(
+                        ImovatoBorderRadius.xl,
                       ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Acesse a sua conta para continuar.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 24),
-
-                // e-mail
-                TextFormField(
-                  controller: _emailCtrl,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'E-mail',
-                    hintText: 'voce@email.com',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty)
-                      return 'Informe seu e-mail';
-                    final ok =
-                        RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim());
-                    if (!ok) return 'E-mail inválido';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // senha
-                TextFormField(
-                  controller: _passwordCtrl,
-                  obscureText: _obscure,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _submit(),
-                  decoration: InputDecoration(
-                    labelText: 'Senha',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      onPressed: () => setState(() => _obscure = !_obscure),
-                      icon: Icon(
-                          _obscure ? Icons.visibility : Icons.visibility_off),
+                      child: SizedBox(
+                        height: 210,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.asset(
+                              'images/image-onboarding.jpg',
+                              fit: BoxFit.cover,
+                            ),
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.black.withValues(alpha: 0.08),
+                                    Colors.black.withValues(alpha: 0.45),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.all(ImovatoSpacing.xxs),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: ImovatoBorderRadius.circular(
+                                    ImovatoBorderRadius.xxl,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.12),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: SvgPicture.asset(
+                                  'images/imovato.svg',
+                                  width: 90,
+                                  height: 90,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Informe sua senha';
-                    if (v.length < 6) return 'Mínimo de 6 caracteres';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
+                    const SizedBox(height: ImovatoSpacing.xl),
+                    Text(
+                      'Bem-vindo de volta!',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineLarge,
+                    ),
+                    const SizedBox(height: ImovatoSpacing.sm),
+                    Text(
+                      'Entre na sua conta para continuar.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: scheme.outline,
+                      ),
+                    ),
+                    const SizedBox(height: ImovatoSpacing.xl),
+                    AutofillGroup(
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _emailCtrl,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            autofillHints: const [
+                              AutofillHints.username,
+                              AutofillHints.email,
+                            ],
+                            decoration: const InputDecoration(
+                              labelText: 'E-mail',
+                              hintText: 'voce@email.com',
+                              prefixIcon: Icon(Icons.mail_outline_rounded),
+                            ),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) {
+                                return 'Informe seu e-mail';
+                              }
 
-                // botão entrar
-                Consumer<LoginController>(
-                  builder: (_, controller, __) {
-                    return FilledButton(
-                      onPressed: controller.loading ? null : _submit,
-                      child: controller.loading
-                          ? const SizedBox(
-                              height: 22,
-                              width: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Text('Entrar'),
-                    );
-                  },
-                ),
+                              final ok = RegExp(
+                                r'^[^@]+@[^@]+\.[^@]+',
+                              ).hasMatch(v.trim());
 
-                const SizedBox(height: 12),
+                              if (!ok) {
+                                return 'E-mail inválido';
+                              }
 
-                //botão cadastre-se
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, Routes.cadastro); // defina a rota '/cadastro'
-                  },
-                  child: const Text('Cadastre-se'),
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: ImovatoSpacing.md),
+                          TextFormField(
+                            controller: _passwordCtrl,
+                            obscureText: _obscure,
+                            textInputAction: TextInputAction.done,
+                            autofillHints: const [
+                              AutofillHints.password,
+                            ],
+                            onFieldSubmitted: (_) => _submit(),
+                            decoration: InputDecoration(
+                              labelText: 'Senha',
+                              prefixIcon:
+                                  const Icon(Icons.lock_outline_rounded),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _obscure = !_obscure;
+                                  });
+                                },
+                                icon: Icon(
+                                  _obscure
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
+                              ),
+                            ),
+                            validator: (v) {
+                              if (v == null || v.isEmpty) {
+                                return 'Informe sua senha';
+                              }
+
+                              if (v.length < 6) {
+                                return 'Mínimo de 6 caracteres';
+                              }
+
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: ImovatoSpacing.xl),
+                          Consumer<LoginController>(
+                            builder: (_, controller, __) {
+                              return FilledButton.icon(
+                                onPressed: controller.loading ? null : _submit,
+                                icon: controller.loading
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.login_rounded),
+                                label: Text(
+                                  controller.loading ? 'Entrando...' : 'Entrar',
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: ImovatoSpacing.md),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                Routes.cadastro,
+                              );
+                            },
+                            child: const Text(
+                              'Ainda não possui uma conta? Cadastre-se',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

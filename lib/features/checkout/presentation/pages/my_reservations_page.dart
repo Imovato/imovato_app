@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../../app/router.dart';
@@ -57,7 +59,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   size: 80,
                   color: scheme.primary,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: ImovatoSpacing.md),
                 Text(
                   'Faça login para ver suas reservas',
                   style: textTheme.titleLarge?.copyWith(
@@ -69,11 +71,11 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                 Text(
                   'Você precisa estar logado para acessar suas reservas.',
                   style: textTheme.bodyMedium?.copyWith(
-                    color: scheme.onSurface.withOpacity(0.6),
+                    color: scheme.onSurfaceVariant,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: ImovatoSpacing.lg),
                 FilledButton.icon(
                   onPressed: () {
                     Navigator.pushNamed(context, Routes.loginMorador);
@@ -136,12 +138,21 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.calendar_today_outlined,
-              size: 80,
-              color: scheme.onSurface.withOpacity(0.3),
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: scheme.primaryContainer.withValues(alpha: 0.4),
+                borderRadius:
+                    ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
+              ),
+              child: Icon(
+                Icons.calendar_today_outlined,
+                size: 42,
+                color: scheme.primary,
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: ImovatoSpacing.md),
             Text(
               'Nenhuma reserva ainda',
               style: textTheme.titleLarge?.copyWith(
@@ -152,11 +163,11 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
             Text(
               'Suas reservas aparecerão aqui assim que você realizar uma',
               style: textTheme.bodyMedium?.copyWith(
-                color: scheme.onSurface.withOpacity(0.6),
+                color: scheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: ImovatoSpacing.lg),
             FilledButton.icon(
               onPressed: () {
                 Navigator.pushNamedAndRemoveUntil(
@@ -198,9 +209,13 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
     TextTheme textTheme,
   ) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: ImovatoSpacing.sm),
+      elevation: 0,
+      color: scheme.onPrimary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ImovatoSpacing.md),
+        side: BorderSide(color: scheme.outlineVariant),
+      ),
       child: InkWell(
         onTap: () async {
           await Navigator.pushNamed(
@@ -213,13 +228,15 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
             final loginCtrl = context.read<LoginController>();
             final userId = loginCtrl.userId;
             if (userId != null && userId.isNotEmpty) {
-              context.read<ReservationsController>().loadReservationsByUserId(userId);
+              context
+                  .read<ReservationsController>()
+                  .loadReservationsByUserId(userId);
             }
           }
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ImovatoSpacing.sm),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(ImovatoSpacing.sm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -230,7 +247,8 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   Expanded(
                     child: Text(
                       reservation.propertyTitle,
-                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      style: textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -239,48 +257,49 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   _buildStatusChip(reservation.status, scheme, textTheme),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: ImovatoSpacing.xs),
               // Endereço
               Row(
                 children: [
-                  Icon(Icons.location_on_outlined, size: 16,
-                      color: scheme.onSurface.withOpacity(0.6)),
+                  Icon(Icons.location_on_outlined,
+                      size: 16, color: scheme.onSurface.withValues(alpha: 0.6)),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       reservation.propertyAddress,
                       style: textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurface.withOpacity(0.6)),
+                          color: scheme.onSurface.withValues(alpha: 0.6)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: ImovatoSpacing.xs),
               // Datas
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 16,
-                      color: scheme.onSurface.withOpacity(0.6)),
+                  Icon(Icons.calendar_today,
+                      size: 16, color: scheme.onSurface.withValues(alpha: 0.6)),
                   const SizedBox(width: 4),
                   Text(
                     '${DateFormat('dd/MM/yyyy').format(reservation.checkInDate)}'
                     ' - ${DateFormat('dd/MM/yyyy').format(reservation.checkOutDate)}',
                     style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurface.withOpacity(0.6)),
+                        color: scheme.onSurface.withValues(alpha: 0.6)),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: ImovatoSpacing.sm),
               const Divider(height: 1),
-              const SizedBox(height: 12),
+              const SizedBox(height: ImovatoSpacing.sm),
               // Total
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Total',
-                      style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                      style: textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w600)),
                   Text(
                     'R\$ ${reservation.totalPrice.toStringAsFixed(2).replaceAll('.', ',')}',
                     style: textTheme.titleMedium?.copyWith(
@@ -346,7 +365,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -384,4 +403,3 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
     }
   }
 }
-

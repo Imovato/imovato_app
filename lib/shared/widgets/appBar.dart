@@ -1,149 +1,124 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:imovato_app/features/explore/application/explore_controller.dart';
-import 'profile_menu.dart';
 
-class ExploreSearchAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ExploreSearchAppBar({
+/// Barra superior baseada no componente de 72 px do design system Imovato.
+///
+/// Mantém somente os elementos essenciais: voltar, título, localização opcional
+/// e uma ação opcional.
+class ImovatoAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const ImovatoAppBar({
+    required this.title,
+    this.showBack,
+    this.onBackPressed,
+    this.action,
+    this.location,
+    this.onLocationTap,
     super.key,
-    required this.onTapLocation,
-    required this.onTapFilter,
-    this.showBack,         // null = auto (mostra se puder voltar)
-    this.onBackPressed,    // opcional: ação custom no back
-    this.actions,          // opcional: ações extras no canto direito
   });
 
-  final VoidCallback onTapLocation;
-  final VoidCallback onTapFilter;
+  final String title;
   final bool? showBack;
   final VoidCallback? onBackPressed;
-  final List<Widget>? actions;
+  final Widget? action;
+
+  /// Rótulo da localização (ex: cidade selecionada). Quando não-nulo,
+  /// exibe uma linha clicável abaixo do título.
+  final String? location;
+
+  /// Callback ao tocar na linha de localização.
+  final VoidCallback? onLocationTap;
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(72);
 
   @override
   Widget build(BuildContext context) {
-    final canPopAuto = Navigator.canPop(context);
-    final showLeading = showBack ?? canPopAuto;
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final shouldShowBack = showBack ?? Navigator.canPop(context);
+
+    final hasLocation = location != null;
+
+    final titleWidget = hasLocation
+        ? Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: textTheme.titleMedium?.copyWith(
+                  color: scheme.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              InkWell(
+                onTap: onLocationTap,
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        size: 16,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          location!,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Icon(
+                        Icons.expand_more,
+                        size: 16,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          )
+        : Text(
+            title,
+            style: textTheme.titleMedium?.copyWith(
+              color: scheme.onSurface,
+              fontWeight: FontWeight.w700,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
 
     return AppBar(
       automaticallyImplyLeading: false,
-      leading: showLeading
-        ? BackButton(onPressed: onBackPressed)
-        : const SizedBox(width: 48), // Espaço em branco do tamanho do botão
-      actions: actions ?? [const ProfileMenu(), const SizedBox(width: 8)],
-      backgroundColor: Colors.white,
+      toolbarHeight: preferredSize.height,
+      backgroundColor: scheme.surface,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
-      title: Container(
-        height: 42,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.apartment, color: Colors.black54, size: 20),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Buscar apartamentos',
-                    style: TextStyle(fontSize: 13, color: Colors.black87),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Consumer<ExploreController>(
-                    builder: (context, c, _) => GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onTapLocation,
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 2),
-                        child: _CidadeLine(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              onPressed: onTapFilter,
-              icon: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(Icons.tune, color: Colors.black54),
-                  Consumer<ExploreController>(
-                    builder: (context, controller, _) {
-                      final activeFilters = _countActiveFilters(controller.filters);
-                      if (activeFilters == 0) return const SizedBox.shrink();
-
-                      return Positioned(
-                        right: -4,
-                        top: -4,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.error,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: Text(
-                            '$activeFilters',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      scrolledUnderElevation: 0,
+      leadingWidth: shouldShowBack ? 64 : 8,
+      leading: shouldShowBack
+          ? IconButton(
+              tooltip: 'Voltar',
+              onPressed: onBackPressed ?? () => Navigator.maybePop(context),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            )
+          : null,
+      titleSpacing: shouldShowBack ? 0 : 16,
+      title: titleWidget,
+      actions: [
+        if (action != null) action!,
+        const SizedBox(width: 8),
+      ],
     );
   }
 }
-
-/// Linha da cidade separada só pra evitar rebuilds maiores.
-class _CidadeLine extends StatelessWidget {
-  const _CidadeLine();
-
-  @override
-  Widget build(BuildContext context) {
-    final cidade = context.select<ExploreController, String>((c) => c.cidade);
-    return Text(
-      cidade,
-      style: const TextStyle(fontSize: 13, color: Colors.black87),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-}
-
-/// Função auxiliar para contar filtros avançados ativos
-int _countActiveFilters(SearchFilters filters) {
-  int count = 0;
-  if (filters.priceMin != null) count++;
-  if (filters.priceMax != null) count++;
-  if (filters.accommodationType != null) count++;
-  if (filters.maxOccupancy != null) count++;
-  if (filters.allowsPets != null) count++;
-  if (filters.allowsChildren != null) count++;
-  if (filters.isSharedHosting != null) count++;
-  return count;
-}
-

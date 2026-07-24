@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
-import '../../../explore/application/explore_controller.dart';
 import 'package:provider/provider.dart';
-import '../../../explore/presentation/widgets/localizacao_sheet.dart';
-import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
 import '../../../search/domain/property.dart';
 import '../../../auth/presentation/controllers/login_controller.dart';
 import '../../domain/reservation.dart';
@@ -48,26 +47,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _expiryCtrl.dispose();
     _cvvCtrl.dispose();
     super.dispose();
-  }
-
-  Future<void> _openLocalizacaoModal(BuildContext context) async {
-    final c = context.read<ExploreController>();
-    final selected = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => LocalizacaoSheet(initialValue: c.cidade),
-    );
-    if (selected != null && mounted) c.setCidade(selected);
-  }
-
-  Future<void> _openFiltroModal(BuildContext context) async {
-    await showModalBottomSheet<FiltroBuscaResult>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const FiltroBuscaSheet(),
-    );
   }
 
   Future<void> _confirmarPagamento() async {
@@ -126,11 +105,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
           id: bookingId,
           propertyId: widget.property.id,
           propertyTitle: widget.property.title,
-          propertyAddress: '${widget.property.address}, ${widget.property.city} - ${widget.property.state}',
+          propertyAddress:
+              '${widget.property.address}, ${widget.property.city} - ${widget.property.state}',
           totalPrice: ownerPrice,
           createdAt: DateTime.now(),
           checkInDate: DateTime.now().add(const Duration(days: 7)),
-          checkOutDate: DateTime.now().add(Duration(days: 7 + (_rentalMonths * 30))),
+          checkOutDate:
+              DateTime.now().add(Duration(days: 7 + (_rentalMonths * 30))),
           status: ReservationStatus.awaitingPayment,
           paymentMethod: _metodo,
           isColiving: _isColiving,
@@ -185,9 +166,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Consumer<LoginController>(
       builder: (context, loginCtrl, _) {
         return Scaffold(
-          appBar: ExploreSearchAppBar(
-            onTapLocation: () => _openLocalizacaoModal(context),
-            onTapFilter: () => _openFiltroModal(context),
+          appBar: ImovatoAppBar(
+            title: 'Finalizar reserva',
             showBack: true,
           ),
           bottomNavigationBar: Container(
@@ -213,7 +193,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         Text(
                             'Total ($rentalMonths ${rentalMonths == 1 ? 'mês' : 'meses'})'),
                         Text(formatBRL0(totalPrice),
-                            style: const TextStyle(fontWeight: FontWeight.w800)),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w800)),
                       ],
                     ),
                   ),
@@ -247,24 +228,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     children: [
                       // Resumo do imóvel
                       Card(
+                        elevation: 0,
+                        color: scheme.onPrimary,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                          borderRadius: ImovatoBorderRadius.circular(
+                              ImovatoBorderRadius.xl),
+                          side: BorderSide(color: scheme.outlineVariant),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(12),
                           child: Row(
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: ImovatoBorderRadius.circular(
+                                    ImovatoBorderRadius.lg),
                                 child: (p.imagesUrls.isNotEmpty)
                                     ? Image.network(p.imagesUrls.first,
-                                        width: 72,
-                                        height: 72,
+                                        width: 78,
+                                        height: 78,
                                         fit: BoxFit.cover)
                                     : Container(
-                                        width: 72,
-                                        height: 72,
-                                        color:
-                                            scheme.surfaceContainerHighest),
+                                        width: 78,
+                                        height: 78,
+                                        color: scheme.surfaceContainerHighest),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -272,24 +258,26 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(p.title,
-                                        style: text.titleMedium,
+                                        style: text.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                            color: scheme.onSurface),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis),
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: ImovatoSpacing.xxs),
                                     Text('${p.neighborhood}, ${p.city}',
-                                        style: text.bodySmall
-                                            ?.copyWith(color: Colors.black54)),
-                                    const SizedBox(height: 8),
+                                        style: text.bodySmall?.copyWith(
+                                            color: scheme.onSurfaceVariant)),
+                                    const SizedBox(height: ImovatoSpacing.xs),
                                     Text('${formatBRL0(p.price)} / mês',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w800)),
+                                        style: text.titleSmall?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                            color: scheme.primary)),
                                     if (_isColiving) ...[
                                       const SizedBox(height: 6),
                                       Row(
                                         children: [
                                           Icon(Icons.people_alt_outlined,
-                                              size: 14,
-                                              color: scheme.primary),
+                                              size: 14, color: scheme.primary),
                                           const SizedBox(width: 4),
                                           Flexible(
                                             child: Text(
@@ -327,18 +315,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   const EdgeInsets.symmetric(horizontal: 16),
                               decoration: BoxDecoration(
                                 color: scheme.surface,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: ImovatoBorderRadius.circular(
+                                    ImovatoBorderRadius.lg),
                               ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
                                     'Para reservar você precisa estar logado',
-                                    style: text.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.w800),
+                                    style: text.titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w800),
                                     textAlign: TextAlign.center,
                                   ),
-                                  const SizedBox(height: 24),
+                                  const SizedBox(height: ImovatoSpacing.md),
                                   SizedBox(
                                     width: double.infinity,
                                     child: FilledButton(

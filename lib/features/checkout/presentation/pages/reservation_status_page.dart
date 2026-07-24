@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../domain/reservation.dart';
 import '../../application/reservations_controller.dart';
@@ -171,7 +173,9 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
         final controller = context.read<ReservationsController>();
         final currentInvite = _findCurrentUserInvite();
-        final isSharedFlow = widget.reservation.isColiving || currentInvite != null || _guestCount != null;
+        final isSharedFlow = widget.reservation.isColiving ||
+            currentInvite != null ||
+            _guestCount != null;
 
         // Atualiza status localmente com o valor correto
         final newStatus = isSharedFlow
@@ -193,7 +197,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                   ? 'Seu pagamento foi confirmado! Aguardando os demais participantes.'
                   : 'Pagamento confirmado com sucesso!',
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
 
@@ -226,7 +230,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erro ao processar pagamento. Tente novamente.'),
-          backgroundColor: Colors.orange,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     } finally {
@@ -244,14 +248,14 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Senha do Wi-Fi:'),
-            SizedBox(height: 4),
+            SizedBox(height: ImovatoSpacing.xxs),
             Text(
               _wifiPassword,
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 12),
             Text('Senha eletronica da porta:'),
-            SizedBox(height: 4),
+            SizedBox(height: ImovatoSpacing.xxs),
             Text(
               _doorPassword,
               style: TextStyle(fontWeight: FontWeight.w600),
@@ -325,13 +329,17 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     }
 
     String? tokenEmail;
-    final emailRaw = decoded['email'] ?? decoded['userEmail'] ?? decoded['mail'] ?? decoded['username'];
+    final emailRaw = decoded['email'] ??
+        decoded['userEmail'] ??
+        decoded['mail'] ??
+        decoded['username'];
     if (emailRaw is String && emailRaw.contains('@')) {
       tokenEmail = emailRaw;
     }
 
     String? tokenId;
-    final idRaw = decoded['userId'] ?? decoded['id'] ?? decoded['_id'] ?? decoded['sub'];
+    final idRaw =
+        decoded['userId'] ?? decoded['id'] ?? decoded['_id'] ?? decoded['sub'];
     if (idRaw != null) {
       tokenId = idRaw.toString();
       if (tokenId.contains('@')) tokenId = null;
@@ -402,8 +410,10 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     for (final pending in _pendingInvites) {
       final bookingId = _extractBookingId(pending);
       final accommodationId = _extractAccommodationId(pending);
-      final matchesBooking = bookingId != null && bookingId == widget.reservation.id;
-      final matchesAccommodation = accommodationId != null && accommodationId == widget.reservation.propertyId;
+      final matchesBooking =
+          bookingId != null && bookingId == widget.reservation.id;
+      final matchesAccommodation = accommodationId != null &&
+          accommodationId == widget.reservation.propertyId;
       if (!matchesBooking && !matchesAccommodation) continue;
       final invite = _inviteFromPending(pending);
       if (invite == null) continue;
@@ -412,7 +422,8 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
       final sameEmail = email != null && inviteEmail == email;
       final noInviteIdentity = invite.guestId == null && inviteEmail == null;
       final noUserIdentity = _currentUserId == null && email == null;
-      if (sameId || sameEmail || noInviteIdentity || noUserIdentity) return invite;
+      if (sameId || sameEmail || noInviteIdentity || noUserIdentity)
+        return invite;
       // Endpoint /invites/pending retorna convites do usuario logado.
       return invite;
     }
@@ -423,11 +434,13 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
   bool _canGuestPay(Reservation reservation, BookingInvite invite) {
     final statusOk = reservation.status == ReservationStatus.awaitingPayment ||
         reservation.status == ReservationStatus.awaitingOthersPayment;
-    final inviteOk = invite.status == InviteStatus.pending || invite.status == InviteStatus.accepted;
+    final inviteOk = invite.status == InviteStatus.pending ||
+        invite.status == InviteStatus.accepted;
     return statusOk && inviteOk;
   }
 
-  double _resolveGuestAmount(Reservation reservation, BookingInvite? currentInvite, double? pendingShare) {
+  double _resolveGuestAmount(Reservation reservation,
+      BookingInvite? currentInvite, double? pendingShare) {
     final inviteAmount = currentInvite?.amountDue;
     if (inviteAmount != null && inviteAmount > 0) return inviteAmount;
     if (pendingShare != null && pendingShare > 0) return pendingShare;
@@ -441,7 +454,8 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
     // Buscar a reserva atualizada do controller
     final controller = context.watch<ReservationsController>();
-    final reservation = controller.getReservationById(widget.reservation.id) ?? widget.reservation;
+    final reservation = controller.getReservationById(widget.reservation.id) ??
+        widget.reservation;
 
     final currentInvite = _findCurrentUserInvite();
     final isGuestView = currentInvite != null;
@@ -450,24 +464,26 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
         final bookingId = _extractBookingId(invite);
         final accommodationId = _extractAccommodationId(invite);
         return (bookingId != null && bookingId == reservation.id) ||
-            (accommodationId != null && accommodationId == reservation.propertyId);
+            (accommodationId != null &&
+                accommodationId == reservation.propertyId);
       },
       orElse: () => {},
     );
-    final pendingShare = pendingMatch.isNotEmpty ? _extractShareAmount(pendingMatch) : null;
-    final guestAmount = _resolveGuestAmount(reservation, currentInvite, pendingShare);
+    final pendingShare =
+        pendingMatch.isNotEmpty ? _extractShareAmount(pendingMatch) : null;
+    final guestAmount =
+        _resolveGuestAmount(reservation, currentInvite, pendingShare);
     final participantsLabel = _guestCountLoaded && _guestCount != null
         ? '${_guestCount!} pessoas'
         : '${_sharedBookingCtrl.totalParticipants} pessoas';
-    final isSharedReservation = reservation.isColiving || pendingMatch.isNotEmpty || _guestCount != null;
+    final isSharedReservation = reservation.isColiving ||
+        pendingMatch.isNotEmpty ||
+        _guestCount != null;
 
     return Scaffold(
-      backgroundColor: scheme.surface,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Status da Reserva'),
-        centerTitle: true,
-        backgroundColor: scheme.surface,
-        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -475,11 +491,11 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
             // Header com informações do imóvel
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(ImovatoSpacing.sm),
               decoration: BoxDecoration(
-                color: scheme.primary.withOpacity(0.05),
+                color: scheme.primaryContainer,
                 border: Border(
-                  bottom: BorderSide(color: Colors.black.withOpacity(0.08)),
+                  bottom: BorderSide(color: scheme.outlineVariant),
                 ),
               ),
               child: Column(
@@ -491,26 +507,26 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: ImovatoSpacing.xxs),
                   Row(
                     children: [
                       Icon(
                         Icons.location_on_outlined,
                         size: 16,
-                        color: scheme.onSurface.withOpacity(0.6),
+                        color: scheme.onSurfaceVariant,
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: ImovatoSpacing.xxs),
                       Expanded(
                         child: Text(
                           reservation.propertyAddress,
                           style: textTheme.bodyMedium?.copyWith(
-                            color: scheme.onSurface.withOpacity(0.6),
+                            color: scheme.onSurfaceVariant,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: ImovatoSpacing.sm),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -520,21 +536,23 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                           Text(
                             'Check-in',
                             style: textTheme.bodySmall?.copyWith(
-                              color: scheme.onSurface.withOpacity(0.6),
+                              color: scheme.onPrimaryContainer
+                                  .withValues(alpha: 0.72),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: ImovatoSpacing.xxs),
                           Text(
-                            DateFormat('dd/MM/yyyy').format(reservation.checkInDate),
+                            DateFormat('dd/MM/yyyy')
+                                .format(reservation.checkInDate),
                             style: textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
+                              color: scheme.onPrimaryContainer,
                             ),
                           ),
                         ],
                       ),
                       Icon(
                         Icons.arrow_forward,
-                        color: scheme.onSurface.withOpacity(0.4),
+                        color: scheme.onSurfaceVariant,
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -542,14 +560,16 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                           Text(
                             'Check-out',
                             style: textTheme.bodySmall?.copyWith(
-                              color: scheme.onSurface.withOpacity(0.6),
+                              color: scheme.onPrimaryContainer
+                                  .withValues(alpha: 0.72),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: ImovatoSpacing.xxs),
                           Text(
-                            DateFormat('dd/MM/yyyy').format(reservation.checkOutDate),
+                            DateFormat('dd/MM/yyyy')
+                                .format(reservation.checkOutDate),
                             style: textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
+                              color: scheme.onPrimaryContainer,
                             ),
                           ),
                         ],
@@ -562,31 +582,32 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
             // Status Timeline
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(ImovatoSpacing.sm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Acompanhe a sua reserva',
                     style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: ImovatoSpacing.md),
                   _buildTimeline(scheme, textTheme, reservation),
                 ],
               ),
             ),
 
-
             // Total
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: ImovatoSpacing.md),
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(ImovatoSpacing.sm),
                 decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12),
+                  color: scheme.surface,
+                  borderRadius: BorderRadius.circular(ImovatoSpacing.md),
+                  border: Border.all(color: scheme.outlineVariant),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -609,7 +630,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: ImovatoSpacing.md),
 
             // ── Seção de convidados coliving ──────────────────────────
             if (reservation.isColiving &&
@@ -624,24 +645,28 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
               ),
 
             // Pagamento do convidado
-            if (isGuestView && reservation.status != ReservationStatus.cancelled)
+            if (isGuestView &&
+                reservation.status != ReservationStatus.cancelled)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: ImovatoSpacing.md),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(ImovatoSpacing.sm),
                   decoration: BoxDecoration(
-                    color: scheme.primaryContainer.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(12),
+                    color: scheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(ImovatoSpacing.md),
+                    border: Border.all(color: scheme.outlineVariant),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Sua parte',
-                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                        style: textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: ImovatoSpacing.xs),
                       Text(
                         formatBRL0(guestAmount),
                         style: textTheme.titleLarge?.copyWith(
@@ -649,10 +674,11 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                           color: scheme.primary,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ImovatoSpacing.xs),
                       Text(
                         'Convidado',
-                        style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
+                        style: textTheme.bodySmall
+                            ?.copyWith(color: scheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -661,69 +687,75 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
             if (!isGuestView && isSharedReservation)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: ImovatoSpacing.md),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(ImovatoSpacing.sm),
                   decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
+                    color: scheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(ImovatoSpacing.md),
+                    border: Border.all(color: scheme.outlineVariant),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Valor por pessoa',
-                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                        style: textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: ImovatoSpacing.xs),
                       Text(
-                        formatBRL0(_sharedBookingCtrl.perPersonAmount(reservation.totalPrice)),
+                        formatBRL0(_sharedBookingCtrl
+                            .perPersonAmount(reservation.totalPrice)),
                         style: textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: scheme.primary,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ImovatoSpacing.xs),
                       // Text(
                       //   'Divisao: $participantsLabel',
                       //   style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
                       // ),
-                      const SizedBox(height: 4),
-
+                      const SizedBox(height: ImovatoSpacing.xxs),
                     ],
                   ),
                 ),
               ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: ImovatoSpacing.sm),
 
             // Botões de ação
             if (reservation.status != ReservationStatus.cancelled)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: ImovatoSpacing.md),
                 child: Column(
                   children: [
                     // Botão Pagar (dono aguardando pagamento ou convidado)
-                    if ((reservation.status == ReservationStatus.awaitingPayment) ||
-                        (isGuestView && currentInvite != null && _canGuestPay(reservation, currentInvite))) ...[
+                    if ((reservation.status ==
+                            ReservationStatus.awaitingPayment) ||
+                        (isGuestView &&
+                            currentInvite != null &&
+                            _canGuestPay(reservation, currentInvite))) ...[
                       FilledButton(
-                        onPressed: (_isProcessingPayment || _paymentDone) ? null : _processPayment,
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                        ),
+                        onPressed: (_isProcessingPayment || _paymentDone)
+                            ? null
+                            : _processPayment,
                         child: _isProcessingPayment
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.white,
+                                  color: scheme.onPrimary,
                                 ),
                               )
                             : const Text('Pagar'),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: ImovatoSpacing.sm),
                     ],
 
                     // Botões Check-in e Cancelar (lado a lado)
@@ -735,9 +767,6 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                             onPressed: _isCheckInAvailable(reservation)
                                 ? _performCheckIn
                                 : null,
-                            style: FilledButton.styleFrom(
-                              minimumSize: const Size.fromHeight(48),
-                            ),
                             child: _isProcessingCheckIn
                                 ? const SizedBox(
                                     width: 20,
@@ -753,35 +782,32 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                                         Icons.login,
                                         size: 18,
                                         color: _isCheckInAvailable(reservation)
-                                            ? scheme.onSecondaryContainer
-                                            : scheme.onSurface.withOpacity(0.38),
+                                            ? scheme.onPrimary
+                                            : scheme.onSurface
+                                                .withValues(alpha: 0.38),
                                       ),
-                                      const SizedBox(width: 8),
+                                      const SizedBox(width: ImovatoSpacing.xs),
                                       Text('Check-in'),
                                     ],
                                   ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: ImovatoSpacing.sm),
                         // Botão Cancelar
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: _isProcessingPayment ? null : _cancelReservation,
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(48),
-                            ),
+                            onPressed: _isProcessingPayment
+                                ? null
+                                : _cancelReservation,
                             child: const Text('Cancelar'),
                           ),
                         ),
                       ],
                     ),
                     if (reservation.status == ReservationStatus.checkedIn) ...[
-                      const SizedBox(height: 12),
+                      const SizedBox(height: ImovatoSpacing.sm),
                       FilledButton.tonal(
                         onPressed: _showAccessInfo,
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                        ),
                         child: const Text('Ver informacoes de acesso'),
                       ),
                     ],
@@ -793,7 +819,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                     //     padding: const EdgeInsets.all(12),
                     //     decoration: BoxDecoration(
                     //       color: scheme.surfaceContainerHighest,
-                    //       borderRadius: BorderRadius.circular(8),
+                    //       borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.sm),
                     //     ),
                     //     child: Row(
                     //       children: [
@@ -819,14 +845,15 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                 ),
               ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: ImovatoSpacing.lg),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTimeline(ColorScheme scheme, TextTheme textTheme, Reservation reservation) {
+  Widget _buildTimeline(
+      ColorScheme scheme, TextTheme textTheme, Reservation reservation) {
     final steps = [
       _TimelineStep(
         title: 'Aguardando Pagamento',
@@ -891,12 +918,9 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     required bool isLast,
     required Reservation reservation,
   }) {
-    final iconColor = isCompleted || isCurrent
-        ? scheme.primary
-        : scheme.onSurface.withOpacity(0.3);
-    final lineColor = isCompleted
-        ? scheme.primary
-        : scheme.onSurface.withOpacity(0.15);
+    final iconColor =
+        isCompleted || isCurrent ? scheme.primary : scheme.onSurfaceVariant;
+    final lineColor = isCompleted ? scheme.primary : scheme.outlineVariant;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -948,14 +972,14 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                     fontWeight: isCurrent ? FontWeight.bold : FontWeight.w600,
                     color: isCompleted || isCurrent
                         ? scheme.onSurface
-                        : scheme.onSurface.withOpacity(0.5),
+                        : scheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: ImovatoSpacing.xxs),
                 Text(
                   step.description,
                   style: textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurface.withOpacity(0.6),
+                    color: scheme.onSurfaceVariant,
                   ),
                 ),
                 if (isCurrent && reservation.paymentDeadline != null)
@@ -968,7 +992,8 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                       ),
                       decoration: BoxDecoration(
                         color: scheme.errorContainer,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: ImovatoBorderRadius.circular(
+                            ImovatoBorderRadius.xl),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -1073,20 +1098,23 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                 // Header
                 Row(
                   children: [
-                    Icon(Icons.people_alt_outlined, color: scheme.primary, size: 20),
+                    Icon(Icons.people_alt_outlined,
+                        color: scheme.primary, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       'Participantes da hospedagem',
-                      style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      style: text.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: ImovatoSpacing.xxs),
                 Text(
                   widget.readOnly
                       ? 'Veja quem participa da reserva'
                       : 'Convide até ${ctrl.maxGuests} pessoas para dividir o custo',
-                  style: text.bodySmall?.copyWith(color: Colors.black54),
+                  style:
+                      text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
 
@@ -1095,12 +1123,14 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                   ...ctrl.guests.map((g) => _GuestTile(
                         guest: g,
                         // perPersonAmount: ctrl.perPersonAmount(widget.reservation.totalPrice),
-                        onRemove: widget.readOnly ? () {} : () => ctrl.removeGuest(g.guestEmail),
+                        onRemove: widget.readOnly
+                            ? () {}
+                            : () => ctrl.removeGuest(g.guestEmail),
                         scheme: scheme,
                         text: text,
                         readOnly: widget.readOnly,
                       )),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: ImovatoSpacing.xs),
 
                   // Resumo da divisão (apenas para o dono)
                   // if (!widget.readOnly) ...[
@@ -1108,7 +1138,7 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                   //     padding: const EdgeInsets.all(12),
                   //     decoration: BoxDecoration(
                   //       color: scheme.primaryContainer.withOpacity(0.4),
-                  //       borderRadius: BorderRadius.circular(10),
+                  //       borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.md),
                   //     ),
                   //     child: Row(
                   //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1152,16 +1182,19 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(8),
+                      color: scheme.errorContainer.withValues(alpha: 0.45),
+                      borderRadius:
+                          ImovatoBorderRadius.circular(ImovatoBorderRadius.sm),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.red, size: 18),
+                        Icon(Icons.error_outline,
+                            color: scheme.error, size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(ctrl.error!,
-                              style: text.bodySmall?.copyWith(color: Colors.red.shade700)),
+                              style: text.bodySmall
+                                  ?.copyWith(color: scheme.onErrorContainer)),
                         ),
                       ],
                     ),
@@ -1181,15 +1214,18 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               hintText: 'E-mail do convidado',
-                              prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                              prefixIcon:
+                                  const Icon(Icons.email_outlined, size: 20),
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10)),
+                                  borderRadius: ImovatoBorderRadius.circular(
+                                      ImovatoBorderRadius.md)),
                               isDense: true,
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 12),
                             ),
                             validator: (v) {
-                              if (v == null || v.trim().isEmpty) return 'Informe o e-mail';
+                              if (v == null || v.trim().isEmpty)
+                                return 'Informe o e-mail';
                               if (!v.contains('@')) return 'E-mail inválido';
                               return null;
                             },
@@ -1197,7 +1233,8 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                         ),
                         const SizedBox(width: 8),
                         FilledButton(
-                          onPressed: ctrl.isLoading ? null : () => _addGuest(ctrl),
+                          onPressed:
+                              ctrl.isLoading ? null : () => _addGuest(ctrl),
                           style: FilledButton.styleFrom(
                               minimumSize: const Size(48, 48),
                               padding: EdgeInsets.zero),
@@ -1217,7 +1254,8 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: scheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius:
+                          ImovatoBorderRadius.circular(ImovatoBorderRadius.sm),
                     ),
                     child: Row(
                       children: [
@@ -1253,12 +1291,12 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
       // Trata erros de validação
       switch (result) {
         case AddGuestResult.selfInvite:
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Você não pode convidar a si mesmo.'),
-          backgroundColor: Colors.orange,
-        ));
-        break;
-      case AddGuestResult.userNotFound:
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Você não pode convidar a si mesmo.'),
+            backgroundColor: Colors.orange,
+          ));
+          break;
+        case AddGuestResult.userNotFound:
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Usuário não encontrado nesta plataforma.'),
             backgroundColor: Colors.red,
@@ -1331,7 +1369,7 @@ class _GuestTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.md),
       ),
       child: Row(
         children: [
@@ -1341,7 +1379,8 @@ class _GuestTile extends StatelessWidget {
             child: Text(
               (guest.guestName ?? guest.guestEmail)[0].toUpperCase(),
               style: TextStyle(
-                  color: scheme.onPrimaryContainer, fontWeight: FontWeight.bold),
+                  color: scheme.onPrimaryContainer,
+                  fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(width: 10),
@@ -1366,7 +1405,7 @@ class _GuestTile extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.close, size: 18),
               onPressed: onRemove,
-              color: Colors.black45,
+              color: scheme.onSurfaceVariant,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
@@ -1375,5 +1414,3 @@ class _GuestTile extends StatelessWidget {
     );
   }
 }
-
-

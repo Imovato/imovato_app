@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
+import 'package:imovato_app/features/explore/presentation/widgets/localizacao_sheet.dart';
+import 'package:imovato_app/shared/models/location_option.dart';
 import 'package:provider/provider.dart';
 import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
 import '../../../explore/application/explore_controller.dart';
 import '../../../explore/presentation/widgets/filtro_busca_sheet.dart';
-import '../../../explore/presentation/widgets/localizacao_sheet.dart';
 import '../widgets/property_card.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 
 class ListingsPage extends StatefulWidget {
   const ListingsPage({super.key});
@@ -14,28 +17,42 @@ class ListingsPage extends StatefulWidget {
 }
 
 class _ListingsPageState extends State<ListingsPage> {
-  int _filtrosAtivos = 0;
-  FiltroBuscaResult? _currentFilters;
-
-  int _countFiltrosAtivos(FiltroBuscaResult f) {
-    var c = 0;
-    if (f.priceMin != null) c++;
-    if (f.priceMax != null) c++;
-    if (f.accommodationType != null) c++;
-    if (f.maxOccupancy != null) c++;
-    if (f.allowsPets != null) c++;
-    if (f.allowsChildren != null) c++;
-    if (f.isSharedHosting != null) c++;
-    return c;
-  }
-
-  Future<void> _openFiltroModal(BuildContext context) async {
-    final result = await showModalBottomSheet<FiltroBuscaResult>(
+  Future<void> _openLocation(BuildContext context) async {
+    final controller = context.read<ExploreController>();
+    final selected = await showModalBottomSheet<LocationOption>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => FiltroBuscaSheet(initial: _currentFilters),
+      builder: (_) => LocalizacaoSheet(
+        initialValue: LocalizacaoSheet.defaultCities.firstWhere(
+          (e) => e.label == controller.cidade,
+        ),
+      ),
     );
+
+    if (selected != null && context.mounted) {
+      controller.setCidade(selected);
+      Navigator.pushReplacementNamed(context, Routes.buscar);
+    }
+  }
+
+  Future<void> _openFiltroModal(BuildContext context) async {
+    final filters = context.read<ExploreController>().filters;
+    final result = await showModalBottomSheet<FiltroBuscaResult>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => FiltroBuscaSheet(
+              initial: FiltroBuscaResult(
+                priceMin: filters.priceMin,
+                priceMax: filters.priceMax,
+                accommodationType: filters.accommodationType,
+                maxOccupancy: filters.maxOccupancy,
+                allowsPets: filters.allowsPets,
+                allowsChildren: filters.allowsChildren,
+                isSharedHosting: filters.isSharedHosting,
+              ),
+            ));
 
     if (result != null && context.mounted) {
       // Verifica se todos os filtros estão vazios (usuário clicou em Limpar)
@@ -46,11 +63,6 @@ class _ListingsPageState extends State<ListingsPage> {
           result.allowsPets == null &&
           result.allowsChildren == null &&
           result.isSharedHosting == null;
-
-      setState(() {
-        _currentFilters = isCleared ? null : result;
-        _filtrosAtivos = isCleared ? 0 : _countFiltrosAtivos(result);
-      });
 
       // Atualizar os filtros no controller
       final controller = context.read<ExploreController>();
@@ -87,28 +99,20 @@ class _ListingsPageState extends State<ListingsPage> {
     }
   }
 
-  Future<void> _openLocalizacaoModal(BuildContext context) async {
-    final c = context.read<ExploreController>();
-    final selected = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => LocalizacaoSheet(initialValue: c.cidade),
-    );
-    if (selected != null && context.mounted) {
-      c.setCidade(selected);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Scaffold(
-      appBar: ExploreSearchAppBar(
-          onTapLocation: () => _openLocalizacaoModal(context),
-          onTapFilter: () => _openFiltroModal(context)),
-
+      appBar: ImovatoAppBar(
+        title: 'Buscar imóveis',
+        showBack: false,
+        action: IconButton(
+          tooltip: 'Filtros',
+          onPressed: () => _openFiltroModal(context),
+          icon: const Icon(Icons.tune_outlined),
+        ),
+        location: context.watch<ExploreController>().cidade,
+        onLocationTap: () => _openLocation(context),
+      ),
       body: Consumer<ExploreController>(
         builder: (context, c, _) {
           if (c.isLoading) {
@@ -124,22 +128,30 @@ class _ListingsPageState extends State<ListingsPage> {
             return const Center(child: Text('Nenhum imóvel encontrado'));
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            itemCount: items.length,
-            itemBuilder: (context, i) {
-              final item = items[i];
-              return InkWell(
-                onTap: () => Navigator.pushNamed(context, Routes.propertyDetails, arguments: item),
-                child: PropertyCard(
-                  data: item,
-                  onToggleFavorite: (fav) {
-                    // delegate to controller
-                    context.read<ExploreController>().toggleFavoriteById(item.id, fav);
-                  },
-                ),
-              );
-            },
+          return Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(ImovatoSpacing.sm),
+              itemCount: items.length,
+              itemBuilder: (context, i) {
+                final item = items[i];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: ImovatoSpacing.sm),
+                  child: InkWell(
+                    onTap: () => Navigator.pushNamed(
+                        context, Routes.propertyDetails,
+                        arguments: item),
+                    child: PropertyCard(
+                      data: item,
+                      onToggleFavorite: (fav) {
+                        context
+                            .read<ExploreController>()
+                            .toggleFavoriteById(item.id, fav);
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
           );
         },
       ),

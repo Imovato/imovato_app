@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 
 import '../../../../app/utils/br_currency.dart';
 
@@ -22,6 +24,7 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return DraggableScrollableSheet(
       expand: false,
@@ -32,8 +35,14 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
         return Container(
           decoration: BoxDecoration(
             color: scheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(.15), blurRadius: 24, offset: const Offset(0, -6))],
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 24,
+                offset: const Offset(0, -6),
+              ),
+            ],
           ),
           child: ListView(
             controller: scrollCtrl,
@@ -41,36 +50,65 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
             children: [
               Center(
                 child: Container(
-                  width: 44, height: 4,
-                  decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(4)),
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: scheme.outlineVariant,
+                    borderRadius:
+                        ImovatoBorderRadius.circular(ImovatoBorderRadius.xs),
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: ImovatoSpacing.xs),
               Row(
                 children: [
                   Expanded(
-                    child: Text('Valor Total', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    child: Text(
+                      'Valor Total',
+                      style: textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
-                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close), tooltip: 'Fechar'),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    tooltip: 'Fechar',
+                  ),
                 ],
               ),
               Container(
-                decoration: BoxDecoration(color: scheme.primary.withOpacity(.08), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(
+                  color: scheme.primaryContainer.withValues(alpha: 0.35),
+                  borderRadius:
+                      ImovatoBorderRadius.circular(ImovatoBorderRadius.lg),
+                ),
                 padding: const EdgeInsets.all(12),
-                child: const Text(
+                child: Text(
                   'O valor total já inclui aluguel, condomínio, IPTU, internet, seguro residencial, suporte e manutenções.',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Text('Valor Total', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
+              const SizedBox(height: ImovatoSpacing.sm),
+              Text(
+                'Valor Total',
+                style: textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: ImovatoSpacing.xs),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('R\$ 500', style: Theme.of(context).textTheme.labelMedium),
+                  Text('R\$ 500', style: textTheme.labelMedium),
                   Text(
                     formatBRL0(value),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.primary, fontWeight: FontWeight.w800),
+                    style: textTheme.titleMedium?.copyWith(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ],
               ),
@@ -78,9 +116,9 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
                 data: SliderTheme.of(context).copyWith(
                   trackHeight: 4,
                   activeTrackColor: scheme.primary,
-                  inactiveTrackColor: scheme.primary.withOpacity(.25),
+                  inactiveTrackColor: scheme.primary.withValues(alpha: 0.25),
                   thumbColor: scheme.primary,
-                  overlayColor: scheme.primary.withOpacity(.2),
+                  overlayColor: scheme.primary.withValues(alpha: 0.2),
                 ),
                 child: Slider(
                   value: value,
@@ -90,11 +128,17 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
                   onChanged: (v) => setState(() => value = v),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: ImovatoSpacing.sm),
               FilledButton(
                 onPressed: () => Navigator.pop(context, value),
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                child: const Text('ok'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        ImovatoBorderRadius.circular(ImovatoBorderRadius.lg),
+                  ),
+                ),
+                child: const Text('Aplicar'),
               ),
             ],
           ),

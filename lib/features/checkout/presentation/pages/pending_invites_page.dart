@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import '../../application/invite_service.dart';
 
 class PendingInvitesPage extends StatefulWidget {
@@ -73,13 +75,13 @@ class _PendingInvitesPageState extends State<PendingInvitesPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: scheme.error),
-              const SizedBox(height: 16),
+              const SizedBox(height: ImovatoSpacing.sm),
               Text(
                 _error!,
                 textAlign: TextAlign.center,
                 style: text.bodyMedium?.copyWith(color: scheme.error),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: ImovatoSpacing.md),
               FilledButton.icon(
                 onPressed: _loadInvites,
                 icon: const Icon(Icons.refresh),
@@ -96,16 +98,16 @@ class _PendingInvitesPageState extends State<PendingInvitesPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.mail_outline, size: 72,
-                color: scheme.onSurface.withValues(alpha: 0.3)),
-            const SizedBox(height: 16),
+            Icon(Icons.mail_outline,
+                size: 72, color: scheme.onSurface.withValues(alpha: 0.3)),
+            const SizedBox(height: ImovatoSpacing.sm),
             Text(
               'Nenhum convite pendente',
               style: text.titleMedium?.copyWith(
                 color: scheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: ImovatoSpacing.xs),
             Text(
               'Quando alguém te convidar para uma reserva,\naparecerá aqui.',
               textAlign: TextAlign.center,
@@ -153,9 +155,8 @@ class _InviteCard extends StatelessWidget {
         invite['booking_id']?.toString() ??
         invite['id']?.toString() ??
         '—';
-    final guestId = invite['guestId']?.toString() ??
-        invite['guest_id']?.toString() ??
-        '—';
+    final guestId =
+        invite['guestId']?.toString() ?? invite['guest_id']?.toString() ?? '—';
     final guestName = invite['guestName']?.toString() ??
         invite['guest_name']?.toString() ??
         invite['userName']?.toString();
@@ -164,11 +165,13 @@ class _InviteCard extends StatelessWidget {
         invite['email']?.toString();
     final status = invite['status']?.toString() ?? 'PENDING';
     final createdAt = invite['createdAt']?.toString() ??
-        invite['created_at']?.toString() ?? '';
+        invite['created_at']?.toString() ??
+        '';
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+          borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.md)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -181,7 +184,8 @@ class _InviteCard extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: scheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius:
+                        ImovatoBorderRadius.circular(ImovatoBorderRadius.sm),
                   ),
                   child: Icon(Icons.home_outlined,
                       size: 20, color: scheme.onPrimaryContainer),
@@ -301,7 +305,7 @@ class _StatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: ImovatoBorderRadius.circular(ImovatoBorderRadius.xl),
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(
@@ -314,4 +318,3 @@ class _StatusChip extends StatelessWidget {
     );
   }
 }
-

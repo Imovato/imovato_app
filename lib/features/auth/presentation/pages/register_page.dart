@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import 'package:provider/provider.dart';
 import '../controllers/register_controller.dart';
 import '../../../../../app/router.dart';
@@ -80,156 +83,194 @@ class _RegisterPageState extends State<RegisterPage> {
     final scheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Criar conta')),
+      appBar: AppBar(
+        title: const Text('Criar conta'),
+      ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              children: [
-                Text(
-                  'Bem-vindo! 🎉',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    color: scheme.onSurface,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text('Preencha os dados abaixo para criar sua conta.',
-                    style: theme.textTheme.bodyMedium),
-                const SizedBox(height: 24),
-
-                // nome
-                TextFormField(
-                  controller: _nameCtrl,
-                  textInputAction: TextInputAction.done,
-                  decoration: const InputDecoration(
-                    labelText: 'Nome completo',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Informe seu nome' : null,
-                ),
-                const SizedBox(height: 16),
-
-                // email
-                TextFormField(
-                  controller: _emailCtrl,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'E-mail',
-                    hintText: 'voce@email.com',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: _validateEmail,
-                ),
-                const SizedBox(height: 16),
-
-                // CPF
-                TextFormField(
-                  controller: _cpfCtrl,
-                  keyboardType: TextInputType.number,
-                  textInputAction: TextInputAction.next,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                    labelText: 'CPF',
-                    hintText: 'Somente números',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: _validateCPF,
-                ),
-                const SizedBox(height: 16),
-
-                // userName
-                TextFormField(
-                  controller: _userNameCtrl,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Usuário',
-                    hintText: 'seu_usuario',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Informe o usuário' : null,
-                ),
-                const SizedBox(height: 16),
-
-                // password
-                TextFormField(
-                  controller: _passwordCtrl,
-                  obscureText: _obscure,
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    labelText: 'Senha',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      onPressed: () => setState(() => _obscure = !_obscure),
-                      icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
-                    ),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Informe a senha';
-                    if (v.length < 6) return 'Mínimo de 6 caracteres';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // // Tipo de usuário (strings, sem enum/DTO)
-                // Text('Tipo de usuário',
-                //     style: theme.textTheme.titleMedium
-                //         ?.copyWith(fontWeight: FontWeight.w700)),
-                // const SizedBox(height: 8),
-                // Wrap(
-                //   spacing: 8,
-                //   children: [
-                //     ChoiceChip(
-                //       label: const Text('Hóspede'),
-                //       selected: _type == 'ROLE_GUEST',
-                //       onSelected: (sel) =>
-                //       sel ? setState(() => _type = 'ROLE_GUEST') : null,
-                //       selectedColor: scheme.primary,
-                //       labelStyle: TextStyle(
-                //         color: _type == 'ROLE_GUEST' ? scheme.onPrimary : null,
-                //         fontWeight: FontWeight.w600,
-                //       ),
-                //     ),
-                //     ChoiceChip(
-                //       label: const Text('Anfitrião'),
-                //       selected: _type == 'ROLE_HOST',
-                //       onSelected: (sel) =>
-                //       sel ? setState(() => _type = 'ROLE_HOST') : null,
-                //       selectedColor: scheme.primary,
-                //       labelStyle: TextStyle(
-                //         color: _type == 'ROLE_HOST' ? scheme.onPrimary : null,
-                //         fontWeight: FontWeight.w600,
-                //       ),
-                //     ),
-                //   ],
-                // ),
-
-                const SizedBox(height: 100),
-
-                Consumer<RegisterController>(
-                  builder: (_, controller, __) {
-                    return FilledButton(
-                      onPressed: controller.loading ? null : _submit,
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Padding(
+              padding: const EdgeInsets.all(ImovatoSpacing.sm),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    ClipRRect(
+                      borderRadius: ImovatoBorderRadius.circular(
+                        ImovatoBorderRadius.xl,
                       ),
-                      child: controller.loading
-                          ? const SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                          : const Text('Cadastrar'),
-                    );
-                  },
+                      child: SizedBox(
+                        height: 210,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.asset(
+                              'images/image-onboarding.jpg',
+                              fit: BoxFit.cover,
+                            ),
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.black.withValues(alpha: 0.08),
+                                    Colors.black.withValues(alpha: 0.45),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.all(ImovatoSpacing.xxs),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: ImovatoBorderRadius.circular(
+                                    ImovatoBorderRadius.xxl,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.12),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: SvgPicture.asset(
+                                  'images/imovato.svg',
+                                  width: 90,
+                                  height: 90,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: ImovatoSpacing.xl),
+                    Text(
+                      'Bem-vindo!',
+                      style: theme.textTheme.headlineLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: ImovatoSpacing.sm),
+                    Text(
+                      'Crie sua conta para começar a utilizar o Imovato.',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: scheme.outline,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: ImovatoSpacing.xl),
+                    AutofillGroup(
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _nameCtrl,
+                            autofillHints: const [
+                              AutofillHints.name,
+                            ],
+                            decoration: const InputDecoration(
+                              labelText: 'Nome completo',
+                              prefixIcon: Icon(Icons.person_outline),
+                            ),
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Informe seu nome'
+                                : null,
+                          ),
+                          const SizedBox(height: ImovatoSpacing.md),
+                          TextFormField(
+                            controller: _emailCtrl,
+                            keyboardType: TextInputType.emailAddress,
+                            autofillHints: const [
+                              AutofillHints.email,
+                            ],
+                            decoration: const InputDecoration(
+                              labelText: 'E-mail',
+                              hintText: 'voce@email.com',
+                              prefixIcon: Icon(Icons.mail_outline),
+                            ),
+                            validator: _validateEmail,
+                          ),
+                          const SizedBox(height: ImovatoSpacing.md),
+                          TextFormField(
+                            controller: _cpfCtrl,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'CPF',
+                              prefixIcon: Icon(Icons.badge_outlined),
+                            ),
+                            validator: _validateCPF,
+                          ),
+                          const SizedBox(height: ImovatoSpacing.md),
+                          TextFormField(
+                            controller: _userNameCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Usuário',
+                              prefixIcon: Icon(Icons.alternate_email),
+                            ),
+                          ),
+                          const SizedBox(height: ImovatoSpacing.md),
+                          TextFormField(
+                            controller: _passwordCtrl,
+                            obscureText: _obscure,
+                            autofillHints: const [
+                              AutofillHints.newPassword,
+                            ],
+                            decoration: InputDecoration(
+                              labelText: 'Senha',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscure
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscure = !_obscure;
+                                  });
+                                },
+                              ),
+                            ),
+                            validator: (v) {
+                              if (v == null || v.isEmpty)
+                                return 'Informe a senha';
+                              if (v.length < 6) return 'Mínimo de 6 caracteres';
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: ImovatoSpacing.xl),
+                          Consumer<RegisterController>(
+                            builder: (_, controller, __) {
+                              return FilledButton.icon(
+                                onPressed: controller.loading ? null : _submit,
+                                icon: controller.loading
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.person_add),
+                                label: Text(
+                                  controller.loading
+                                      ? 'Criando conta...'
+                                      : 'Cadastrar',
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
