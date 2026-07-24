@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/Space.dart';
 import 'package:provider/provider.dart';
 import '../../application/shared_booking_controller.dart';
 import '../../domain/booking_invite.dart';
@@ -492,7 +493,7 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(20)),
             ),
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+            padding: const EdgeInsets.all(Space.md),
             child: Form(
               key: _formKey,
               child: Column(
