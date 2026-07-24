@@ -88,7 +88,7 @@ class ExplorePage extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(Space.sm),
+          padding: const EdgeInsets.all(ImovatoSpacing.sm),
           children: [
             Container(
               padding: const EdgeInsets.all(24),

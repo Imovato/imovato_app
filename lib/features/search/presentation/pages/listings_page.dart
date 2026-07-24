@@ -105,7 +105,7 @@ class _ListingsPageState extends State<ListingsPage> {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(Space.sm),
+            padding: const EdgeInsets.all(ImovatoSpacing.sm),
             itemCount: items.length,
             itemBuilder: (context, i) {
               final item = items[i];

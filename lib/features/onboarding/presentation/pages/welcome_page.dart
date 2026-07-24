@@ -21,7 +21,7 @@ class WelcomePage extends StatelessWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Space.sm),
+          padding: const EdgeInsets.all(ImovatoSpacing.sm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -52,8 +52,8 @@ class WelcomePage extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      right: Space.xl,
-                      bottom: Space.xl,
+                      right: ImovatoSpacing.xl,
+                      bottom: ImovatoSpacing.xl,
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -92,13 +92,13 @@ class WelcomePage extends StatelessWidget {
                   color: scheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: Space.md),
+              const SizedBox(height: ImovatoSpacing.md),
               FilledButton(
                 onPressed: () =>
                     Navigator.pushNamed(context, Routes.loginMorador),
                 child: Text(labelLogin),
               ),
-              const SizedBox(height: Space.sm),
+              const SizedBox(height: ImovatoSpacing.sm),
               OutlinedButton(
                 onPressed: () => Navigator.pushNamed(context, Routes.alugar),
                 child: Text(labelAlugar),

@@ -207,11 +207,11 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
     TextTheme textTheme,
   ) {
     return Card(
-      margin: const EdgeInsets.only(bottom: Space.sm),
+      margin: const EdgeInsets.only(bottom: ImovatoSpacing.sm),
       elevation: 0,
       color: scheme.onPrimary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Space.md),
+        borderRadius: BorderRadius.circular(ImovatoSpacing.md),
         side: BorderSide(color: scheme.outlineVariant),
       ),
       child: InkWell(
@@ -232,9 +232,9 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
             }
           }
         },
-        borderRadius: BorderRadius.circular(Space.sm),
+        borderRadius: BorderRadius.circular(ImovatoSpacing.sm),
         child: Padding(
-          padding: const EdgeInsets.all(Space.sm),
+          padding: const EdgeInsets.all(ImovatoSpacing.sm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -255,7 +255,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   _buildStatusChip(reservation.status, scheme, textTheme),
                 ],
               ),
-              const SizedBox(height: Space.xs),
+              const SizedBox(height: ImovatoSpacing.xs),
               // Endereço
               Row(
                 children: [
@@ -273,7 +273,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: Space.xs),
+              const SizedBox(height: ImovatoSpacing.xs),
               // Datas
               Row(
                 children: [
@@ -288,9 +288,9 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: Space.sm),
+              const SizedBox(height: ImovatoSpacing.sm),
               const Divider(height: 1),
-              const SizedBox(height: Space.sm),
+              const SizedBox(height: ImovatoSpacing.sm),
               // Total
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
             child: Padding(
-              padding: const EdgeInsets.all(Space.sm),
+              padding: const EdgeInsets.all(ImovatoSpacing.sm),
               child: Form(
                 key: _formKey,
                 child: ListView(
@@ -70,13 +70,13 @@ class _LoginPageState extends State<LoginPage> {
                       size: 56,
                       color: scheme.primary,
                     ),
-                    const SizedBox(height: Space.md),
+                    const SizedBox(height: ImovatoSpacing.md),
                     Text(
                       'Bem-vindo de volta!',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineLarge,
                     ),
-                    const SizedBox(height: Space.sm),
+                    const SizedBox(height: ImovatoSpacing.sm),
                     Text(
                       'Entre na sua conta para continuar.',
                       textAlign: TextAlign.center,
@@ -84,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                         color: scheme.outline,
                       ),
                     ),
-                    const SizedBox(height: Space.xl),
+                    const SizedBox(height: ImovatoSpacing.xl),
                     AutofillGroup(
                       child: Column(
                         children: [
@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: Space.md),
+                          const SizedBox(height: ImovatoSpacing.md),
                           TextFormField(
                             controller: _passwordCtrl,
                             obscureText: _obscure,
@@ -155,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: Space.xl),
+                          const SizedBox(height: ImovatoSpacing.xl),
                           Consumer<LoginController>(
                             builder: (_, controller, __) {
                               return FilledButton.icon(
@@ -175,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                               );
                             },
                           ),
-                          const SizedBox(height: Space.md),
+                          const SizedBox(height: ImovatoSpacing.md),
                           TextButton(
                             onPressed: () {
                               Navigator.pushNamed(

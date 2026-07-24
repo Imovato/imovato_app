@@ -36,7 +36,7 @@ class _PropertyCardState extends State<PropertyCard> {
     final data = widget.data;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: Space.sm),
+      margin: const EdgeInsets.only(bottom: ImovatoSpacing.sm),
       clipBehavior: Clip.antiAlias,
       color: scheme.onPrimary,
       shape: RoundedRectangleBorder(

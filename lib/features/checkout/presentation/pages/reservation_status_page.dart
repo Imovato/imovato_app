@@ -490,7 +490,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
             // Header com informações do imóvel
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(Space.sm),
+              padding: const EdgeInsets.all(ImovatoSpacing.sm),
               decoration: BoxDecoration(
                 color: scheme.primaryContainer,
                 border: Border(
@@ -506,7 +506,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: Space.xxs),
+                  const SizedBox(height: ImovatoSpacing.xxs),
                   Row(
                     children: [
                       Icon(
@@ -514,7 +514,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                         size: 16,
                         color: scheme.onSurfaceVariant,
                       ),
-                      const SizedBox(width: Space.xxs),
+                      const SizedBox(width: ImovatoSpacing.xxs),
                       Expanded(
                         child: Text(
                           reservation.propertyAddress,
@@ -525,7 +525,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: Space.sm),
+                  const SizedBox(height: ImovatoSpacing.sm),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -539,7 +539,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                                   .withValues(alpha: 0.72),
                             ),
                           ),
-                          const SizedBox(height: Space.xxs),
+                          const SizedBox(height: ImovatoSpacing.xxs),
                           Text(
                             DateFormat('dd/MM/yyyy')
                                 .format(reservation.checkInDate),
@@ -563,7 +563,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                                   .withValues(alpha: 0.72),
                             ),
                           ),
-                          const SizedBox(height: Space.xxs),
+                          const SizedBox(height: ImovatoSpacing.xxs),
                           Text(
                             DateFormat('dd/MM/yyyy')
                                 .format(reservation.checkOutDate),
@@ -581,7 +581,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
             // Status Timeline
             Padding(
-              padding: const EdgeInsets.all(Space.sm),
+              padding: const EdgeInsets.all(ImovatoSpacing.sm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -591,7 +591,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: Space.md),
+                  const SizedBox(height: ImovatoSpacing.md),
                   _buildTimeline(scheme, textTheme, reservation),
                 ],
               ),
@@ -599,12 +599,13 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
             // Total
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Space.md),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: ImovatoSpacing.md),
               child: Container(
-                padding: const EdgeInsets.all(Space.sm),
+                padding: const EdgeInsets.all(ImovatoSpacing.sm),
                 decoration: BoxDecoration(
                   color: scheme.surface,
-                  borderRadius: BorderRadius.circular(Space.md),
+                  borderRadius: BorderRadius.circular(ImovatoSpacing.md),
                   border: Border.all(color: scheme.outlineVariant),
                 ),
                 child: Row(
@@ -628,7 +629,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
               ),
             ),
 
-            const SizedBox(height: Space.md),
+            const SizedBox(height: ImovatoSpacing.md),
 
             // ── Seção de convidados coliving ──────────────────────────
             if (reservation.isColiving &&
@@ -646,13 +647,14 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
             if (isGuestView &&
                 reservation.status != ReservationStatus.cancelled)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Space.md),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: ImovatoSpacing.md),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(Space.sm),
+                  padding: const EdgeInsets.all(ImovatoSpacing.sm),
                   decoration: BoxDecoration(
                     color: scheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(Space.md),
+                    borderRadius: BorderRadius.circular(ImovatoSpacing.md),
                     border: Border.all(color: scheme.outlineVariant),
                   ),
                   child: Column(
@@ -663,7 +665,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: Space.xs),
+                      const SizedBox(height: ImovatoSpacing.xs),
                       Text(
                         formatBRL0(guestAmount),
                         style: textTheme.titleLarge?.copyWith(
@@ -671,7 +673,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                           color: scheme.primary,
                         ),
                       ),
-                      const SizedBox(height: Space.xs),
+                      const SizedBox(height: ImovatoSpacing.xs),
                       Text(
                         'Convidado',
                         style: textTheme.bodySmall
@@ -684,13 +686,14 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
 
             if (!isGuestView && isSharedReservation)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Space.md),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: ImovatoSpacing.md),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(Space.sm),
+                  padding: const EdgeInsets.all(ImovatoSpacing.sm),
                   decoration: BoxDecoration(
                     color: scheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(Space.md),
+                    borderRadius: BorderRadius.circular(ImovatoSpacing.md),
                     border: Border.all(color: scheme.outlineVariant),
                   ),
                   child: Column(
@@ -701,7 +704,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                         style: textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: Space.xs),
+                      const SizedBox(height: ImovatoSpacing.xs),
                       Text(
                         formatBRL0(_sharedBookingCtrl
                             .perPersonAmount(reservation.totalPrice)),
@@ -710,23 +713,24 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                           color: scheme.primary,
                         ),
                       ),
-                      const SizedBox(height: Space.xs),
+                      const SizedBox(height: ImovatoSpacing.xs),
                       // Text(
                       //   'Divisao: $participantsLabel',
                       //   style: textTheme.bodySmall?.copyWith(color: scheme.onSurface.withOpacity(0.7)),
                       // ),
-                      const SizedBox(height: Space.xxs),
+                      const SizedBox(height: ImovatoSpacing.xxs),
                     ],
                   ),
                 ),
               ),
 
-            const SizedBox(height: Space.sm),
+            const SizedBox(height: ImovatoSpacing.sm),
 
             // Botões de ação
             if (reservation.status != ReservationStatus.cancelled)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Space.md),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: ImovatoSpacing.md),
                 child: Column(
                   children: [
                     // Botão Pagar (dono aguardando pagamento ou convidado)
@@ -750,7 +754,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                               )
                             : const Text('Pagar'),
                       ),
-                      const SizedBox(height: Space.sm),
+                      const SizedBox(height: ImovatoSpacing.sm),
                     ],
 
                     // Botões Check-in e Cancelar (lado a lado)
@@ -781,13 +785,13 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                                             : scheme.onSurface
                                                 .withValues(alpha: 0.38),
                                       ),
-                                      const SizedBox(width: Space.xs),
+                                      const SizedBox(width: ImovatoSpacing.xs),
                                       Text('Check-in'),
                                     ],
                                   ),
                           ),
                         ),
-                        const SizedBox(width: Space.sm),
+                        const SizedBox(width: ImovatoSpacing.sm),
                         // Botão Cancelar
                         Expanded(
                           child: OutlinedButton(
@@ -800,7 +804,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                       ],
                     ),
                     if (reservation.status == ReservationStatus.checkedIn) ...[
-                      const SizedBox(height: Space.sm),
+                      const SizedBox(height: ImovatoSpacing.sm),
                       FilledButton.tonal(
                         onPressed: _showAccessInfo,
                         child: const Text('Ver informacoes de acesso'),
@@ -840,7 +844,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                 ),
               ),
 
-            const SizedBox(height: Space.lg),
+            const SizedBox(height: ImovatoSpacing.lg),
           ],
         ),
       ),

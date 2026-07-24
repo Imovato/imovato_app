@@ -1,5 +1,5 @@
-class Space {
-  const Space._();
+class ImovatoSpacing {
+  const ImovatoSpacing._();
 
   static const double xxs = 4;
   static const double xs = 8;

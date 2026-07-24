@@ -89,7 +89,7 @@ class _RegisterPageState extends State<RegisterPage> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
             child: Padding(
-              padding: const EdgeInsets.all(Space.sm),
+              padding: const EdgeInsets.all(ImovatoSpacing.sm),
               child: Form(
                 key: _formKey,
                 child: ListView(
@@ -99,13 +99,13 @@ class _RegisterPageState extends State<RegisterPage> {
                       size: 56,
                       color: scheme.primary,
                     ),
-                    const SizedBox(height: Space.md),
+                    const SizedBox(height: ImovatoSpacing.md),
                     Text(
                       'Bem-vindo!',
                       style: theme.textTheme.headlineLarge,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: Space.sm),
+                    const SizedBox(height: ImovatoSpacing.sm),
                     Text(
                       'Crie sua conta para começar a utilizar o Imovato.',
                       style: theme.textTheme.bodyLarge?.copyWith(
@@ -113,7 +113,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: Space.xl),
+                    const SizedBox(height: ImovatoSpacing.xl),
                     AutofillGroup(
                       child: Column(
                         children: [
@@ -130,7 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ? 'Informe seu nome'
                                 : null,
                           ),
-                          const SizedBox(height: Space.md),
+                          const SizedBox(height: ImovatoSpacing.md),
                           TextFormField(
                             controller: _emailCtrl,
                             keyboardType: TextInputType.emailAddress,
@@ -144,7 +144,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             validator: _validateEmail,
                           ),
-                          const SizedBox(height: Space.md),
+                          const SizedBox(height: ImovatoSpacing.md),
                           TextFormField(
                             controller: _cpfCtrl,
                             keyboardType: TextInputType.number,
@@ -154,7 +154,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             validator: _validateCPF,
                           ),
-                          const SizedBox(height: Space.md),
+                          const SizedBox(height: ImovatoSpacing.md),
                           TextFormField(
                             controller: _userNameCtrl,
                             decoration: const InputDecoration(
@@ -162,7 +162,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               prefixIcon: Icon(Icons.alternate_email),
                             ),
                           ),
-                          const SizedBox(height: Space.md),
+                          const SizedBox(height: ImovatoSpacing.md),
                           TextFormField(
                             controller: _passwordCtrl,
                             obscureText: _obscure,
@@ -192,7 +192,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: Space.xl),
+                          const SizedBox(height: ImovatoSpacing.xl),
                           Consumer<RegisterController>(
                             builder: (_, controller, __) {
                               return FilledButton.icon(
