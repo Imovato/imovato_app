@@ -21,7 +21,8 @@ class WelcomePage extends StatelessWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+          padding:
+              const EdgeInsets.fromLTRB(Space.md, Space.md, Space.md, Space.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
