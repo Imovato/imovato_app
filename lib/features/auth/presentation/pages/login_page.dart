@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import 'package:provider/provider.dart';
 import '../../../../../app/router.dart';
 import '../controllers/login_controller.dart';
@@ -65,12 +67,61 @@ class _LoginPageState extends State<LoginPage> {
                 key: _formKey,
                 child: ListView(
                   children: [
-                    Icon(
-                      Icons.home_work_rounded,
-                      size: 56,
-                      color: scheme.primary,
+                    ClipRRect(
+                      borderRadius: ImovatoBorderRadius.circular(
+                        ImovatoBorderRadius.xl,
+                      ),
+                      child: SizedBox(
+                        height: 210,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.asset(
+                              'images/image-onboarding.jpg',
+                              fit: BoxFit.cover,
+                            ),
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.black.withValues(alpha: 0.08),
+                                    Colors.black.withValues(alpha: 0.45),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.all(ImovatoSpacing.xxs),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: ImovatoBorderRadius.circular(
+                                    ImovatoBorderRadius.xxl,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.12),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: SvgPicture.asset(
+                                  'images/imovato.svg',
+                                  width: 90,
+                                  height: 90,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: ImovatoSpacing.md),
+                    const SizedBox(height: ImovatoSpacing.xl),
                     Text(
                       'Bem-vindo de volta!',
                       textAlign: TextAlign.center,
