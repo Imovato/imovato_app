@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
+import 'package:imovato_app/features/explore/presentation/widgets/localizacao_sheet.dart';
+import 'package:imovato_app/shared/models/location_option.dart';
 import 'package:provider/provider.dart';
 import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
@@ -15,6 +17,25 @@ class ListingsPage extends StatefulWidget {
 }
 
 class _ListingsPageState extends State<ListingsPage> {
+  Future<void> _openLocation(BuildContext context) async {
+    final controller = context.read<ExploreController>();
+    final selected = await showModalBottomSheet<LocationOption>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => LocalizacaoSheet(
+        initialValue: LocalizacaoSheet.defaultCities.firstWhere(
+          (e) => e.label == controller.cidade,
+        ),
+      ),
+    );
+
+    if (selected != null && context.mounted) {
+      controller.setCidade(selected);
+      Navigator.pushReplacementNamed(context, Routes.buscar);
+    }
+  }
+
   Future<void> _openFiltroModal(BuildContext context) async {
     final filters = context.read<ExploreController>().filters;
     final result = await showModalBottomSheet<FiltroBuscaResult>(
@@ -84,11 +105,8 @@ class _ListingsPageState extends State<ListingsPage> {
       appBar: ImovatoAppBar(
         title: 'Buscar imóveis',
         showBack: false,
-        action: IconButton(
-          tooltip: 'Filtros',
-          onPressed: () => _openFiltroModal(context),
-          icon: const Icon(Icons.tune_outlined),
-        ),
+        location: context.watch<ExploreController>().cidade,
+        onLocationTap: () => _openLocation(context),
       ),
       body: Consumer<ExploreController>(
         builder: (context, c, _) {
@@ -105,26 +123,56 @@ class _ListingsPageState extends State<ListingsPage> {
             return const Center(child: Text('Nenhum imóvel encontrado'));
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(ImovatoSpacing.sm),
-            itemCount: items.length,
-            itemBuilder: (context, i) {
-              final item = items[i];
-              return InkWell(
-                onTap: () => Navigator.pushNamed(
-                    context, Routes.propertyDetails,
-                    arguments: item),
-                child: PropertyCard(
-                  data: item,
-                  onToggleFavorite: (fav) {
-                    // delegate to controller
-                    context
-                        .read<ExploreController>()
-                        .toggleFavoriteById(item.id, fav);
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: ImovatoSpacing.sm,
+                  vertical: 0,
+                ),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      FilledButton.icon(
+                        onPressed: () => _openFiltroModal(context),
+                        icon: const Icon(Icons.tune, size: 18),
+                        label: const Text("Filtros"),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 36),
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          visualDensity: VisualDensity.compact,
+                          textStyle: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(ImovatoSpacing.sm),
+                  itemCount: items.length,
+                  itemBuilder: (context, i) {
+                    final item = items[i];
+                    return InkWell(
+                      onTap: () => Navigator.pushNamed(
+                          context, Routes.propertyDetails,
+                          arguments: item),
+                      child: PropertyCard(
+                        data: item,
+                        onToggleFavorite: (fav) {
+                          context
+                              .read<ExploreController>()
+                              .toggleFavoriteById(item.id, fav);
+                        },
+                      ),
+                    );
                   },
                 ),
-              );
-            },
+              ),
+            ],
           );
         },
       ),
