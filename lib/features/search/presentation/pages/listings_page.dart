@@ -14,15 +14,23 @@ class ListingsPage extends StatefulWidget {
 }
 
 class _ListingsPageState extends State<ListingsPage> {
-  FiltroBuscaResult? _currentFilters;
-
   Future<void> _openFiltroModal(BuildContext context) async {
+    final filters = context.read<ExploreController>().filters;
     final result = await showModalBottomSheet<FiltroBuscaResult>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => FiltroBuscaSheet(initial: _currentFilters),
-    );
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => FiltroBuscaSheet(
+              initial: FiltroBuscaResult(
+                priceMin: filters.priceMin,
+                priceMax: filters.priceMax,
+                accommodationType: filters.accommodationType,
+                maxOccupancy: filters.maxOccupancy,
+                allowsPets: filters.allowsPets,
+                allowsChildren: filters.allowsChildren,
+                isSharedHosting: filters.isSharedHosting,
+              ),
+            ));
 
     if (result != null && context.mounted) {
       // Verifica se todos os filtros estão vazios (usuário clicou em Limpar)
@@ -33,10 +41,6 @@ class _ListingsPageState extends State<ListingsPage> {
           result.allowsPets == null &&
           result.allowsChildren == null &&
           result.isSharedHosting == null;
-
-      setState(() {
-        _currentFilters = isCleared ? null : result;
-      });
 
       // Atualizar os filtros no controller
       final controller = context.read<ExploreController>();

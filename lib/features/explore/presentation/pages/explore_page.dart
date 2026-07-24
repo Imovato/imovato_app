@@ -33,13 +33,23 @@ class ExplorePage extends StatelessWidget {
   }
 
   Future<void> _openFilters(BuildContext context) async {
+    final filters = context.read<ExploreController>().filters;
     final controller = context.read<ExploreController>();
     final result = await showModalBottomSheet<FiltroBuscaResult>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const FiltroBuscaSheet(),
-    );
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => FiltroBuscaSheet(
+              initial: FiltroBuscaResult(
+                priceMin: filters.priceMin,
+                priceMax: filters.priceMax,
+                accommodationType: filters.accommodationType,
+                maxOccupancy: filters.maxOccupancy,
+                allowsPets: filters.allowsPets,
+                allowsChildren: filters.allowsChildren,
+                isSharedHosting: filters.isSharedHosting,
+              ),
+            ));
 
     if (result != null && context.mounted) {
       controller.setFilters(SearchFilters(
