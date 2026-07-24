@@ -22,25 +22,25 @@ class _PropertyCardState extends State<PropertyCard> {
   @override
   void initState() {
     super.initState();
+
     _pageCtrl = PageController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.data.imagesUrls.length > 1) {
+        precacheImage(
+          CachedNetworkImageProvider(
+            cloudinaryCardImage(widget.data.imagesUrls[1]),
+          ),
+          context,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
     _pageCtrl.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    for (final url in widget.data.imagesUrls) {
-      precacheImage(
-        CachedNetworkImageProvider(url),
-        context,
-      );
-    }
   }
 
   @override
