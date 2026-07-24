@@ -134,17 +134,20 @@ class _ListingsPageState extends State<ListingsPage> {
               itemCount: items.length,
               itemBuilder: (context, i) {
                 final item = items[i];
-                return InkWell(
-                  onTap: () => Navigator.pushNamed(
-                      context, Routes.propertyDetails,
-                      arguments: item),
-                  child: PropertyCard(
-                    data: item,
-                    onToggleFavorite: (fav) {
-                      context
-                          .read<ExploreController>()
-                          .toggleFavoriteById(item.id, fav);
-                    },
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: ImovatoSpacing.sm),
+                  child: InkWell(
+                    onTap: () => Navigator.pushNamed(
+                        context, Routes.propertyDetails,
+                        arguments: item),
+                    child: PropertyCard(
+                      data: item,
+                      onToggleFavorite: (fav) {
+                        context
+                            .read<ExploreController>()
+                            .toggleFavoriteById(item.id, fav);
+                      },
+                    ),
                   ),
                 );
               },
