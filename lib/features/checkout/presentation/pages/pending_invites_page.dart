@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import '../../application/invite_service.dart';
 
 class PendingInvitesPage extends StatefulWidget {
@@ -74,13 +75,13 @@ class _PendingInvitesPageState extends State<PendingInvitesPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: scheme.error),
-              const SizedBox(height: 16),
+              const SizedBox(height: ImovatoSpacing.sm),
               Text(
                 _error!,
                 textAlign: TextAlign.center,
                 style: text.bodyMedium?.copyWith(color: scheme.error),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: ImovatoSpacing.md),
               FilledButton.icon(
                 onPressed: _loadInvites,
                 icon: const Icon(Icons.refresh),
@@ -99,14 +100,14 @@ class _PendingInvitesPageState extends State<PendingInvitesPage> {
           children: [
             Icon(Icons.mail_outline,
                 size: 72, color: scheme.onSurface.withValues(alpha: 0.3)),
-            const SizedBox(height: 16),
+            const SizedBox(height: ImovatoSpacing.sm),
             Text(
               'Nenhum convite pendente',
               style: text.titleMedium?.copyWith(
                 color: scheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: ImovatoSpacing.xs),
             Text(
               'Quando alguém te convidar para uma reserva,\naparecerá aqui.',
               textAlign: TextAlign.center,

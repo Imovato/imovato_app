@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 
 class FiltroBuscaResult {
   final double? priceMin;
@@ -113,7 +114,7 @@ class _FiltroBuscaSheetState extends State<FiltroBuscaSheet> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ImovatoSpacing.xs),
                       Row(
                         children: [
                           Expanded(

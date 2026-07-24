@@ -114,7 +114,7 @@ class ExplorePage extends StatelessWidget {
                       color: scheme.onSecondary.withValues(alpha: 0.82),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: ImovatoSpacing.md),
                   FilledButton.icon(
                     onPressed: () => Navigator.pushReplacementNamed(
                       context,

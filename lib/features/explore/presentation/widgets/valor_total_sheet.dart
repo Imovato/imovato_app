@@ -57,7 +57,7 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: ImovatoSpacing.xs),
               Row(
                 children: [
                   Expanded(
@@ -89,14 +89,14 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: ImovatoSpacing.sm),
               Text(
                 'Valor Total',
                 style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: ImovatoSpacing.xs),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -126,7 +126,7 @@ class _ValorTotalSheetState extends State<ValorTotalSheet> {
                   onChanged: (v) => setState(() => value = v),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: ImovatoSpacing.sm),
               FilledButton(
                 onPressed: () => Navigator.pop(context, value),
                 style: FilledButton.styleFrom(

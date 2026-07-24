@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/router.dart';
@@ -42,7 +43,7 @@ class FavoritesPage extends StatelessWidget {
                     Text('Nenhum favorito ainda',
                         style: textTheme.titleLarge,
                         textAlign: TextAlign.center),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: ImovatoSpacing.xs),
                     Text(
                       'Salve os imóveis que combinam com você para encontrá-los aqui.',
                       style: textTheme.bodyMedium

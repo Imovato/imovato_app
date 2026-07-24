@@ -81,14 +81,14 @@ class WelcomePage extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: ImovatoSpacing.md),
               Text(
                 textoBoasVindas,
                 style: textTheme.headlineLarge?.copyWith(
                   color: scheme.onSurface,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: ImovatoSpacing.xs),
               Text(
                 textoInicial,
                 style: textTheme.bodyLarge?.copyWith(

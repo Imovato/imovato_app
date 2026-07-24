@@ -55,7 +55,7 @@ class _TipoMoradiaSheetState extends State<TipoMoradiaSheet> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: ImovatoSpacing.xs),
               Row(
                 children: [
                   Expanded(
@@ -110,7 +110,7 @@ class _TipoMoradiaSheetState extends State<TipoMoradiaSheet> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: ImovatoSpacing.sm),
               FilledButton(
                 onPressed: () => Navigator.pop(context, _selected),
                 style: FilledButton.styleFrom(

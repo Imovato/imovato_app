@@ -59,7 +59,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   size: 80,
                   color: scheme.primary,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: ImovatoSpacing.md),
                 Text(
                   'Faça login para ver suas reservas',
                   style: textTheme.titleLarge?.copyWith(
@@ -75,7 +75,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: ImovatoSpacing.lg),
                 FilledButton.icon(
                   onPressed: () {
                     Navigator.pushNamed(context, Routes.loginMorador);
@@ -152,7 +152,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
                 color: scheme.primary,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: ImovatoSpacing.md),
             Text(
               'Nenhuma reserva ainda',
               style: textTheme.titleLarge?.copyWith(
@@ -167,7 +167,7 @@ class _MyReservationsPageState extends State<MyReservationsPage> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: ImovatoSpacing.lg),
             FilledButton.icon(
               onPressed: () {
                 Navigator.pushNamedAndRemoveUntil(

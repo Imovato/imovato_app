@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/router.dart';
@@ -183,7 +184,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: ImovatoSpacing.xxs),
                   Row(
                     children: [
                       Icon(Icons.location_on_outlined,
@@ -283,7 +284,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: ImovatoSpacing.xs),
                   Text(
                     (p.description?.trim().isNotEmpty ?? false)
                         ? p.description!.trim()

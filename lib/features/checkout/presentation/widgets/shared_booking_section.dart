@@ -100,12 +100,12 @@ class _SharedBookingSectionState extends State<SharedBookingSection> {
                         text: text,
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: ImovatoSpacing.sm),
 
                       // Lista de convidados
                       if (ctrl.guests.isNotEmpty) ...[
                         Text('Convidados', style: text.labelLarge),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: ImovatoSpacing.xs),
                         ...ctrl.guests.map(
                           (g) => _GuestTile(
                             invite: g,
@@ -314,7 +314,7 @@ class _DivisionSummary extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: ImovatoSpacing.xxs),
             Row(
               children: [
                 Icon(Icons.people_alt_outlined,
@@ -522,7 +522,7 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
                     style:
                         text.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: ImovatoSpacing.xxs),
                   Text(
                     'Informe o e-mail de um usuário cadastrado na plataforma.',
                     style: text.bodySmall
@@ -552,7 +552,7 @@ class _AddGuestSheetState extends State<_AddGuestSheet> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: ImovatoSpacing.sm),
 
                   SizedBox(
                     width: double.infinity,

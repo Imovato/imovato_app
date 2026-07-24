@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
 import 'package:imovato_app/shared/models/location_option.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 
 class LocalizacaoSheet extends StatefulWidget {
   final LocationOption? initialValue;
@@ -68,7 +69,7 @@ class _LocalizacaoSheetState extends State<LocalizacaoSheet> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: ImovatoSpacing.xs),
               Row(
                 children: [
                   Expanded(
@@ -86,7 +87,7 @@ class _LocalizacaoSheetState extends State<LocalizacaoSheet> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: ImovatoSpacing.xs),
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
@@ -116,7 +117,7 @@ class _LocalizacaoSheetState extends State<LocalizacaoSheet> {
                   }).toList(),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: ImovatoSpacing.sm),
               FilledButton(
                 onPressed: () => Navigator.pop(context, _selected),
                 style: FilledButton.styleFrom(

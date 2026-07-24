@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/router.dart';
@@ -29,14 +30,14 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text('Entre para acompanhar suas reservas',
                     style: textTheme.titleLarge, textAlign: TextAlign.center),
-                const SizedBox(height: 8),
+                const SizedBox(height: ImovatoSpacing.xs),
                 Text(
                   'Sua conta também mantém suas informações de locação organizadas.',
                   style: textTheme.bodyMedium
                       ?.copyWith(color: scheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: ImovatoSpacing.md),
                 FilledButton(
                   onPressed: () => Navigator.pushNamed(
                     context,
@@ -83,7 +84,7 @@ class ProfilePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(name, style: textTheme.titleLarge),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: ImovatoSpacing.xxs),
                       Text(login.userEmail ?? '',
                           style: textTheme.bodyMedium?.copyWith(
                             color: scheme.onPrimaryContainer,

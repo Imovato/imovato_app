@@ -248,14 +248,14 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Senha do Wi-Fi:'),
-            SizedBox(height: 4),
+            SizedBox(height: ImovatoSpacing.xxs),
             Text(
               _wifiPassword,
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 12),
             Text('Senha eletronica da porta:'),
-            SizedBox(height: 4),
+            SizedBox(height: ImovatoSpacing.xxs),
             Text(
               _doorPassword,
               style: TextStyle(fontWeight: FontWeight.w600),
@@ -975,7 +975,7 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
                         : scheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: ImovatoSpacing.xxs),
                 Text(
                   step.description,
                   style: textTheme.bodySmall?.copyWith(
@@ -1108,7 +1108,7 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: ImovatoSpacing.xxs),
                 Text(
                   widget.readOnly
                       ? 'Veja quem participa da reserva'
@@ -1130,7 +1130,7 @@ class _ColivingInviteSectionState extends State<_ColivingInviteSection> {
                         text: text,
                         readOnly: widget.readOnly,
                       )),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: ImovatoSpacing.xs),
 
                   // Resumo da divisão (apenas para o dono)
                   // if (!widget.readOnly) ...[

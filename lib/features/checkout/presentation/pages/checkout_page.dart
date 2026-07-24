@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:imovato_app/app/theme/tokens/imovato_radius.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 import '../../../../app/utils/br_currency.dart';
 import '../../../../app/router.dart';
 import '../../../../shared/widgets/appBar.dart';
@@ -262,11 +263,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                             color: scheme.onSurface),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis),
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: ImovatoSpacing.xxs),
                                     Text('${p.neighborhood}, ${p.city}',
                                         style: text.bodySmall?.copyWith(
                                             color: scheme.onSurfaceVariant)),
-                                    const SizedBox(height: 8),
+                                    const SizedBox(height: ImovatoSpacing.xs),
                                     Text('${formatBRL0(p.price)} / mês',
                                         style: text.titleSmall?.copyWith(
                                             fontWeight: FontWeight.w800,
@@ -326,7 +327,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         ?.copyWith(fontWeight: FontWeight.w800),
                                     textAlign: TextAlign.center,
                                   ),
-                                  const SizedBox(height: 24),
+                                  const SizedBox(height: ImovatoSpacing.md),
                                   SizedBox(
                                     width: double.infinity,
                                     child: FilledButton(
