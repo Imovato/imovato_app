@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:imovato_app/app/theme/Space.dart';
 import 'package:provider/provider.dart';
 import '../controllers/register_controller.dart';
 import '../../../../../app/router.dart';
@@ -83,7 +84,8 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(title: const Text('Criar conta')),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+          padding:
+              const EdgeInsets.fromLTRB(Space.sm, Space.sm, Space.sm, Space.sm),
           child: Form(
             key: _formKey,
             child: ListView(
@@ -95,10 +97,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: Space.xs),
                 Text('Preencha os dados abaixo para criar sua conta.',
                     style: theme.textTheme.bodyMedium),
-                const SizedBox(height: 24),
+                const SizedBox(height: Space.sm),
 
                 // nome
                 TextFormField(
@@ -108,10 +110,11 @@ class _RegisterPageState extends State<RegisterPage> {
                     labelText: 'Nome completo',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Informe seu nome' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Informe seu nome'
+                      : null,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: Space.sm),
 
                 // email
                 TextFormField(
@@ -125,7 +128,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   validator: _validateEmail,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: Space.sm),
 
                 // CPF
                 TextFormField(
@@ -140,7 +143,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   validator: _validateCPF,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: Space.sm),
 
                 // userName
                 TextFormField(
@@ -151,8 +154,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     hintText: 'seu_usuario',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Informe o usuário' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Informe o usuário'
+                      : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -166,7 +170,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       onPressed: () => setState(() => _obscure = !_obscure),
-                      icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                          _obscure ? Icons.visibility : Icons.visibility_off),
                     ),
                   ),
                   validator: (v) {
@@ -221,10 +226,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       child: controller.loading
                           ? const SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
                           : const Text('Cadastrar'),
                     );
                   },
