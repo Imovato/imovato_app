@@ -32,6 +32,18 @@ class _PropertyCardState extends State<PropertyCard> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    for (final url in widget.data.imagesUrls) {
+      precacheImage(
+        CachedNetworkImageProvider(url),
+        context,
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -54,16 +66,15 @@ class _PropertyCardState extends State<PropertyCard> {
             child: Stack(
               children: [
                 PageView.builder(
-                    controller: _pageCtrl,
                     onPageChanged: (i) => setState(() => _page = i),
                     itemCount: data.imagesUrls.length,
                     itemBuilder: (_, i) => CachedNetworkImage(
-                          imageUrl: data.imagesUrls[i],
-                          memCacheWidth: 800,
+                          imageUrl: cloudinaryCardImage(data.imagesUrls[i]),
                           fit: BoxFit.cover,
                           width: double.infinity,
-                          placeholder: (context, url) =>
-                              const Center(child: CircularProgressIndicator()),
+                          placeholder: (_, __) => const ColoredBox(
+                            color: Color(0xFFF2F2F2),
+                          ),
                           errorWidget: (context, url, error) =>
                               const Icon(Icons.photo, size: 48),
                         )),
@@ -197,6 +208,13 @@ class _PropertyCardState extends State<PropertyCard> {
       ),
     );
   }
+}
+
+String cloudinaryCardImage(String url) {
+  return url.replaceFirst(
+    '/upload/',
+    '/upload/f_auto,q_auto,w_800/',
+  );
 }
 
 class _InfoChip extends StatelessWidget {
