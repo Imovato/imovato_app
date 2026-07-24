@@ -105,6 +105,11 @@ class _ListingsPageState extends State<ListingsPage> {
       appBar: ImovatoAppBar(
         title: 'Buscar imóveis',
         showBack: false,
+        action: IconButton(
+          tooltip: 'Filtros',
+          onPressed: () => _openFiltroModal(context),
+          icon: const Icon(Icons.tune_outlined),
+        ),
         location: context.watch<ExploreController>().cidade,
         onLocationTap: () => _openLocation(context),
       ),
@@ -123,56 +128,27 @@ class _ListingsPageState extends State<ListingsPage> {
             return const Center(child: Text('Nenhum imóvel encontrado'));
           }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: ImovatoSpacing.sm,
-                  vertical: 0,
-                ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      FilledButton.icon(
-                        onPressed: () => _openFiltroModal(context),
-                        icon: const Icon(Icons.tune, size: 18),
-                        label: const Text("Filtros"),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(0, 36),
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          visualDensity: VisualDensity.compact,
-                          textStyle: Theme.of(context).textTheme.labelMedium,
-                        ),
-                      ),
-                    ],
+          return Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(ImovatoSpacing.sm),
+              itemCount: items.length,
+              itemBuilder: (context, i) {
+                final item = items[i];
+                return InkWell(
+                  onTap: () => Navigator.pushNamed(
+                      context, Routes.propertyDetails,
+                      arguments: item),
+                  child: PropertyCard(
+                    data: item,
+                    onToggleFavorite: (fav) {
+                      context
+                          .read<ExploreController>()
+                          .toggleFavoriteById(item.id, fav);
+                    },
                   ),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(ImovatoSpacing.sm),
-                  itemCount: items.length,
-                  itemBuilder: (context, i) {
-                    final item = items[i];
-                    return InkWell(
-                      onTap: () => Navigator.pushNamed(
-                          context, Routes.propertyDetails,
-                          arguments: item),
-                      child: PropertyCard(
-                        data: item,
-                        onToggleFavorite: (fav) {
-                          context
-                              .read<ExploreController>()
-                              .toggleFavoriteById(item.id, fav);
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+                );
+              },
+            ),
           );
         },
       ),
