@@ -7,7 +7,9 @@ import 'package:imovato_app/features/checkout/presentation/pages/my_reservations
 import 'package:imovato_app/features/checkout/presentation/pages/pending_invites_page.dart';
 import 'package:imovato_app/features/checkout/domain/reservation.dart';
 import '../features/auth/presentation/pages/login_page.dart';
+import '../features/auth/presentation/pages/forgot_password_page.dart';
 import '../features/auth/presentation/controllers/login_controller.dart';
+import '../features/auth/presentation/controllers/password_reset_controller.dart';
 import '../features/onboarding/presentation/pages/welcome_page.dart';
 import '../features/search/domain/property.dart';
 import '../features/search/presentation/pages/property_details_page.dart';
@@ -16,6 +18,7 @@ import 'app_shell.dart';
 class Routes {
   static const welcome = '/';
   static const loginMorador = '/login';
+  static const forgotPassword = '/esqueci-senha';
   static const alugar = '/alugar';
   static const cadastro = '/cadastro';
   static const buscar = '/buscar';
@@ -39,16 +42,21 @@ final Map<String, WidgetBuilder> appRoutes = {
 Route<dynamic>? onGenerateRoute(RouteSettings settings) {
   // Proteção de rotas de autenticação
   if (settings.name == Routes.loginMorador ||
-      settings.name == Routes.cadastro) {
+      settings.name == Routes.cadastro ||
+      settings.name == Routes.forgotPassword) {
     return MaterialPageRoute(
       builder: (context) {
         final isLoggedIn = context.read<LoginController>().isLoggedIn;
         if (isLoggedIn) {
           return const AppShell();
         }
-        return settings.name == Routes.loginMorador
-            ? const LoginPage()
-            : const RegisterPage();
+        if (settings.name == Routes.loginMorador) {
+          return const LoginPage();
+        }
+        if (settings.name == Routes.cadastro) {
+          return const RegisterPage();
+        }
+        return const ForgotPasswordPage();
       },
     );
   }

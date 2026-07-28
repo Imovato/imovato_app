@@ -238,6 +238,15 @@ class _LoginPageState extends State<LoginPage> {
                               'Ainda não possui uma conta? Cadastre-se',
                             ),
                           ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                Routes.forgotPassword,
+                              );
+                            },
+                            child: const Text('Esqueci minha senha'),
+                          ),
                         ],
                       ),
                     ),
