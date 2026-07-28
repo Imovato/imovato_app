@@ -82,9 +82,11 @@ class ExplorePage extends StatelessWidget {
         title: 'Início',
         showBack: false,
         action: IconButton(
-          tooltip: 'Escolher região',
-          onPressed: () => _openLocation(context),
-          icon: const Icon(Icons.location_on_outlined),
+          tooltip: 'Ir para o perfil',
+          onPressed: () {
+            Navigator.pushNamed(context, Routes.profile);
+          },
+          icon: const Icon(Icons.person_outline),
         ),
       ),
       body: SafeArea(
