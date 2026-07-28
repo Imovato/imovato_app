@@ -47,9 +47,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     if (ok) {
       setState(() {
         _tokenRequested = true;
-        if (controller.resetToken != null && controller.resetToken!.isNotEmpty) {
-          _tokenCtrl.text = controller.resetToken!;
-        }
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(controller.infoMessage ?? 'Token gerado.')),
@@ -281,48 +278,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         Routes.loginMorador,
                       ),
                       child: const Text('Voltar para o login'),
-                    ),
-                    const SizedBox(height: ImovatoSpacing.md),
-                    Consumer<PasswordResetController>(
-                      builder: (_, controller, __) {
-                        if ((controller.resetToken == null || controller.resetToken!.isEmpty) &&
-                            (controller.infoMessage == null || controller.infoMessage!.isEmpty)) {
-                          return const SizedBox.shrink();
-                        }
-
-                        return Card(
-                          color: scheme.surfaceContainerHighest,
-                          child: Padding(
-                            padding: const EdgeInsets.all(ImovatoSpacing.md),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  controller.infoMessage ?? 'Token gerado.',
-                                  style: theme.textTheme.titleMedium,
-                                ),
-                                if (controller.resetToken != null &&
-                                    controller.resetToken!.isNotEmpty) ...[
-                                  const SizedBox(height: ImovatoSpacing.sm),
-                                  SelectableText(
-                                    'Token: ${controller.resetToken}',
-                                    style: theme.textTheme.bodyLarge,
-                                  ),
-                                  if (controller.resetTokenExpiresAt != null) ...[
-                                    const SizedBox(height: ImovatoSpacing.xs),
-                                    Text(
-                                      'Expira em: ${controller.resetTokenExpiresAt}',
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        color: scheme.outline,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ],
-                            ),
-                          ),
-                        );
-                      },
                     ),
                   ],
                 ),
