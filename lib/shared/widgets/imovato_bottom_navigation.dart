@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imovato_app/app/theme/tokens/imovato_spacing.dart';
 
 /// Destinos exibidos na navegação principal do aplicativo.
 enum ImovatoNavigationDestination { home, search, favorites, profile }
@@ -52,7 +53,7 @@ class ImovatoBottomNavigation extends StatelessWidget {
     return Material(
       color: scheme.surface,
       child: Container(
-        height: 88,
+        height: 72,
         decoration: BoxDecoration(
           border: Border(top: BorderSide(color: scheme.outlineVariant)),
         ),
@@ -69,7 +70,8 @@ class ImovatoBottomNavigation extends StatelessWidget {
                 child: InkWell(
                   onTap: () => onDestinationSelected(item.destination),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: ImovatoSpacing.xs),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
