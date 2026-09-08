@@ -114,10 +114,13 @@ class _Undefined {
 
 class ExploreController extends ChangeNotifier {
   ExploreController(
-      {double initialValor = 500, String initialCidade = 'Alegrete, RS'})
+      {double initialValor = 500,
+      String initialCidade = 'Alegrete, RS',
+      List<Property> initialResults = const []})
       : _valorSelecionado = initialValor,
         _cidade = initialCidade,
-        _filters = SearchFilters();
+        _filters = SearchFilters(),
+        _results = List<Property>.of(initialResults);
 
   // existing state
   double _valorSelecionado;

@@ -128,30 +128,28 @@ class _ListingsPageState extends State<ListingsPage> {
             return const Center(child: Text('Nenhum imóvel encontrado'));
           }
 
-          return Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(ImovatoSpacing.sm),
-              itemCount: items.length,
-              itemBuilder: (context, i) {
-                final item = items[i];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: ImovatoSpacing.sm),
-                  child: InkWell(
-                    onTap: () => Navigator.pushNamed(
-                        context, Routes.propertyDetails,
-                        arguments: item),
-                    child: PropertyCard(
-                      data: item,
-                      onToggleFavorite: (fav) {
-                        context
-                            .read<ExploreController>()
-                            .toggleFavoriteById(item.id, fav);
-                      },
-                    ),
+          return ListView.builder(
+            padding: const EdgeInsets.all(ImovatoSpacing.sm),
+            itemCount: items.length,
+            itemBuilder: (context, i) {
+              final item = items[i];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: ImovatoSpacing.sm),
+                child: InkWell(
+                  onTap: () => Navigator.pushNamed(
+                      context, Routes.propertyDetails,
+                      arguments: item),
+                  child: PropertyCard(
+                    data: item,
+                    onToggleFavorite: (fav) {
+                      context
+                          .read<ExploreController>()
+                          .toggleFavoriteById(item.id, fav);
+                    },
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           );
         },
       ),
