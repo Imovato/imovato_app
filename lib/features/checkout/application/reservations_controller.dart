@@ -3,6 +3,9 @@ import '../domain/reservation.dart';
 import 'booking_service.dart';
 
 class ReservationsController extends ChangeNotifier {
+  ReservationsController({this.demoMode = false});
+
+  final bool demoMode;
   final List<Reservation> _reservations = [];
   final BookingService _bookingService = BookingService();
 
@@ -15,6 +18,8 @@ class ReservationsController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   Future<void> loadReservationsByUserId(String userId) async {
+    if (demoMode) return;
+
     _loading = true;
     _errorMessage = null;
     notifyListeners();
@@ -33,7 +38,8 @@ class ReservationsController extends ChangeNotifier {
             status: mergedStatus,
             paymentMethod: incoming.paymentMethod ?? existing.paymentMethod,
             pixCode: incoming.pixCode ?? existing.pixCode,
-            paymentDeadline: incoming.paymentDeadline ?? existing.paymentDeadline,
+            paymentDeadline:
+                incoming.paymentDeadline ?? existing.paymentDeadline,
             isColiving: incoming.isColiving || existing.isColiving,
             maxOccupancy: incoming.maxOccupancy != 1
                 ? incoming.maxOccupancy
@@ -54,7 +60,8 @@ class ReservationsController extends ChangeNotifier {
   }
 
   Reservation _mapBookingToReservation(Map<String, dynamic> booking) {
-    final accommodation = booking['accommodationDetails'] as Map<String, dynamic>?;
+    final accommodation =
+        booking['accommodationDetails'] as Map<String, dynamic>?;
     final initialDate = booking['initialDate']?.toString();
     final endDate = booking['endDate']?.toString();
 
@@ -69,7 +76,9 @@ class ReservationsController extends ChangeNotifier {
 
     return Reservation(
       id: _resolveBookingId(booking),
-      propertyId: booking['accommodationId']?.toString() ?? accommodation?['id']?.toString() ?? '',
+      propertyId: booking['accommodationId']?.toString() ??
+          accommodation?['id']?.toString() ??
+          '',
       propertyTitle: accommodation?['title']?.toString() ?? 'Imóvel',
       propertyAddress: _formatAddress(accommodation),
       totalPrice: totalPrice,
@@ -80,12 +89,17 @@ class ReservationsController extends ChangeNotifier {
       paymentMethod: null,
       pixCode: null,
       paymentDeadline: null,
-      isColiving: accommodation?['accommodationType']?.toString().toLowerCase().contains('coliving') ?? false,
+      isColiving: accommodation?['accommodationType']
+              ?.toString()
+              .toLowerCase()
+              .contains('coliving') ??
+          false,
       maxOccupancy: (accommodation?['maxOccupancy'] as num?)?.toInt() ?? 1,
     );
   }
 
-  double _resolveTotalPrice(Map<String, dynamic> booking, Map<String, dynamic>? accommodation) {
+  double _resolveTotalPrice(
+      Map<String, dynamic> booking, Map<String, dynamic>? accommodation) {
     final candidates = [
       booking['totalAmount'],
       booking['totalPrice'],

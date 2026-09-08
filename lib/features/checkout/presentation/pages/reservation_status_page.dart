@@ -44,6 +44,8 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
   int? _guestCount;
   bool _guestCountLoaded = false;
 
+  bool get _isDemoReservation => widget.reservation.id.startsWith('DEMO-');
+
   @override
   void initState() {
     super.initState();
@@ -54,22 +56,26 @@ class _ReservationStatusPageState extends State<ReservationStatusPage> {
     );
     _sharedBookingCtrl.addListener(_onSharedBookingChanged);
     // Carrega o email do dono para bloquear auto-convite
-    _authStorage.getUserEmail().then((email) {
-      _sharedBookingCtrl.setOwnerEmail(email);
-      if (!mounted) return;
-      setState(() => _currentUserEmail = email?.toLowerCase());
-    });
-    _authStorage.getUserId().then((id) {
-      if (!mounted) return;
-      setState(() => _currentUserId = id);
-    });
-    _loadCurrentUserFromToken();
+    if (!_isDemoReservation) {
+      _authStorage.getUserEmail().then((email) {
+        _sharedBookingCtrl.setOwnerEmail(email);
+        if (!mounted) return;
+        setState(() => _currentUserEmail = email?.toLowerCase());
+      });
+      _authStorage.getUserId().then((id) {
+        if (!mounted) return;
+        setState(() => _currentUserId = id);
+      });
+      _loadCurrentUserFromToken();
+    }
 
-    if (widget.reservation.isColiving) {
+    if (widget.reservation.isColiving && !_isDemoReservation) {
       _sharedBookingCtrl.loadInvites(widget.reservation.id);
     }
-    _loadPendingInvites();
-    _loadGuestCount();
+    if (!_isDemoReservation) {
+      _loadPendingInvites();
+      _loadGuestCount();
+    }
 
     // Garante que a reserva está no controller para que as atualizações de
     // status reflitam na tela via context.watch<ReservationsController>()

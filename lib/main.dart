@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+
 import 'app/app.dart';
 import 'shared/services/auth_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Limpar sessão sempre que o app iniciar
-  final authStorage = AuthStorageService();
-  await authStorage.clearAuthData();
-  print('🔄 App iniciado - sessão limpa');
+  const demoMode = bool.fromEnvironment('IMOVATO_DEMO', defaultValue: true);
+  if (!demoMode) {
+    await AuthStorageService().clearAuthData();
+  }
 
-  runApp(const App());
+  runApp(const App(demoMode: demoMode));
 }
 
 //TODO: Criar uma estrutura de pastas para o backend.
@@ -23,9 +24,6 @@ void main() async {
 //TODO: Autenticação.
 //TODO: Configurar arquivos para ambientes (.env)
 
-
 //Fluxo visual da requisicao: Flutter UI → Controller (Provider) → Repository → Dio → Backend Java
-
-
 
 //TODO: Validar se o usuário está logado ao tentar pagar.

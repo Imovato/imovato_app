@@ -1,10 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:imovato_app/shared/models/location_option.dart';
-import 'dart:convert';
-import 'dart:convert' show utf8;
 
 import '../../search/domain/property.dart';
+import '../data/mock_properties.dart';
 
 /// Classe para armazenar os filtros de busca
 class SearchFilters {
@@ -114,10 +115,14 @@ class _Undefined {
 
 class ExploreController extends ChangeNotifier {
   ExploreController(
-      {double initialValor = 500, String initialCidade = 'Alegrete, RS'})
+      {double initialValor = 500,
+      String initialCidade = 'Porto Alegre, RS',
+      this.useMockData = false})
       : _valorSelecionado = initialValor,
         _cidade = initialCidade,
         _filters = SearchFilters();
+
+  final bool useMockData;
 
   // existing state
   double _valorSelecionado;
@@ -225,6 +230,18 @@ class ExploreController extends ChangeNotifier {
     notifyListeners();
 
     try {
+      if (useMockData) {
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+        _results = demoProperties
+            .where((property) =>
+                _filters.city == null || property.city == _filters.city)
+            .map((property) =>
+                _favoritesById[property.id]?.copyWith(favorito: true) ??
+                property)
+            .toList(growable: false);
+        return;
+      }
+
       // Construir URL com query parameters baseado nos filtros
       final queryParams = _filters.toQueryParameters();
       print('city: ${_filters.city}');

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../features/explore/application/explore_controller.dart';
+
 import '../features/auth/presentation/controllers/login_controller.dart';
 import '../features/auth/presentation/controllers/register_controller.dart';
 import '../features/checkout/application/reservations_controller.dart';
+import '../features/explore/application/explore_controller.dart';
 import 'router.dart';
 import 'theme/theme.dart';
 
 class App extends StatefulWidget {
-  const App({super.key});
+  const App({super.key, this.demoMode = false});
+
+  final bool demoMode;
 
   @override
   State<App> createState() => _AppState();
@@ -21,8 +24,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loginController = LoginController();
-    // NÃO restaurar sessão - usuário deve fazer login toda vez
+    _loginController = LoginController(demoMode: widget.demoMode);
   }
 
   @override
@@ -34,8 +36,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Quando app for pausado/fechado, limpar a sessão
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
+    if (!widget.demoMode &&
+        (state == AppLifecycleState.paused ||
+            state == AppLifecycleState.detached)) {
       _loginController.logout();
       print('🔒 App fechado - sessão limpa');
     }
@@ -46,7 +49,10 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<ExploreController>(
-          create: (_) => ExploreController(initialValor: 1000),
+          create: (_) => ExploreController(
+            initialValor: 1000,
+            useMockData: widget.demoMode,
+          ),
         ),
         ChangeNotifierProvider<LoginController>.value(
           value: _loginController,
@@ -55,7 +61,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           create: (_) => RegisterController(),
         ),
         ChangeNotifierProvider<ReservationsController>(
-          create: (_) => ReservationsController(),
+          create: (_) => ReservationsController(demoMode: widget.demoMode),
         ),
       ],
       child: MaterialApp(
@@ -65,7 +71,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 // darkTheme: buildDarkTheme(),
 
         themeMode: ThemeMode.system,
-        initialRoute: Routes.welcome,
+        initialRoute: widget.demoMode ? Routes.buscar : Routes.welcome,
         routes: appRoutes,
         onGenerateRoute: onGenerateRoute,
       ),

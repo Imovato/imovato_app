@@ -1,10 +1,23 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:jwt_decoder/jwt_decoder.dart';
+
 import '../../../../shared/services/auth_storage_service.dart';
 
 class LoginController extends ChangeNotifier {
+  LoginController({this.demoMode = false}) {
+    if (demoMode) {
+      isLoggedIn = true;
+      userEmail = 'demo@imovato.app';
+      userName = 'Marina Demo';
+      userId = 'demo-user';
+      authToken = 'demo-token';
+    }
+  }
+
+  final bool demoMode;
   bool loading = false;
   bool isLoggedIn = false;
   String? errorMessage;
@@ -26,7 +39,8 @@ class LoginController extends ChangeNotifier {
       };
 
       print('\n🔧 === COMANDO CURL LOGIN ===');
-      print("curl --location 'https://cadastral-imovato-35ca7e6548df.herokuapp.com/auth' \\");
+      print(
+          "curl --location 'https://cadastral-imovato-35ca7e6548df.herokuapp.com/auth' \\");
       print("--header 'Content-Type: application/json' \\");
       print("--data-raw '${jsonEncode(requestBody)}'");
       print('============================\n');
@@ -50,11 +64,13 @@ class LoginController extends ChangeNotifier {
         print('Keys disponíveis: ${data.keys.toList()}');
         print('\nValores dos campos:');
         data.forEach((key, value) {
-          if (key.toString().toLowerCase().contains('id') || key.toString().toLowerCase().contains('user')) {
+          if (key.toString().toLowerCase().contains('id') ||
+              key.toString().toLowerCase().contains('user')) {
             print('  ⭐ $key: $value (${value.runtimeType})');
           } else {
             final valueStr = value.toString();
-            print('  $key: ${valueStr.length > 50 ? valueStr.substring(0, 50) + "..." : valueStr}');
+            print(
+                '  $key: ${valueStr.length > 50 ? valueStr.substring(0, 50) + "..." : valueStr}');
           }
         });
         print('=====================================\n');
@@ -69,10 +85,12 @@ class LoginController extends ChangeNotifier {
         // Salvar token no storage
         await _authStorage.saveToken(authToken!);
 
-
         // Extrair dados do usuário
         userEmail = email;
-        userName = data['userName'] ?? data['name'] ?? data['username'] ?? email.split('@').first;
+        userName = data['userName'] ??
+            data['name'] ??
+            data['username'] ??
+            email.split('@').first;
 
         // Tentar extrair userId de TODAS as formas possíveis
         String? extractedUserId;
@@ -89,7 +107,9 @@ class LoginController extends ChangeNotifier {
           print('✅ _id encontrado no body: $extractedUserId');
         } else if (data['user'] != null && data['user'] is Map) {
           final userObj = data['user'] as Map;
-          extractedUserId = userObj['id']?.toString() ?? userObj['_id']?.toString() ?? userObj['userId']?.toString();
+          extractedUserId = userObj['id']?.toString() ??
+              userObj['_id']?.toString() ??
+              userObj['userId']?.toString();
           if (extractedUserId != null) {
             print('✅ ID encontrado dentro de user: $extractedUserId');
           }
@@ -117,26 +137,30 @@ class LoginController extends ChangeNotifier {
               final iatDate = DateTime.fromMillisecondsSinceEpoch(iat * 1000);
               print('   iat (emitido em): $iat → ${iatDate.toIso8601String()}');
               if (iat > now) {
-                print('   ⚠️⚠️⚠️ ALERTA: Token emitido no FUTURO! Diferença: ${iat - now}s');
+                print(
+                    '   ⚠️⚠️⚠️ ALERTA: Token emitido no FUTURO! Diferença: ${iat - now}s');
                 print('   ➡️ Isso causará erro 401 nas requisições!');
-                print('   🔧 Solução: Sincronizar relógio do dispositivo ou backend');
+                print(
+                    '   🔧 Solução: Sincronizar relógio do dispositivo ou backend');
               }
             }
             if (exp != null) {
               final expDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
               print('   exp (expira em): $exp → ${expDate.toIso8601String()}');
-              print('   Válido por: ${exp - now} segundos (${((exp - now) / 60).toStringAsFixed(1)} minutos)');
+              print(
+                  '   Válido por: ${exp - now} segundos (${((exp - now) / 60).toStringAsFixed(1)} minutos)');
             }
 
             // Tentar extrair de vários campos possíveis
             extractedUserId = decodedToken['sub']?.toString() ??
-                             decodedToken['userId']?.toString() ??
-                             decodedToken['id']?.toString() ??
-                             decodedToken['user_id']?.toString() ??
-                             decodedToken['uid']?.toString();
+                decodedToken['userId']?.toString() ??
+                decodedToken['id']?.toString() ??
+                decodedToken['user_id']?.toString() ??
+                decodedToken['uid']?.toString();
 
             if (extractedUserId != null && extractedUserId.isNotEmpty) {
-              print('✅ userId extraído do JWT (campo "sub" ou similar): $extractedUserId');
+              print(
+                  '✅ userId extraído do JWT (campo "sub" ou similar): $extractedUserId');
             } else {
               print('⚠️ Nenhum campo de ID encontrado no JWT');
             }
@@ -163,7 +187,8 @@ class LoginController extends ChangeNotifier {
         print('==========================\n');
 
         // Salvar dados do usuário incluindo o userId
-        await _authStorage.saveUserData(email: userEmail, name: userName, userId: userId);
+        await _authStorage.saveUserData(
+            email: userEmail, name: userName, userId: userId);
 
         isLoggedIn = true;
         notifyListeners();

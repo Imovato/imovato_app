@@ -80,12 +80,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
       print('🏡 Property ID: ${widget.property.id}');
       print('📅 Rental Months: $_rentalMonths');
 
-      // Criar reserva no backend
-      final bookingData = await _bookingService.createBooking(
-        accommodationId: widget.property.id,
-        guestIds: [userId],
-        rentalMonths: _rentalMonths,
-      );
+      final bookingData = loginCtrl.demoMode
+          ? {'id': 'DEMO-${DateTime.now().millisecondsSinceEpoch}'}
+          : await _bookingService.createBooking(
+              accommodationId: widget.property.id,
+              guestIds: [userId],
+              rentalMonths: _rentalMonths,
+            );
 
       print('\n✅ Resposta recebida do backend!');
       print('📦 Booking Data: $bookingData');
@@ -112,7 +113,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
           checkInDate: DateTime.now().add(const Duration(days: 7)),
           checkOutDate:
               DateTime.now().add(Duration(days: 7 + (_rentalMonths * 30))),
-          status: ReservationStatus.awaitingPayment,
+          status: loginCtrl.demoMode
+              ? ReservationStatus.reserved
+              : ReservationStatus.awaitingPayment,
           paymentMethod: _metodo,
           isColiving: _isColiving,
           maxOccupancy: widget.property.maxOccupancy,
